@@ -1,0 +1,17 @@
+<resources>
+    <string name="auth_screen_title">Sống lành mạnh hơn</string>
+    <string name="login">Đăng nhập</string>
+    <string name="signup">Đăng ký</string>
+    <string name="dont_have_account">"Chưa có tài khoản? "</string>
+    <string name="signup_now">Đăng ký ngay</string>
+    <string name="have_account">"Đã có tài khoản? "</string>
+    <string name="login_now">Đăng nhập ngay</string>
+    <string name="password">Mật khẩu</string>
+    <string name="repassword">Nhập lại mật khẩu</string>
+    <string name="username_login_opts">Username hoặc email</string>
+    <string name="forgot">Đã quên?</string>
+    <string name="username">Tên đăng nhập</string>
+    <string name="username_signup">Tên đăng nhập</string>
+    <string name="password_signup">Mật khẩu</string>
+
+</resources>

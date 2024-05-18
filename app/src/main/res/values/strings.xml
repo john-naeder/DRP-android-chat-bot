@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name" translatable="false">ChatApp</string>
+    <string name="app_logo" translatable="false">App Logo</string>
+    <string name="auth_screen_header" translatable="false">DRP</string>
+    <string name="auth_screen_title">Become Healthier</string>
+    <string name="login">Login</string>
+    <string name="signup">Sign up</string>
+    <string name="dont_have_account">"Don't have an account? "</string>
+    <string name="signup_now">Sign up now</string>
+    <string name="have_account">"Already have an account? "</string>
+    <string name="login_now">Login now</string>
+    <string name="vi" translatable="false">Tiếng Việt</string>
+    <string name="en" translatable="false">English</string>
+    <string name="password">Password</string>
+    <string name="repassword">Re-enter password</string>
+    <string name="username_login_opts">Username or email</string>
+    <string name="forgot">Forgot?</string>
+    <string name="username">Username</string>
+    <string name="username_signup">Username</string>
+    <string name="password_signup">Password</string>
+    <string name="email" translatable="false">Email</string>
+    <string name="auth_failed">Authentication failed</string>
+    <string name="another_account">Login into another account</string>
+    <string name="choose_profile">Choose your profile</string>
+
+</resources>
