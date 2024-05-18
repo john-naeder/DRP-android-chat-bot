@@ -11,8 +11,6 @@ import androidx.navigation.navigation
 import com.mdev.chatapp.R
 import com.mdev.chatapp.ui.home.SecretScreen
 import com.mdev.chatapp.ui.auth.AuthScreen
-import com.mdev.chatapp.ui.auth.LoginContent
-import com.mdev.chatapp.ui.auth.SignupContent
 
 @Composable
 fun NavGraph(
@@ -21,16 +19,14 @@ fun NavGraph(
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = startDestination) {
-        navigation(route = Route.AppStart.route, startDestination = Route.onBoarding.route){
-            composable(Route.onBoarding.route) {
+        navigation(route = Route.AppStart.route, startDestination = Route.OnBoarding.route){
+            composable(Route.OnBoarding.route) {
                 // TODO
             }
         }
 
-        navigation(route = Route.AuthScreen.route, startDestination = Route.UserSignedin.route) {
+        navigation(route = Route.AuthScreen.route, startDestination = Route.UserSignedIn.route) {
             composable(Route.Login.route) {
-//                LogNavigation("Login")
-//                val viewModel = it.sharedViewModel<AuthViewModel>(navController = navController)
                 AuthScreen(
                     R.string.login,
                     content = Route.Login.route,
@@ -38,8 +34,6 @@ fun NavGraph(
                 )
             }
             composable(Route.Signup.route) {
-//                LogNavigation("Signup")
-//                val viewModel = it.sharedViewModel<AuthViewModel>(navController = navController)
                 AuthScreen(
                     R.string.signup,
                     content = Route.Signup.route,
@@ -47,17 +41,15 @@ fun NavGraph(
                 )
             }
             composable(Route.ForgotPassword.route) {
-//                val viewModel = it.sharedViewModel<AuthViewModel>(navController = navController)
                 // TODO
             }
             composable(Route.SignList.route) {
-//                val viewModel = it.sharedViewModel<AuthViewModel>(navController = navController)
                 // TODO
             }
-            composable(Route.UserSignedin.route){
+            composable(Route.UserSignedIn.route){
                 AuthScreen(
                     title = R.string.choose_profile,
-                    content = Route.UserSignedin.route,
+                    content = Route.UserSignedIn.route,
                     navController = navController
                 )
             }

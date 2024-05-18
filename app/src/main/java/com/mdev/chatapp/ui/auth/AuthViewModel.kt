@@ -9,6 +9,7 @@ import com.mdev.chatapp.data.local.user.UserSignedInModel
 import com.mdev.chatapp.data.remote.auth.ApiResult
 import com.mdev.chatapp.domain.repository.AuthRepository
 import com.mdev.chatapp.domain.repository.UserSignedInRepository
+import com.mdev.chatapp.domain.user_entry.AuthenticateUseCase
 import com.mdev.chatapp.ui.auth.event_state.AuthState
 import com.mdev.chatapp.ui.auth.event_state.AuthUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
+    private val authenticateUseCase: AuthenticateUseCase,
     private val authRepository: AuthRepository,
     private val userSignedInRepository: UserSignedInRepository
 ): ViewModel(){
@@ -92,7 +94,7 @@ class AuthViewModel @Inject constructor(
     private fun authenticate(){
         viewModelScope.launch {
             state = state.copy(isLoading = true)
-            val result = authRepository.authenticate()
+            val result = authenticateUseCase()
             resultChannel.send(result)
             state = state.copy(isLoading = false)
         }

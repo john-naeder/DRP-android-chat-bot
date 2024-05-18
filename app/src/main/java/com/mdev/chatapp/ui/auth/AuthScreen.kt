@@ -113,13 +113,13 @@ fun AuthScreen(
                     onSwitchToLoginClick = { navController.navigate(Route.Login.route) },
                     onSignUp = { viewModel.onEvent(AuthUiEvent.SignUp) }
                 )
-                Route.UserSignedin.route -> UserSignedInContent(
+                Route.UserSignedIn.route -> UserSignedInContent(
                     users = users,
                     onChoose = { username ->
                         viewModel.onEvent(AuthUiEvent.SignedInUsernameChanged(username))
                     },
-                    onSignClick = { viewModel.onEvent(AuthUiEvent.SignIn) },
-                    onSignUpClick = { navController.navigate(Route.Signup.route) }
+                    onSwitchToSignInClick = { navController.navigate(Route.Login.route) },
+                    onSwitchToSignUpClick = { navController.navigate(Route.Signup.route) }
                 )
             }
         }
@@ -321,8 +321,8 @@ private fun BottomSection(
 private fun UserSignedInContent(
     users: List<UserSignedInModel>,
     onChoose: (String) -> Unit,
-    onSignClick: () -> Unit,
-    onSignUpClick: () -> Unit
+    onSwitchToSignInClick: () -> Unit,
+    onSwitchToSignUpClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -340,8 +340,8 @@ private fun UserSignedInContent(
             }
             Spacer(modifier = Modifier.height(30.dp))
             UserSignedInBottom(
-                onSignInAnother = { onSignClick() },
-                onSignUp = { onSignUpClick() }
+                onSignInAnother = { onSwitchToSignInClick() },
+                onSignUp = { onSwitchToSignUpClick() }
             )
         }
         AnimatedVisibility(visible = users.isEmpty()) {
@@ -352,25 +352,23 @@ private fun UserSignedInContent(
             ) {
                 Text(
                     text = "No user signed in",
-                    style = MaterialTheme.typography.labelMedium.copy(color = Color(0xFF64748B))
+                    style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 UserSignedInBottomButton(
                     content = R.string.login_now,
-                    onClick = { onSignClick() },
-                    color = Color(0xFF0000FF)
+                    onClick = { onSwitchToSignInClick() },
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 Text(
                     text = "Or",
-                    style = MaterialTheme.typography.labelMedium.copy(color = Color(0xFF64748B))
+                    style = MaterialTheme.typography.titleMedium
                 )
 
                 Spacer(modifier = Modifier.height(30.dp))
                 UserSignedInBottomButton(
                     content = R.string.signup_now,
-                    onClick = { onSignUpClick() },
-                    color = Color(0xFF0000FF)
+                    onClick = { onSwitchToSignUpClick() },
                 )
             }
         }
@@ -392,13 +390,12 @@ fun UserSignedInBottom(
         Spacer(modifier = Modifier.height(30.dp))
         UserSignedInBottomButton(
             onClick = { onSignInAnother() },
-            content = R.string.another_account,
-            color = Color(0xFF64748B))
+            content = R.string.another_account
+        )
         Spacer(modifier = Modifier.height(30.dp))
         UserSignedInBottomButton(
             onClick = { onSignUp() },
             content = R.string.signup_now,
-            color = Color(0xFF0000FF)
         )
     }
 }
@@ -432,7 +429,6 @@ fun AuthButton(
 fun UserSignedInBottomButton(
     content: Int,
     onClick: () -> Unit,
-    color: Color
 ) {
     OutlinedButton(
         onClick = { onClick() },
@@ -442,7 +438,6 @@ fun UserSignedInBottomButton(
     ) {
         Text(
             text = stringResource(id = content),
-            color = color,
             fontSize = 16.sp,
             fontWeight = FontWeight.Normal
         )

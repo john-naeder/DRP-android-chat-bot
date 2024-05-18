@@ -1,5 +1,6 @@
 package com.mdev.chatapp.data.remote.auth
 
+import androidx.compose.ui.input.key.Key.Companion.J
 import com.mdev.chatapp.data.remote.auth.model.SignInRequest
 import com.mdev.chatapp.data.remote.auth.model.SignUpRequest
 import com.mdev.chatapp.domain.repository.AuthRepository
@@ -12,6 +13,9 @@ class AuthRepositoryImpl(
     private val dataStore: DataStoreHelper
 ) : AuthRepository {
 
+    private val JWT = "jwt_"
+    private val JWT_REFRESH = "jwt_refresh_"
+    private val CURRENT_USER = "current_user"
     override suspend fun signUp(
         username: String,
         password: String,
@@ -36,9 +40,12 @@ class AuthRepositoryImpl(
     override suspend fun signIn(username: String, password: String): ApiResult<Unit> {
         return try {
             val response = authApi.signIn(request = SignInRequest(username, password))
-            dataStore.setString("jwt$username", response.tokens.accessToken)
-            dataStore.setString("jwt_refresh$username", response.tokens.refreshToken)
-            dataStore.setString("current_user", username)
+
+            dataStore.setString(JWT + username, response.tokens.accessToken)
+            dataStore.setString(JWT_REFRESH + username, response.tokens.refreshToken)
+
+            dataStore.setString(CURRENT_USER, username)
+
             ApiResult.Authorized()
         } catch(e: HttpException) {
             when(e.code()) {
@@ -59,9 +66,14 @@ class AuthRepositoryImpl(
 
     override suspend fun authenticate(): ApiResult<Unit> {
         return try {
-            val token = dataStore.getString("jwt"+ dataStore.getString("current_user")) ?: return ApiResult.Unauthorized()
+            if(dataStore.getString(CURRENT_USER) == null)
+                return ApiResult.Unauthorized()
+
+            val token = dataStore.getString(JWT + dataStore.getString(CURRENT_USER)!!)
+                ?: return ApiResult.Unauthorized()
+
             if(Jwt.isJWTExpired(token)) {
-                refreshToken(dataStore.getString("current_user")!!)
+                return refreshToken(dataStore.getString(CURRENT_USER)!!)
             }
             authApi.authenticate("Bearer $token")
             ApiResult.Authorized()
@@ -78,9 +90,10 @@ class AuthRepositoryImpl(
 
     override suspend fun authenticateSignedUser(username: String): ApiResult<Unit> {
         return try {
-            val token = dataStore.getString("jwt$username") ?: return ApiResult.Unauthorized()
+            val token = dataStore.getString("jwt_$username") ?: return ApiResult.Unauthorized()
+
             if(Jwt.isJWTExpired(token)) {
-                refreshToken(username)
+                return refreshToken(dataStore.getString("jwt_refresh_$username")!!)
             }
             authApi.authenticate("Bearer $token")
             ApiResult.Authorized()
@@ -96,7 +109,7 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun unauthenticated(username: String): ApiResult<Unit> {
-        dataStore.remove("jwt$username")
+        dataStore.remove(JWT + username)
         return ApiResult.Unauthorized()
     }
 
@@ -106,13 +119,14 @@ class AuthRepositoryImpl(
 
     override suspend fun refreshToken(username: String): ApiResult<Unit> {
         return try {
-            val token = dataStore.getString("jwt_refresh$username") ?: return ApiResult.Error("No refresh token")
+            val token = dataStore.getString(JWT_REFRESH +  username)
+                ?: return ApiResult.Unauthorized()
             val response = authApi.refreshToken("Bearer $token")
-            dataStore.setString("jwt"+ dataStore.getString("current_user"), response.accessToken)
-            ApiResult.Authorized()
+            dataStore.setString(JWT + username, response.accessToken)
+            authenticate()
         } catch (e: HttpException) {
             when (e.code()) {
-                400 -> ApiResult.Error("Invalid token or token expired")
+                400 -> ApiResult.Error("Invalid token")
                 401 -> ApiResult.Error("Null token")
                 else -> ApiResult.Error("Authentication failed: " + e.message())
             }
@@ -120,5 +134,4 @@ class AuthRepositoryImpl(
             ApiResult.UnknownError("Auth error: " + e.message + e.stackTraceToString())
         }
     }
-
 }
