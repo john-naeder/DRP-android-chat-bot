@@ -125,8 +125,16 @@ fun AuthScreen(
                         viewModel.onEvent(AuthUiEvent.SignedInUsernameChanged(username))
                         viewModel.onEvent(AuthUiEvent.UnAuthenticatedUserChanged(username))
                     },
-                    onSwitchToSignInClick = { navController.navigate(Route.Login.route) },
-                    onSwitchToSignUpClick = { navController.navigate(Route.Signup.route) }
+                    onSwitchToSignInClick = { navController.navigate(Route.Login.route){
+                        popUpTo(Route.UserSignedIn.route){
+                            inclusive = false
+                        }
+                    } },
+                    onSwitchToSignUpClick = { navController.navigate(Route.Signup.route){
+                        popUpTo(Route.UserSignedIn.route){
+                            inclusive = false
+                        }
+                    } }
                 )
             }
         }

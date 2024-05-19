@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.*
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import com.mdev.chatapp.ui.main.dataStore
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 @Suppress("unused")
@@ -74,5 +75,9 @@ class DataStoreHelper @Inject constructor (
     }
     suspend fun remove(key: String) {
         datastore.edit { it.remove(stringPreferencesKey(key)) }
+    }
+
+    fun readFromDataStore(s: String): Flow<String> {
+        return datastore.data.map { it[stringPreferencesKey(s)] ?: "" }
     }
 }

@@ -91,6 +91,7 @@ class AuthRepositoryImpl(
             if(Jwt.isJWTExpired(token)) {
                 return refreshToken(username)
             }
+            dataStore.setString(CURRENT_USER, username)
             dataStore.setString(JWT + CURRENT_USER, token)
             AuthResult.Authorized()
         } catch (e: HttpException) {
