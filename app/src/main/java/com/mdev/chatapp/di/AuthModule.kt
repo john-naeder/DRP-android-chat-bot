@@ -1,12 +1,15 @@
 package com.mdev.chatapp.di
 
 import android.app.Application
+import androidx.room.Database
 import androidx.room.Room
 import com.mdev.chatapp.data.local.user.UserSignedInDatabase
 import com.mdev.chatapp.data.local.user.UserSignedInRepositoryImpl
 import com.mdev.chatapp.data.remote.auth.AuthApi
 import com.mdev.chatapp.domain.repository.AuthRepository
 import com.mdev.chatapp.data.remote.auth.AuthRepositoryImpl
+import com.mdev.chatapp.data.remote.home.HomeRepositoryImpl
+import com.mdev.chatapp.domain.repository.HomeRepository
 import com.mdev.chatapp.domain.repository.UserSignedInRepository
 import com.mdev.chatapp.util.DataStoreHelper
 import dagger.Module
@@ -40,6 +43,12 @@ object AuthModule {
 
     @Singleton
     @Provides
+    fun provideHomeRepository(dataStore: DataStoreHelper): HomeRepository {
+        return HomeRepositoryImpl(dataStore)
+    }
+
+    @Singleton
+    @Provides
     fun provideDataStoreHelper(application: Application): DataStoreHelper {
         return DataStoreHelper(application)
     }
@@ -47,7 +56,7 @@ object AuthModule {
     @Singleton
     @Provides
     fun provideUserDatabase(application: Application): UserSignedInDatabase {
-        return Room.databaseBuilder(application, UserSignedInDatabase::class.java, "user_database")
+        return Room.databaseBuilder(application, UserSignedInDatabase::class.java, UserSignedInDatabase.DATABASE_NAME)
             .fallbackToDestructiveMigration()
             .build()
     }

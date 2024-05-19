@@ -31,12 +31,12 @@ fun AuthTextField(
         modifier = modifier,
         label = { Text(text = stringResource(label), style = MaterialTheme.typography.labelMedium) },
         value = when(label){
-            R.string.username_login_opts -> state.signInUsername
-            R.string.password -> state.signInPassword
-            R.string.username_signup -> state.signUpUsername
-            R.string.password_signup -> state.signUpPassword
-            R.string.repassword -> state.signUpRePassword
-            else -> state.signUpEmail
+            R.string.username_login -> state.username
+            R.string.password -> state.password
+            R.string.username_signup -> state.username
+            R.string.password_signup -> state.password
+            R.string.repassword -> state.rePassword
+            else -> state.email
         },
         colors = TextFieldDefaults.colors(
             focusedPlaceholderColor = MaterialTheme.colorScheme.focusedTextFieldText,
@@ -46,12 +46,12 @@ fun AuthTextField(
         ),
         onValueChange = {
             when(label){
-                R.string.username_signup-> viewModel.onEvent(AuthUiEvent.SignUpUsernameChanged(it))
-                R.string.password_signup -> viewModel.onEvent(AuthUiEvent.SignUpPasswordChanged(it))
-                R.string.repassword -> viewModel.onEvent(AuthUiEvent.SignUpRePasswordChanged(it))
-                R.string.username_login_opts -> viewModel.onEvent(AuthUiEvent.SignInUsernameChanged(it))
-                R.string.password -> viewModel.onEvent(AuthUiEvent.SignInPasswordChanged(it))
-                else -> viewModel.onEvent(AuthUiEvent.SignUpEmailChanged(it))
+                R.string.username_signup-> viewModel.onEvent(AuthUiEvent.UsernameChanged(it))
+                R.string.password_signup -> viewModel.onEvent(AuthUiEvent.PasswordChanged(it))
+                R.string.repassword -> viewModel.onEvent(AuthUiEvent.RePasswordChanged(it))
+                R.string.username_login -> viewModel.onEvent(AuthUiEvent.UsernameChanged(it))
+                R.string.password -> viewModel.onEvent(AuthUiEvent.PasswordChanged(it))
+                else -> viewModel.onEvent(AuthUiEvent.EmailChanged(it))
             }
         },
         trailingIcon = {

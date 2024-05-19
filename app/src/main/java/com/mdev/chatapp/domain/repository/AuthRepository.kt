@@ -1,14 +1,13 @@
 package com.mdev.chatapp.domain.repository
 
-import com.mdev.chatapp.data.remote.auth.ApiResult
+import com.mdev.chatapp.ui.auth.event_state.AuthResult
 
 interface AuthRepository {
-    suspend fun signUp(username: String, password: String, email: String): ApiResult<Unit>
-    suspend fun signIn(username: String, password: String): ApiResult<Unit>
-    suspend fun logout(): ApiResult<Unit>
-    suspend fun authenticate(): ApiResult<Unit>
-    suspend fun refreshToken(username: String): ApiResult<Unit>
-    suspend fun unauthenticated(username: String): ApiResult<Unit>
+    suspend fun signUp(username: String, password: String, email: String): AuthResult<Unit>
+    suspend fun signIn(username: String, password: String): AuthResult<Unit>
+    suspend fun authenticate(): AuthResult<Unit>
+    suspend fun refreshToken(username: String): AuthResult<Unit>
     suspend fun testConnection(): Boolean
-    suspend fun authenticateSignedUser(username: String): ApiResult<Unit>
+    suspend fun authenticateSignedUser(username: String): AuthResult<Unit>
+    suspend fun unAuthenticateUser(username: String): AuthResult<Unit>
 }

@@ -28,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,14 +39,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mdev.chatapp.R
 import com.mdev.chatapp.data.local.user.UserSignedInModel
-import com.mdev.chatapp.data.remote.auth.ApiResult
+import com.mdev.chatapp.ui.auth.event_state.AuthResult
 import com.mdev.chatapp.ui.auth.common.AuthTextField
 import com.mdev.chatapp.ui.auth.common.SocialMediaLogin
 import com.mdev.chatapp.ui.auth.event_state.AuthUiEvent
@@ -60,29 +63,28 @@ fun AuthScreen(
     content: String,
     viewModel: AuthViewModel = hiltViewModel(),
     navController: NavController,
-    users: List<UserSignedInModel> = emptyList()
 ) {
+    val users = viewModel.users.collectAsState(initial = emptyList())
+
     val context = LocalContext.current
     LaunchedEffect(viewModel, context) {
-        viewModel.result.collect {
+        viewModel.uiEvent.collect {
             when (it) {
-                is ApiResult.Authorized -> {
+                is AuthResult.Authorized -> {
                     navController.navigate(Route.HomeNavigator.route) {
                         popUpTo(Route.AuthScreen.route) {
                             inclusive = true
                         }
                     }
                 }
-
-                is ApiResult.Unauthorized -> {
+                is AuthResult.Unauthorized -> {
                     Toast.makeText(
                         context,
-                        "You're not login yet!",
+                        it.message,
                         Toast.LENGTH_LONG
                     ).show()
                 }
-
-                is ApiResult.Error -> {
+                is AuthResult.Error -> {
                     Toast.makeText(
                         context,
                         it.message,
@@ -90,7 +92,7 @@ fun AuthScreen(
                     ).show()
                 }
 
-                is ApiResult.UnknownError -> {
+                is AuthResult.UnknownError -> {
                     Toast.makeText(
                         context,
                         it.message,
@@ -114,9 +116,14 @@ fun AuthScreen(
                     onSignUp = { viewModel.onEvent(AuthUiEvent.SignUp) }
                 )
                 Route.UserSignedIn.route -> UserSignedInContent(
-                    users = users,
+                    users = users.value,
                     onChoose = { username ->
                         viewModel.onEvent(AuthUiEvent.SignedInUsernameChanged(username))
+                        viewModel.onEvent(AuthUiEvent.SignedIn)
+                    },
+                    onDeleteUser = { username ->
+                        viewModel.onEvent(AuthUiEvent.SignedInUsernameChanged(username))
+                        viewModel.onEvent(AuthUiEvent.UnAuthenticatedUserChanged(username))
                     },
                     onSwitchToSignInClick = { navController.navigate(Route.Login.route) },
                     onSwitchToSignUpClick = { navController.navigate(Route.Signup.route) }
@@ -231,7 +238,7 @@ fun LoginContent(
 @Composable
 private fun InputLoginSection(loginClick: () -> Unit) {
     AuthTextField(
-        label =  R.string.username_login_opts,
+        label =  R.string.username_login,
         trailing = "",
         modifier = Modifier.fillMaxWidth()
     )
@@ -316,33 +323,63 @@ private fun BottomSection(
     }
 }
 
+@Composable
+@Preview (showBackground = true)
+private fun AuthScreenPreview() {
+    UserSignedInContent(
+        users = listOf(
+            UserSignedInModel("user1"),
+            UserSignedInModel("user2"),
+            UserSignedInModel("user3"),
+        ),
+        onChoose = {},
+        onDeleteUser = {},
+        onSwitchToSignInClick = {},
+        onSwitchToSignUpClick = {}
+    )
+}
 
 @Composable
 private fun UserSignedInContent(
     users: List<UserSignedInModel>,
     onChoose: (String) -> Unit,
+    onDeleteUser: (String) -> Unit,
     onSwitchToSignInClick: () -> Unit,
     onSwitchToSignUpClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
-            .fillMaxSize()
             .padding(horizontal = 30.dp)
     ) {
         AnimatedVisibility(visible = users.isNotEmpty()) {
-            LazyColumn {
-                items(users.size) {
-                    UserSignedInItem(
-                        onClick = { onChoose(users[it].username) },
-                        content = users[it].username
-                    )
+            Column(
+                verticalArrangement = Arrangement.Bottom
+            ){
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(
+                            top = 8.dp,
+                            end = 8.dp,
+                            start = 8.dp
+                        ),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(users.take(3).size) {
+                        UserSignedInItem(
+                            onClick = { onChoose(users[it].username) },
+                            onDelete = { onDeleteUser(users[it].username) },
+                            content = users[it].username
+                        )
+                    }
                 }
+
+                UserSignedInBottom(
+                    modifier = Modifier
+                        .padding(bottom = 30.dp),
+                    onSignInAnother = { onSwitchToSignInClick() },
+                    onSignUp = { onSwitchToSignUpClick() }
+                )
             }
-            Spacer(modifier = Modifier.height(30.dp))
-            UserSignedInBottom(
-                onSignInAnother = { onSwitchToSignInClick() },
-                onSignUp = { onSwitchToSignUpClick() }
-            )
         }
         AnimatedVisibility(visible = users.isEmpty()) {
             Column(
@@ -378,25 +415,41 @@ private fun UserSignedInContent(
 
 @Composable
 fun UserSignedInBottom(
+    modifier: Modifier,
     onSignInAnother: () -> Unit,
     onSignUp: () -> Unit
 ){
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = modifier
             .padding(horizontal = 30.dp)
-            .padding(top = 30.dp)
+            .padding(top = 20.dp)
     ) {
-        Spacer(modifier = Modifier.height(30.dp))
-        UserSignedInBottomButton(
-            onClick = { onSignInAnother() },
-            content = R.string.another_account
-        )
-        Spacer(modifier = Modifier.height(30.dp))
-        UserSignedInBottomButton(
-            onClick = { onSignUp() },
-            content = R.string.signup_now,
-        )
+        Box(
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Or",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                UserSignedInBottomButton(
+                    onClick = { onSignInAnother() },
+                    content = R.string.another_account
+                )
+                Text(
+                    text = "Or",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                UserSignedInBottomButton(
+                    onClick = { onSignUp() },
+                    content = R.string.signup_now,
+                )
+            }
+        }
     }
 }
 
@@ -448,22 +501,46 @@ fun UserSignedInBottomButton(
 @Composable
 fun UserSignedInItem(
     onClick: () -> Unit,
+    onDelete: () -> Unit,
     content: String
 ){
-    Button(
-        onClick = onClick,
+    Row (
         modifier = Modifier
             .fillMaxWidth()
-            .height(40.dp),
-        shape = Shapes.medium,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSystemInDarkTheme()) BlueGray else Color.Black,
-            contentColor = Color.White
-        ),
     ) {
-        Text(
-            text = content,
-            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
-        )
+        Button(
+            onClick = onClick,
+            modifier = Modifier
+                .fillMaxWidth(0.65f)
+                .height(40.dp),
+            shape = Shapes.medium,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isSystemInDarkTheme()) BlueGray else Color.Black,
+                contentColor = Color.White
+            ),
+        ) {
+            Text(
+                text = content,
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
+            )
+        }
+        Spacer(modifier = Modifier.fillMaxWidth(0.05f))
+        Button(
+            onClick = { onDelete() },
+            modifier = Modifier
+                .fillMaxWidth(1f)
+                .height(40.dp),
+            shape = Shapes.medium,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isSystemInDarkTheme()) BlueGray else Color.Black,
+                contentColor = Color.White
+            ),
+        ) {
+            Text(
+                text = "Delete",
+                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
+            )
+        }
     }
+
 }

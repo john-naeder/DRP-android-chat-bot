@@ -15,6 +15,9 @@ interface UserSignedInDao {
     @Delete
     suspend fun deleteUser(userSignedInModel: UserSignedInModel)
 
+    @Query("DELETE FROM userSignedInModel WHERE username = :username")
+    suspend fun deleteUserById(username: String)
+
     @Query("SELECT * FROM userSignedInModel")
     fun getAllUsers(): Flow<List<UserSignedInModel>>
 

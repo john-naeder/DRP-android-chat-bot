@@ -9,7 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.mdev.chatapp.R
-import com.mdev.chatapp.ui.home.SecretScreen
+import com.mdev.chatapp.ui.home.HomeScreen
 import com.mdev.chatapp.ui.auth.AuthScreen
 
 @Composable
@@ -55,11 +55,10 @@ fun NavGraph(
             }
         }
 
-        navigation(route = Route.HomeNavigator.route, startDestination = Route.SecretScreen.route) {
+        navigation(route = Route.HomeNavigator.route, startDestination = Route.HomeScreen.route) {
             composable(Route.HomeScreen.route) {
-                // TODO
+                HomeScreen(navController = navController)
             }
-
             composable(
                 Route.ChatScreen.route,
                 arguments = listOf(
@@ -72,13 +71,8 @@ fun NavGraph(
             composable(Route.ProfileScreen.route) {
                 // TODO
             }
-
             composable(Route.SettingsScreen.route) {
                 // TODO
-            }
-            composable(Route.SecretScreen.route) {
-                LogNavigation(destination = "SecretScreen")
-                SecretScreen() // Test screen
             }
         }
     }

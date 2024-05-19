@@ -12,7 +12,6 @@ sealed class Route(
     data object SignList : Route("sign_list_screen")
     data object UserSignedIn : Route("user_signed_in_screen")
     data object HomeNavigator : Route("home_navigator")
-    data object SecretScreen : Route("secret_screen")
     data object HomeScreen : Route("home_screen")
     data object ChatScreen : Route("chat_screen")
     data object ProfileScreen : Route("profile_screen")
