@@ -75,6 +75,7 @@ class AuthViewModel @Inject constructor(
                 state.password,
                 state.email
             )
+
             userSignedInRepository.insertUser(UserSignedInModel(state.username))
             uiEventChannel.send(result)
             state = state.copy(isLoading = false)
@@ -87,7 +88,14 @@ class AuthViewModel @Inject constructor(
                 state.username,
                 state.password
             )
-            userSignedInRepository.insertUser(UserSignedInModel(state.username))
+            when(result) {
+                is AuthResult.Authorized -> {
+                    userSignedInRepository.insertUser(UserSignedInModel(state.username))
+                }
+                else -> {
+                    // do nothing
+                }
+            }
             uiEventChannel.send(result)
             state = state.copy(isLoading = false)
         }

@@ -22,5 +22,6 @@
     <string name="auth_failed">Authentication failed</string>
     <string name="another_account">Login into another account</string>
     <string name="choose_profile">Choose your profile</string>
+    <string name="no_account">"No user are signed in yet! "</string>
 
 </resources>

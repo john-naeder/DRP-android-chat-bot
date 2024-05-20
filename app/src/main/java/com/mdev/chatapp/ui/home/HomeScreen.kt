@@ -30,7 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.mdev.chatapp.R
 import com.mdev.chatapp.ui.auth.AuthViewModel
+import com.mdev.chatapp.ui.home.common.Lottie
 import com.mdev.chatapp.ui.navgraph.Route
 
 @Composable
@@ -62,6 +64,7 @@ fun HomeScreen(
             }
         )
     }
+    Lottie(resource = R.raw.loading)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

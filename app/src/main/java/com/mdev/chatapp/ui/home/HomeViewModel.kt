@@ -3,13 +3,9 @@ package com.mdev.chatapp.ui.home
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mdev.chatapp.domain.repository.AuthRepository
 import com.mdev.chatapp.domain.repository.HomeRepository
-import com.mdev.chatapp.domain.repository.UserSignedInRepository
-import com.mdev.chatapp.ui.auth.event_state.AuthResult
 import com.mdev.chatapp.ui.auth.event_state.AuthState
 import com.mdev.chatapp.util.DataStoreHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val homeRepository: HomeRepository,
-    private val dataStoreHelper: DataStoreHelper
+    dataStoreHelper: DataStoreHelper
 ): ViewModel(){
 
     private var state by mutableStateOf(AuthState())
