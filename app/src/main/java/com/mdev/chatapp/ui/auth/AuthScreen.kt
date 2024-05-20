@@ -3,6 +3,10 @@ package com.mdev.chatapp.ui.auth
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -108,11 +112,19 @@ fun AuthScreen(
             Spacer(modifier = Modifier.height(36.dp))
             when (content) {
                 Route.Login.route -> LoginContent(
-                    switchToSignUpClicked = { navController.navigate(Route.Signup.route) },
+                    switchToSignUpClicked = { navController.navigate(Route.Signup.route){
+                        popUpTo(Route.UserSignedIn.route){
+                            inclusive = false
+                        }
+                    } },
                     loginClick = { viewModel.onEvent(AuthUiEvent.SignIn) }
                 )
                 Route.Signup.route -> SignupContent(
-                    onSwitchToLoginClick = { navController.navigate(Route.Login.route) },
+                    onSwitchToLoginClick = { navController.navigate(Route.Login.route){
+                        popUpTo(Route.UserSignedIn.route){
+                            inclusive = false
+                        }
+                    } },
                     onSignUp = { viewModel.onEvent(AuthUiEvent.SignUp) }
                 )
                 Route.UserSignedIn.route -> UserSignedInContent(
@@ -359,7 +371,11 @@ private fun UserSignedInContent(
         modifier = Modifier
             .padding(horizontal = 30.dp)
     ) {
-        AnimatedVisibility(visible = users.isNotEmpty()) {
+        AnimatedVisibility(
+            visible = users.isNotEmpty(),
+            enter = fadeIn() + slideInHorizontally(),
+            exit = fadeOut() + slideOutHorizontally()
+        ) {
             Column(
                 verticalArrangement = Arrangement.Bottom
             ){
@@ -389,17 +405,21 @@ private fun UserSignedInContent(
                 )
             }
         }
-        AnimatedVisibility(visible = users.isEmpty()) {
+        AnimatedVisibility(
+            visible = users.isEmpty(),
+            enter = fadeIn() + slideInHorizontally(),
+            exit = fadeOut() + slideOutHorizontally()
+        ) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "No user signed in",
-                    style = MaterialTheme.typography.titleMedium
+                    text = stringResource(id = R.string.no_account),
+                    style = MaterialTheme.typography.titleLarge
                 )
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(70.dp))
                 UserSignedInBottomButton(
                     content = R.string.login_now,
                     onClick = { onSwitchToSignInClick() },
@@ -412,7 +432,7 @@ private fun UserSignedInContent(
 
                 Spacer(modifier = Modifier.height(30.dp))
                 UserSignedInBottomButton(
-                    content = R.string.signup_now,
+                    content = R.string.signup,
                     onClick = { onSwitchToSignUpClick() },
                 )
             }

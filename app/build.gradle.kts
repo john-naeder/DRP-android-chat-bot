@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.ir.util.toIrConst
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -79,49 +81,42 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-    // Version define
-    val accompanist = "0.31.4-beta"
-    val hilt = "2.51.1"
-    val retrofit = "2.9.0"
-    val nav = "2.7.5"
-    val lottie = "6.2.0"
-    val coil = "2.5.0"
-    val datastore = "1.0.0"
-    val room = "2.6.1"
-    val jwt = "4.4.0"
-
     // accompanist
-    implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanist")
+    implementation(libs.accompanist.systemuicontroller)
 
     // Dagger - Hilt
-    implementation("com.google.dagger:hilt-android:$hilt")
-    annotationProcessor("com.google.dagger:hilt-compiler:$hilt")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-    ksp("com.google.dagger:dagger-compiler:$hilt") // Dagger compiler
-    ksp("com.google.dagger:hilt-compiler:$hilt")
+    implementation(libs.hilt.android)
+    annotationProcessor(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+    ksp(libs.dagger.compiler) // Dagger compiler
+    ksp(libs.hilt.compiler)
 
     // Retrofit
-    implementation("com.squareup.retrofit2:retrofit:$retrofit")
-    implementation("com.squareup.retrofit2:converter-moshi:$retrofit")
+    implementation(libs.retrofit)
+    implementation(libs.converter.moshi)
 
     // Navigation
-    implementation("androidx.navigation:navigation-compose:$nav")
+    implementation(libs.androidx.navigation.compose)
 
     // Lottie
-    implementation("com.airbnb.android:lottie-compose:$lottie")
+    implementation(libs.lottie.compose)
 
     // Coil
-    implementation("io.coil-kt:coil:$coil")
-    implementation("io.coil-kt:coil-compose:$coil")
+    implementation(libs.coil)
+    implementation(libs.coil.compose)
 
     // Data store
-    implementation("androidx.datastore:datastore-preferences:$datastore")
+    implementation(libs.androidx.datastore.preferences)
 
-    implementation("androidx.room:room-runtime:$room")
-    implementation("androidx.room:room-ktx:$room")
-    annotationProcessor("androidx.room:room-compiler:$room")
-    ksp("androidx.room:room-compiler:$room")
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    annotationProcessor(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
 
     // Jwt - Decode
-    implementation("com.auth0:java-jwt:$jwt")
+    implementation(libs.java.jwt)
+
+    // Icon extends
+    implementation(libs.androidx.material.icons.extended)
+
 }
