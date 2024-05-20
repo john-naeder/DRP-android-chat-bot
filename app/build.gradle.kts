@@ -89,7 +89,7 @@ dependencies {
     val datastore = "1.0.0"
     val room = "2.6.1"
     val jwt = "4.4.0"
-
+    val compose = "1.0.5"
     // accompanist
     implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanist")
 
@@ -124,4 +124,6 @@ dependencies {
 
     // Jwt - Decode
     implementation("com.auth0:java-jwt:$jwt")
+    //
+    implementation("androidx.compose.material:material-icons-extended: $compose")
 }
