@@ -3,6 +3,7 @@ package com.mdev.chatapp.di
 import android.app.Application
 import androidx.room.Database
 import androidx.room.Room
+import com.mdev.chatapp.data.local.app_entry.LocalUserManagerImpl
 import com.mdev.chatapp.data.local.user.UserSignedInDatabase
 import com.mdev.chatapp.data.local.user.UserSignedInRepositoryImpl
 import com.mdev.chatapp.data.remote.auth.AuthApi
@@ -11,6 +12,10 @@ import com.mdev.chatapp.data.remote.auth.AuthRepositoryImpl
 import com.mdev.chatapp.data.remote.home.HomeRepositoryImpl
 import com.mdev.chatapp.domain.repository.HomeRepository
 import com.mdev.chatapp.domain.repository.UserSignedInRepository
+import com.mdev.chatapp.domain.user_entry.LocalUserManager
+import com.mdev.chatapp.domain.user_entry.app_entry.AppEntryUserCase
+import com.mdev.chatapp.domain.user_entry.app_entry.ReadAppEntry
+import com.mdev.chatapp.domain.user_entry.app_entry.SaveAppEntry
 import com.mdev.chatapp.util.DataStoreHelper
 import dagger.Module
 import dagger.Provides
@@ -66,4 +71,17 @@ object AuthModule {
     fun provideUserRepository(userSignedInDatabase: UserSignedInDatabase): UserSignedInRepository {
         return UserSignedInRepositoryImpl(userSignedInDatabase.dao)
     }
+
+    @Provides
+    @Singleton
+    fun provideLocalUserManager(
+        application: Application
+    ): LocalUserManager  = LocalUserManagerImpl(application)
+
+    @Provides
+    @Singleton
+    fun provideAppEntryUserCases(localUserManager : LocalUserManager) =  AppEntryUserCase(
+        readAppEntry = ReadAppEntry(localUserManager),
+        saveAppEntry = SaveAppEntry(localUserManager)
+    )
 }

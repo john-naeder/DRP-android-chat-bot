@@ -28,11 +28,13 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,14 +50,16 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.mdev.chatapp.R
 import com.mdev.chatapp.data.local.user.UserSignedInModel
-import com.mdev.chatapp.ui.auth.event_state.AuthResult
+import com.mdev.chatapp.ui.auth.event.AuthResult
 import com.mdev.chatapp.ui.auth.common.AuthTextField
 import com.mdev.chatapp.ui.auth.common.SocialMediaLogin
-import com.mdev.chatapp.ui.auth.event_state.AuthUiEvent
+import com.mdev.chatapp.ui.auth.event.AuthUiEvent
+import com.mdev.chatapp.ui.auth.viewmode.AuthViewModel
+import com.mdev.chatapp.ui.auth.viewmode.SignInViewModel
+import com.mdev.chatapp.ui.auth.viewmode.SignUpViewModel
 import com.mdev.chatapp.ui.navgraph.Route
 import com.mdev.chatapp.ui.theme.BlueGray
 import com.mdev.chatapp.ui.theme.Roboto
@@ -63,9 +67,7 @@ import com.mdev.chatapp.ui.theme.Shapes
 
 @Composable
 fun AuthScreen(
-    title: Int,
-    content: String,
-    viewModel: AuthViewModel = hiltViewModel(),
+    viewModel: AuthViewModel,
     navController: NavController,
 ) {
     val users = viewModel.users.collectAsState(initial = emptyList())
@@ -108,50 +110,163 @@ fun AuthScreen(
     }
     Surface {
         Column(modifier = Modifier.fillMaxSize()) {
-            TopSection(header = title)
+            TopSection(header = R.string.auth_screen_header)
             Spacer(modifier = Modifier.height(36.dp))
-            when (content) {
-                Route.Login.route -> LoginContent(
-                    switchToSignUpClicked = { navController.navigate(Route.Signup.route){
-                        popUpTo(Route.UserSignedIn.route){
+            UserSignedInContent(
+                users = users.value,
+                onChoose = { username ->
+                    viewModel.onEvent(AuthUiEvent.SignedInUsernameChanged(username))
+                    viewModel.onEvent(AuthUiEvent.SignedIn)
+                },
+                onDeleteUser = { username ->
+                    viewModel.onEvent(AuthUiEvent.SignedInUsernameChanged(username))
+                    viewModel.onEvent(AuthUiEvent.UnAuthenticatedUserChanged(username))
+                },
+                onSwitchToSignInClick = { navController.navigate(Route.SignIn.route){
+                    popUpTo(Route.Authenticate.route){
+                        inclusive = false
+                    }
+                } },
+                onSwitchToSignUpClick = {
+                    navController.navigate(Route.Signup.route) {
+                        popUpTo(Route.Authenticate.route) {
                             inclusive = false
                         }
-                    } },
-                    loginClick = { viewModel.onEvent(AuthUiEvent.SignIn) }
-                )
-                Route.Signup.route -> SignupContent(
-                    onSwitchToLoginClick = { navController.navigate(Route.Login.route){
-                        popUpTo(Route.UserSignedIn.route){
-                            inclusive = false
-                        }
-                    } },
-                    onSignUp = { viewModel.onEvent(AuthUiEvent.SignUp) }
-                )
-                Route.UserSignedIn.route -> UserSignedInContent(
-                    users = users.value,
-                    onChoose = { username ->
-                        viewModel.onEvent(AuthUiEvent.SignedInUsernameChanged(username))
-                        viewModel.onEvent(AuthUiEvent.SignedIn)
-                    },
-                    onDeleteUser = { username ->
-                        viewModel.onEvent(AuthUiEvent.SignedInUsernameChanged(username))
-                        viewModel.onEvent(AuthUiEvent.UnAuthenticatedUserChanged(username))
-                    },
-                    onSwitchToSignInClick = { navController.navigate(Route.Login.route){
-                        popUpTo(Route.UserSignedIn.route){
-                            inclusive = false
-                        }
-                    } },
-                    onSwitchToSignUpClick = { navController.navigate(Route.Signup.route){
-                        popUpTo(Route.UserSignedIn.route){
-                            inclusive = false
-                        }
-                    } }
-                )
-            }
+                    }
+                }
+            )
         }
     }
 }
+
+@Composable
+fun SignInScreen(
+    viewModel: SignInViewModel,
+    navController: NavController,
+) {
+    val context = LocalContext.current
+    remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel, context) {
+        viewModel.uiEvent.collect {
+            when (it) {
+                is AuthResult.Authorized -> {
+                    navController.navigate(Route.HomeNavigator.route) {
+                        popUpTo(Route.AuthScreen.route) {
+                            inclusive = true
+                        }
+                    }
+                }
+
+                is AuthResult.Unauthorized -> {
+                    Toast.makeText(
+                        context,
+                        it.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                is AuthResult.Error -> {
+                    Toast.makeText(
+                        context,
+                        it.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                is AuthResult.UnknownError -> {
+                    Toast.makeText(
+                        context,
+                        it.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+    Surface {
+        Column(modifier = Modifier.fillMaxSize()) {
+            TopSection(header = R.string.login)
+            Spacer(modifier = Modifier.height(36.dp))
+            SignInContent(
+                switchToSignUpClicked = {
+                    navController.navigate(Route.Signup.route) {
+                        popUpTo(Route.Authenticate.route) {
+                            inclusive = false
+                        }
+                    }
+                },
+                loginClick = { viewModel.onEvent(AuthUiEvent.SignIn) },
+                viewModel = viewModel
+            )
+        }
+    }
+}
+
+
+@Composable
+fun SignUpScreen(
+    viewModel: SignUpViewModel,
+    navController: NavController,
+){
+    val context = LocalContext.current
+    LaunchedEffect(viewModel, context) {
+        viewModel.uiEvent.collect {
+            when (it) {
+                is AuthResult.Authorized -> {
+                    navController.navigate(Route.HomeNavigator.route) {
+                        popUpTo(Route.AuthScreen.route) {
+                            inclusive = true
+                        }
+                    }
+                }
+
+                is AuthResult.Unauthorized -> {
+                    Toast.makeText(
+                        context,
+                        it.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                is AuthResult.Error -> {
+                    Toast.makeText(
+                        context,
+                        it.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+                is AuthResult.UnknownError -> {
+                    Toast.makeText(
+                        context,
+                        it.message,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }
+    }
+    Surface {
+        Column(modifier = Modifier.fillMaxSize()) {
+            TopSection(header = R.string.signup)
+            Spacer(modifier = Modifier.height(36.dp))
+            SignUpContent(
+                onSwitchToSignInClick = {
+                    navController.navigate(Route.SignIn.route) {
+                        popUpTo(Route.Authenticate.route) {
+                            inclusive = false
+                        }
+                    }
+                },
+                onSignUp = { viewModel.onEvent(AuthUiEvent.SignUp) },
+                viewModel = viewModel
+            )
+        }
+    }
+
+}
+
 @Composable
 private fun TopSection(@StringRes header: Int) {
     Box(
@@ -197,36 +312,43 @@ private fun TopSection(@StringRes header: Int) {
 }
 
 @Composable
-fun SignupContent(
-    onSwitchToLoginClick: () -> Unit,
-    onSignUp: () -> Unit
+fun SignUpContent(
+    onSwitchToSignInClick: () -> Unit,
+    onSignUp: () -> Unit,
+    viewModel: SignUpViewModel
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 30.dp)
     ) {
-        InputSignupSection(onSignUpClick = { onSignUp() })
+        InputSignupSection(
+            onSignUpClick = { onSignUp() },
+            viewModel = viewModel
+        )
         BottomSection(
             text = R.string.have_account,
             textBold = R.string.login_now,
-            onClick = { onSwitchToLoginClick() }
+            onClick = { onSwitchToSignInClick() }
         )
     }
 }
 
 @Composable
-private fun InputSignupSection(onSignUpClick: () -> Unit) {
-    AuthTextField(label = R.string.username_signup, trailing = "", modifier = Modifier.fillMaxWidth())
+private fun InputSignupSection(
+    onSignUpClick: () -> Unit,
+    viewModel: SignUpViewModel
+) {
+    AuthTextField(label = R.string.username_signup, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
     Spacer(modifier = Modifier.height(15.dp))
 
-    AuthTextField(label = R.string.email, trailing = "", modifier = Modifier.fillMaxWidth())
+    AuthTextField(label = R.string.email, viewModel = viewModel,  modifier = Modifier.fillMaxWidth())
     Spacer(modifier = Modifier.height(15.dp))
 
-    AuthTextField(label = R.string.password_signup, trailing = "", modifier = Modifier.fillMaxWidth())
+    AuthTextField(label = R.string.password_signup, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
     Spacer(modifier = Modifier.height(15.dp))
 
-    AuthTextField(label = R.string.repassword, trailing = "", modifier = Modifier.fillMaxWidth())
+    AuthTextField(label = R.string.repassword, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
     Spacer(modifier = Modifier.height(20.dp))
 
     AuthButton(onClick = { onSignUpClick() }, content = R.string.signup)
@@ -235,16 +357,20 @@ private fun InputSignupSection(onSignUpClick: () -> Unit) {
 
 
 @Composable
-fun LoginContent(
+fun SignInContent(
     switchToSignUpClicked: () -> Unit,
-    loginClick: () ->Unit
+    loginClick: () ->Unit,
+    viewModel: SignInViewModel
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 30.dp)
     ) {
-        InputLoginSection(loginClick = { loginClick() })
+        InputLoginSection(
+            loginClick = { loginClick() },
+            viewModel = viewModel
+        )
         Spacer(modifier = Modifier.height(30.dp))
         SocialMediaMethodSection()
         BottomSection(
@@ -256,17 +382,20 @@ fun LoginContent(
 }
 
 @Composable
-private fun InputLoginSection(loginClick: () -> Unit) {
+private fun InputLoginSection(
+    loginClick: () -> Unit,
+    viewModel: SignInViewModel
+) {
     AuthTextField(
         label =  R.string.username_login,
-        trailing = "",
+        viewModel = viewModel,
         modifier = Modifier.fillMaxWidth()
     )
     Spacer(modifier = Modifier.height(15.dp))
 
     AuthTextField(
         label = R.string.password,
-        trailing = stringResource(id = R.string.forgot),
+        viewModel = viewModel,
         modifier = Modifier.fillMaxWidth()
     )
     Spacer(modifier = Modifier.height(20.dp))
@@ -290,14 +419,18 @@ private fun SocialMediaMethodSection() {
                 icon = R.drawable.google,
                 text = "Google",
                 modifier = Modifier.weight(1f),
-                onClick = { TODO() }
+                onClick = {
+                    // TODO
+                }
             )
             Spacer(modifier = Modifier.width(20.dp))
             SocialMediaLogin(
                 icon = R.drawable.facebook,
                 text = "Facebook",
                 modifier = Modifier.weight(1f),
-                onClick = { TODO() }
+                onClick = {
+                    // TODO
+                }
             )
         }
     }
@@ -343,21 +476,6 @@ private fun BottomSection(
     }
 }
 
-@Composable
-@Preview (showBackground = true)
-private fun AuthScreenPreview() {
-    UserSignedInContent(
-        users = listOf(
-            UserSignedInModel("user1"),
-            UserSignedInModel("user2"),
-            UserSignedInModel("user3"),
-        ),
-        onChoose = {},
-        onDeleteUser = {},
-        onSwitchToSignInClick = {},
-        onSwitchToSignUpClick = {}
-    )
-}
 
 @Composable
 private fun UserSignedInContent(
@@ -426,7 +544,7 @@ private fun UserSignedInContent(
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 Text(
-                    text = "Or",
+                    text = stringResource(id = R.string.dont_have_account),
                     style = MaterialTheme.typography.titleMedium
                 )
 
@@ -467,7 +585,7 @@ fun UserSignedInBottom(
                     content = R.string.another_account
                 )
                 Text(
-                    text = "Or",
+                    text = stringResource(id = R.string.dont_have_account),
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center
                 )

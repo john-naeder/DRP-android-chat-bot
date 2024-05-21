@@ -3,7 +3,12 @@ package com.mdev.chatapp.data.remote.auth
 import com.mdev.chatapp.data.remote.auth.model.SignInRequest
 import com.mdev.chatapp.data.remote.auth.model.SignUpRequest
 import com.mdev.chatapp.domain.repository.AuthRepository
-import com.mdev.chatapp.ui.auth.event_state.AuthResult
+import com.mdev.chatapp.ui.auth.event.AuthResult
+import com.mdev.chatapp.util.Constants.CURRENT_USER
+import com.mdev.chatapp.util.Constants.JWT
+import com.mdev.chatapp.util.Constants.JWT_REFRESH
+import com.mdev.chatapp.util.Constants.NO_LOGINED_USER
+import com.mdev.chatapp.util.Constants.TOKEN_NOT_FOUND
 import com.mdev.chatapp.util.DataStoreHelper
 import com.mdev.chatapp.util.Jwt
 import retrofit2.HttpException
@@ -13,9 +18,6 @@ class AuthRepositoryImpl(
     private val dataStore: DataStoreHelper
 ) : AuthRepository {
 
-    private val JWT = "jwt_"
-    private val JWT_REFRESH = "jwt_refresh_"
-    private val CURRENT_USER = "current_user"
     override suspend fun signUp(
         username: String,
         password: String,
@@ -60,18 +62,17 @@ class AuthRepositoryImpl(
         }
     }
 
-
-
     override suspend fun authenticate(): AuthResult<Unit> {
         return try {
             val token = dataStore.getString(JWT + CURRENT_USER)
-                ?: return AuthResult.Error("Authentication failed: No current login user found")
+                ?: return AuthResult.Error("Authentication failed: $NO_LOGINED_USER")
 
             if(Jwt.isJWTExpired(token)) {
                 return refreshToken(dataStore.getString(CURRENT_USER)!!)
             }
             authApi.authenticate("Bearer $token")
-            AuthResult.Authorized()
+            return AuthResult.Authorized()
+
         } catch (e: HttpException) {
             when (e.code()) {
                 400 -> AuthResult.Error("Invalid token")
@@ -79,14 +80,14 @@ class AuthRepositoryImpl(
                 else -> AuthResult.Error("Authentication failed: " + e.message())
             }
         } catch (e: Exception) {
-            AuthResult.UnknownError("Auth error: " + e.message + e.stackTraceToString())
+            AuthResult.UnknownError("Authentication error: " + e.message + e.stackTraceToString())
         }
     }
 
     override suspend fun authenticateSignedUser(username: String): AuthResult<Unit> {
         return try {
             val token = dataStore.getString("jwt_$username") ?:
-                return AuthResult.Error("Authentication failed: Token not found")
+                return AuthResult.Error("Authentication failed: $TOKEN_NOT_FOUND")
 
             if(Jwt.isJWTExpired(token)) {
                 return refreshToken(username)
@@ -101,13 +102,13 @@ class AuthRepositoryImpl(
                 else -> AuthResult.Error("Authentication failed: " + e.message())
             }
         } catch (e: Exception) {
-            AuthResult.UnknownError("Auth error: " + e.message + e.stackTraceToString())
+            AuthResult.UnknownError("Authentication error: " + e.message + e.stackTraceToString())
         }
     }
     override suspend fun refreshToken(username: String): AuthResult<Unit> {
         return try {
             val token = dataStore.getString(JWT_REFRESH +  username)
-                ?: return AuthResult.Error("Refresh token failed: No refresh token found")
+                ?: return AuthResult.Error("Refresh token failed: $TOKEN_NOT_FOUND")
 
             val response = authApi.refreshToken("Bearer $token")
             dataStore.setString(JWT + username, response.accessToken)
@@ -120,7 +121,7 @@ class AuthRepositoryImpl(
                 else -> AuthResult.Error("Authentication failed: " + e.message())
             }
         } catch (e: Exception) {
-            AuthResult.UnknownError("Refresh Auth error: " + e.message + e.stackTraceToString())
+            AuthResult.UnknownError("Refresh Authentication error: " + e.message + e.stackTraceToString())
         }
     }
 
@@ -130,7 +131,7 @@ class AuthRepositoryImpl(
             dataStore.remove(JWT_REFRESH + username)
             AuthResult.Unauthorized("User $username unauthenticated")
         } catch (e: Exception) {
-            AuthResult.UnknownError("Auth error: " + e.message + e.stackTraceToString())
+            AuthResult.UnknownError("Authentication error: " + e.message + e.stackTraceToString())
         }
     }
 

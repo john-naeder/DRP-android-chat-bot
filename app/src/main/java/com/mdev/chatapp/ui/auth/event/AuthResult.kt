@@ -1,4 +1,4 @@
-package com.mdev.chatapp.ui.auth.event_state
+package com.mdev.chatapp.ui.auth.event
 
 
 sealed class AuthResult <T> (val data: T? = null) {

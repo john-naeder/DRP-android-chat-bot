@@ -24,7 +24,7 @@ interface AuthApi {
     @GET ("authenticate")
     suspend fun authenticate(
         @Header ("Authorization") token: String
-    )
+    ): TokenResponse
 
     @GET ("refreshToken")
     suspend fun refreshToken(

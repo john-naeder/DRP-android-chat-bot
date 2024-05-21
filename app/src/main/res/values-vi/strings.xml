@@ -13,5 +13,12 @@
     <string name="username">Tên đăng nhập</string>
     <string name="username_signup">Tên đăng nhập</string>
     <string name="password_signup">Mật khẩu</string>
+    <string name="auth_failed">Xác thực thất bại</string>
+    <string name="another_account">Đăng nhập tài khoản khác</string>
+    <string name="choose_profile">Chọn tài khoản</string>
+    <string name="no_account">Chưa tài có tài khoản nào</string>
+    <string name="next">Tiếp</string>
+    <string name="back">Trờ về</string>
+    <string name="get_started">Bắt đầu</string>
 
 </resources>

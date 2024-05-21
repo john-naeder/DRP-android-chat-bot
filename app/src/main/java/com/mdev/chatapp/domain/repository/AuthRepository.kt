@@ -1,6 +1,6 @@
 package com.mdev.chatapp.domain.repository
 
-import com.mdev.chatapp.ui.auth.event_state.AuthResult
+import com.mdev.chatapp.ui.auth.event.AuthResult
 
 interface AuthRepository {
     suspend fun signUp(username: String, password: String, email: String): AuthResult<Unit>

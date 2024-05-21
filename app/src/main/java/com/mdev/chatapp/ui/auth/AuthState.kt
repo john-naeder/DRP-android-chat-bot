@@ -1,4 +1,4 @@
-package com.mdev.chatapp.ui.auth.event_state
+package com.mdev.chatapp.ui.auth
 
 data class AuthState(
     val isLoading: Boolean = false,

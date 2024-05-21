@@ -2,15 +2,21 @@ package com.mdev.chatapp.ui.navgraph
 
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavType
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.mdev.chatapp.R
 import com.mdev.chatapp.ui.home.HomeScreen
 import com.mdev.chatapp.ui.auth.AuthScreen
+import com.mdev.chatapp.ui.auth.SignInScreen
+import com.mdev.chatapp.ui.auth.SignUpScreen
+import com.mdev.chatapp.ui.auth.viewmode.AuthViewModel
+import com.mdev.chatapp.ui.auth.viewmode.SignInViewModel
+import com.mdev.chatapp.ui.auth.viewmode.SignUpViewModel
+import com.mdev.chatapp.ui.home.HomeViewModel
+import com.mdev.chatapp.ui.onboarding.OnBoardingScreen
+import com.mdev.chatapp.ui.onboarding.OnBoardingViewModel
 
 @Composable
 fun NavGraph(
@@ -21,23 +27,30 @@ fun NavGraph(
     NavHost(navController = navController, startDestination = startDestination) {
         navigation(route = Route.AppStart.route, startDestination = Route.OnBoarding.route){
             composable(Route.OnBoarding.route) {
-                // TODO
+                val viewModel: OnBoardingViewModel = hiltViewModel()
+                OnBoardingScreen(onEvent = viewModel::onEvent)
             }
         }
-
-        navigation(route = Route.AuthScreen.route, startDestination = Route.UserSignedIn.route) {
-            composable(Route.Login.route) {
-                AuthScreen(
-                    R.string.login,
-                    content = Route.Login.route,
-                    navController = navController
+        navigation(route = Route.AuthScreen.route, startDestination = Route.Authenticate.route) {
+            composable(Route.SignIn.route) {
+            val viewModel: SignInViewModel = hiltViewModel()
+                SignInScreen(
+                    navController = navController,
+                    viewModel = viewModel
                 )
             }
             composable(Route.Signup.route) {
+                val viewModel: SignUpViewModel = hiltViewModel()
+                SignUpScreen(
+                    navController = navController,
+                    viewModel = viewModel
+                )
+            }
+            composable(Route.Authenticate.route){
+                val viewModel: AuthViewModel = hiltViewModel()
                 AuthScreen(
-                    R.string.signup,
-                    content = Route.Signup.route,
-                    navController = navController
+                    navController = navController,
+                    viewModel = viewModel
                 )
             }
             composable(Route.ForgotPassword.route) {
@@ -46,28 +59,13 @@ fun NavGraph(
             composable(Route.SignList.route) {
                 // TODO
             }
-            composable(Route.UserSignedIn.route){
-                AuthScreen(
-                    title = R.string.choose_profile,
-                    content = Route.UserSignedIn.route,
-                    navController = navController
-                )
-            }
         }
 
         navigation(route = Route.HomeNavigator.route, startDestination = Route.HomeScreen.route) {
             composable(Route.HomeScreen.route) {
-                HomeScreen(navController = navController)
+                val viewModel: HomeViewModel = hiltViewModel()
+                HomeScreen(navController = navController, homeViewModel = viewModel)
             }
-            composable(
-                Route.ChatScreen.route,
-                arguments = listOf(
-                    navArgument("chatId") { type = NavType.StringType }
-                )
-            ) {
-                // TODO
-            }
-
             composable(Route.ProfileScreen.route) {
                 // TODO
             }
