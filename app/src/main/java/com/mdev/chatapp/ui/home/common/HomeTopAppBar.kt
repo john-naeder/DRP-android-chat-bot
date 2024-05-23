@@ -1,6 +1,7 @@
 package com.mdev.chatapp.ui.home.common
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.twotone.EditNote
 import androidx.compose.material.icons.twotone.ExitToApp
 import androidx.compose.material.icons.twotone.Info
 import androidx.compose.material.icons.twotone.Logout
@@ -22,9 +23,8 @@ import com.mdev.chatapp.R
 @Composable
 fun HomeTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
-    onSettingsClick: () -> Unit,
     onNavigationClick: () -> Unit,
-    onLogoutClick: () -> Unit
+    onNewChatClick: () -> Unit
 ) {
     val title = stringResource(R.string.app_name)
     Surface(
@@ -46,20 +46,11 @@ fun HomeTopAppBar(
             },
             actions = {
                 IconButton(
-                    onClick = onSettingsClick,
+                    onClick = onNewChatClick,
                     content = {
                         Icon(
-                            imageVector = Icons.TwoTone.Settings,
-                            contentDescription = stringResource(R.string.settings)
-                        )
-                    }
-                )
-                IconButton(
-                    onClick = onLogoutClick,
-                    content = {
-                        Icon(
-                            imageVector = Icons.TwoTone.Logout,
-                            contentDescription = stringResource(R.string.logout)
+                            imageVector = Icons.TwoTone.EditNote,
+                            contentDescription = stringResource(R.string.new_chat)
                         )
                     }
                 )

@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdev.chatapp.ui.auth.event.AuthResult
 import com.mdev.chatapp.domain.repository.AuthRepository
-import com.mdev.chatapp.domain.repository.UserSignedInRepository
+import com.mdev.chatapp.domain.repository.AccountRepository
 import com.mdev.chatapp.ui.auth.AuthState
 import com.mdev.chatapp.ui.auth.event.AuthUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,13 +19,13 @@ import javax.inject.Inject
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val userSignedInRepository: UserSignedInRepository
+    private val accountRepository: AccountRepository
 ): ViewModel(), AuthViewModelInterface{
 
     override var state by mutableStateOf(AuthState())
     private val uiEventChannel = Channel<AuthResult<Unit>>()
     val uiEvent = uiEventChannel.receiveAsFlow()
-    val users = userSignedInRepository.getAllUser()
+    val users = accountRepository.getAllUser()
 
     init {
         authenticate()
@@ -76,7 +76,7 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(isLoading = true)
             val result = authRepository.unAuthenticateUser(state.signedInUsernameChanged)
-            userSignedInRepository.deleteUserById(state.signedInUsernameChanged)
+            accountRepository.deleteUserById(state.signedInUsernameChanged)
             uiEventChannel.send(result)
             state = state.copy(isLoading = false)
         }

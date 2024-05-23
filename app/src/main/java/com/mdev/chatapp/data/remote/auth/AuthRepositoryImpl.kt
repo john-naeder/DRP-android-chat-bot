@@ -1,13 +1,15 @@
 package com.mdev.chatapp.data.remote.auth
 
+import com.mdev.chatapp.data.local.user.AccountModel
 import com.mdev.chatapp.data.remote.auth.model.SignInRequest
 import com.mdev.chatapp.data.remote.auth.model.SignUpRequest
 import com.mdev.chatapp.domain.repository.AuthRepository
+import com.mdev.chatapp.domain.repository.AccountRepository
 import com.mdev.chatapp.ui.auth.event.AuthResult
 import com.mdev.chatapp.util.Constants.CURRENT_USER
 import com.mdev.chatapp.util.Constants.JWT
 import com.mdev.chatapp.util.Constants.JWT_REFRESH
-import com.mdev.chatapp.util.Constants.NO_LOGINED_USER
+import com.mdev.chatapp.util.Constants.NO_LOGIN_USER
 import com.mdev.chatapp.util.Constants.TOKEN_NOT_FOUND
 import com.mdev.chatapp.util.DataStoreHelper
 import com.mdev.chatapp.util.Jwt
@@ -15,7 +17,8 @@ import retrofit2.HttpException
 
 class AuthRepositoryImpl(
     private val authApi: AuthApi,
-    private val dataStore: DataStoreHelper
+    private val dataStore: DataStoreHelper,
+    private val accountRepository: AccountRepository
 ) : AuthRepository {
 
     override suspend fun signUp(
@@ -42,11 +45,18 @@ class AuthRepositoryImpl(
     override suspend fun signIn(username: String, password: String): AuthResult<Unit> {
         return try {
             val response = authApi.signIn(request = SignInRequest(username, password))
-
             dataStore.setString(JWT + username, response.tokens.accessToken)
             dataStore.setString(JWT_REFRESH + username, response.tokens.refreshToken)
             dataStore.setString(JWT + CURRENT_USER, response.tokens.accessToken)
             dataStore.setString(CURRENT_USER, username)
+
+            accountRepository.insertUser(
+                AccountModel(
+                    id = response.account.id,
+                    username = response.account.username,
+                    email = response.account.email,
+                )
+            )
 
             AuthResult.Authorized()
         } catch(e: HttpException) {
@@ -65,7 +75,7 @@ class AuthRepositoryImpl(
     override suspend fun authenticate(): AuthResult<Unit> {
         return try {
             val token = dataStore.getString(JWT + CURRENT_USER)
-                ?: return AuthResult.Error("Authentication failed: $NO_LOGINED_USER")
+                ?: return AuthResult.Error("Authentication failed: $NO_LOGIN_USER")
 
             if(Jwt.isJWTExpired(token)) {
                 return refreshToken(dataStore.getString(CURRENT_USER)!!)

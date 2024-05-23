@@ -1,13 +1,13 @@
 package com.mdev.chatapp.ui.auth.viewmode
 
+import com.mdev.chatapp.util.Constants
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mdev.chatapp.data.local.user.UserSignedInModel
+import com.mdev.chatapp.R
 import com.mdev.chatapp.domain.repository.AuthRepository
-import com.mdev.chatapp.domain.repository.UserSignedInRepository
 import com.mdev.chatapp.ui.auth.AuthState
 import com.mdev.chatapp.ui.auth.event.AuthResult
 import com.mdev.chatapp.ui.auth.event.AuthUiEvent
@@ -20,7 +20,6 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-    private val userSignedInRepository: UserSignedInRepository
 ): ViewModel(), AuthViewModelInterface {
 
     override var state by mutableStateOf(AuthState())
@@ -30,27 +29,56 @@ class SignUpViewModel @Inject constructor(
     override fun onEvent(event: AuthUiEvent) {
         when (event) {
             is AuthUiEvent.UsernameChanged -> {
-                state = state.copy(username = event.value)
+                val usernameError = event.value.isEmpty()
+                val usernameErrorCode = if (usernameError) R.string.field_empty_error else R.string.null_field
+                state = state.copy(
+                    username = event.value,
+                    usernameError = usernameError,
+                    usernameErrorCode = usernameErrorCode
+                )
             }
+
             is AuthUiEvent.PasswordChanged -> {
-                state = state.copy(password = event.value)
+                val passwordError = event.value.isEmpty() || event.value.length < 6
+                val passwordErrorCode = when {
+                    event.value.isEmpty() -> R.string.field_empty_error
+                    event.value.length < 6 -> R.string.password_length_error
+                    else -> R.string.null_field
+                }
+                state = state.copy(
+                    password = event.value,
+                    passwordError = passwordError,
+                    passwordErrorCode = passwordErrorCode
+                )
             }
+
             is AuthUiEvent.RePasswordChanged -> {
-                state = state.copy(rePassword = event.value)
+                val rePasswordError =
+                    event.value.isEmpty() || event.value.length < 6 || state.password != event.value
+                val rePasswordErrorCode = when {
+                    event.value.isEmpty() -> R.string.field_empty_error
+                    event.value.length < 6 -> R.string.password_length_error
+                    state.password != event.value -> R.string.password_not_match_error
+                    else -> R.string.null_field
+                }
+                state = state.copy(
+                    rePassword = event.value,
+                    rePasswordError = rePasswordError,
+                    rePasswordErrorCode = rePasswordErrorCode
+                )
             }
+
             is AuthUiEvent.EmailChanged -> {
-                state = state.copy(email = event.value)
+                val emailError = event.value.isEmpty()
+                val emailErrorCode = if (emailError) R.string.field_empty_error else R.string.null_field
+                state = state.copy(
+                    email = event.value,
+                    emailError = emailError,
+                    emailErrorCode = emailErrorCode
+                )
             }
             is AuthUiEvent.SignUp -> {
-                viewModelScope.launch {
-                    if (state.username.isEmpty() || state.password.isEmpty() || state.rePassword.isEmpty() || state.email.isEmpty()) {
-                        uiEventChannel.send(AuthResult.Error("Username, password, re-password or email is empty"))
-                    } else if (state.password != state.rePassword) {
-                        uiEventChannel.send(AuthResult.Error("Password and re-password do not match"))
-                    } else {
-                        signUp()
-                    }
-                }
+                signUp()
             }
             else -> {
                 // do nothing
@@ -65,8 +93,6 @@ class SignUpViewModel @Inject constructor(
                 state.password,
                 state.email
             )
-
-            userSignedInRepository.insertUser(UserSignedInModel(state.username))
             uiEventChannel.send(result)
             state = state.copy(isLoading = false)
         }

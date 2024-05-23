@@ -24,7 +24,6 @@ class HomeViewModel @Inject constructor(
 
     private var state by mutableStateOf(AuthState())
     private val resultChannel = Channel<HomeResult>()
-    private val uiEventChannel = Channel<HomeUiEvent>()
     val result = resultChannel.receiveAsFlow()
     val currentUser: Flow<String> = dataStoreHelper.readFromDataStore(Constants.CURRENT_USER)
 
@@ -45,6 +44,10 @@ class HomeViewModel @Inject constructor(
             resultChannel.send(result)
             state = state.copy(isLoading = false)
         }
+    }
+
+    private fun onNewChat(){
+        // TODO
     }
 
 }

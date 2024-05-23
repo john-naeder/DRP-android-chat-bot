@@ -8,11 +8,8 @@
     <string name="login_now">Đăng nhập ngay</string>
     <string name="password">Mật khẩu</string>
     <string name="repassword">Nhập lại mật khẩu</string>
-    <string name="username_login">Username</string>
     <string name="forgot">Đã quên?</string>
     <string name="username">Tên đăng nhập</string>
-    <string name="username_signup">Tên đăng nhập</string>
-    <string name="password_signup">Mật khẩu</string>
     <string name="auth_failed">Xác thực thất bại</string>
     <string name="another_account">Đăng nhập tài khoản khác</string>
     <string name="choose_profile">Chọn tài khoản</string>
@@ -20,5 +17,18 @@
     <string name="next">Tiếp</string>
     <string name="back">Trờ về</string>
     <string name="get_started">Bắt đầu</string>
+    <string name="settings">Cài đặt</string>
+    <string name="about">Về chúng tôi</string>
+    <string name="start_chat">"Trò chuyện "</string>
+    <string name="history">"Lịch sử "</string>
+    <string name="welcome">Chào mừng</string>
+    <string name="search">Tìm kiếm</string>
+    <string name="home">Trang chủ</string>
+    <string name="profile">Thông tin</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="or">hoặc</string>
+    <string name="delete">Xóa</string>
+    <string name="new_chat">Trò chuyện mới</string>
+
 
 </resources>

@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,12 +48,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.mdev.chatapp.R
-import com.mdev.chatapp.data.local.user.UserSignedInModel
+import com.mdev.chatapp.data.local.user.AccountModel
 import com.mdev.chatapp.ui.auth.event.AuthResult
 import com.mdev.chatapp.ui.auth.common.AuthTextField
 import com.mdev.chatapp.ui.auth.common.SocialMediaLogin
@@ -146,6 +146,7 @@ fun SignInScreen(
 ) {
     val context = LocalContext.current
     remember { SnackbarHostState() }
+
 
     LaunchedEffect(viewModel, context) {
         viewModel.uiEvent.collect {
@@ -339,20 +340,29 @@ private fun InputSignupSection(
     onSignUpClick: () -> Unit,
     viewModel: SignUpViewModel
 ) {
-    AuthTextField(label = R.string.username_signup, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
+    AuthTextField(label = R.string.username, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
     Spacer(modifier = Modifier.height(15.dp))
 
     AuthTextField(label = R.string.email, viewModel = viewModel,  modifier = Modifier.fillMaxWidth())
     Spacer(modifier = Modifier.height(15.dp))
 
-    AuthTextField(label = R.string.password_signup, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
+    AuthTextField(label = R.string.password, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
     Spacer(modifier = Modifier.height(15.dp))
 
     AuthTextField(label = R.string.repassword, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
     Spacer(modifier = Modifier.height(20.dp))
 
-    AuthButton(onClick = { onSignUpClick() }, content = R.string.signup)
 
+    AuthButton(
+        onClick = { onSignUpClick() },
+        content = R.string.signup,
+        enabled = viewModel.state.passwordError.not()
+                && viewModel.state.rePasswordError.not()
+                && viewModel.state.password.isNotEmpty()
+                && viewModel.state.rePassword.isNotEmpty()
+                && viewModel.state.username.isNotEmpty()
+                && viewModel.state.email.isNotEmpty()
+    )
 }
 
 
@@ -387,7 +397,7 @@ private fun InputLoginSection(
     viewModel: SignInViewModel
 ) {
     AuthTextField(
-        label =  R.string.username_login,
+        label =  R.string.username,
         viewModel = viewModel,
         modifier = Modifier.fillMaxWidth()
     )
@@ -399,7 +409,13 @@ private fun InputLoginSection(
         modifier = Modifier.fillMaxWidth()
     )
     Spacer(modifier = Modifier.height(20.dp))
-    AuthButton(onClick = { loginClick() }, content = R.string.login)
+    AuthButton(
+        onClick = { loginClick() },
+        content = R.string.login,
+        enabled = viewModel.state.username.isNotEmpty()
+                && viewModel.state.password.isNotEmpty()
+                && viewModel.state.passwordError.not()
+    )
 }
 
 
@@ -479,7 +495,7 @@ private fun BottomSection(
 
 @Composable
 private fun UserSignedInContent(
-    users: List<UserSignedInModel>,
+    users: List<AccountModel>,
     onChoose: (String) -> Unit,
     onDeleteUser: (String) -> Unit,
     onSwitchToSignInClick: () -> Unit,
@@ -575,7 +591,7 @@ fun UserSignedInBottom(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "Or",
+                    text = stringResource(id = R.string.or),
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center
                 )
@@ -603,7 +619,8 @@ fun UserSignedInBottom(
 @Composable
 fun AuthButton(
     onClick: () -> Unit,
-    content: Int
+    content: Int,
+    enabled: Boolean = false
 ){
     Button(
         onClick = onClick,
@@ -615,6 +632,7 @@ fun AuthButton(
             containerColor = if (isSystemInDarkTheme()) BlueGray else Color.Black,
             contentColor = Color.White
         ),
+        enabled = enabled
     ) {
         Text(
             text = stringResource(id = content),
@@ -683,7 +701,7 @@ fun UserSignedInItem(
             ),
         ) {
             Text(
-                text = "Delete",
+                text = stringResource(id = R.string.delete),
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium)
             )
         }

@@ -33,7 +33,7 @@ fun NavGraph(
         }
         navigation(route = Route.AuthScreen.route, startDestination = Route.Authenticate.route) {
             composable(Route.SignIn.route) {
-            val viewModel: SignInViewModel = hiltViewModel()
+                val viewModel: SignInViewModel = hiltViewModel()
                 SignInScreen(
                     navController = navController,
                     viewModel = viewModel
@@ -80,13 +80,3 @@ fun NavGraph(
 fun LogNavigation(destination: String) {
     Log.d("NavigationLog", "Navigating to $destination")
 }
-
-//
-//@Composable
-//fun <T: ViewModel>NavBackStackEntry.sharedViewModel(navController: NavController): Any {
-//    val navGraphRoute = destination.parent?.route?: return HiltViewModel()
-//    val parentEntry =  remember(this){
-//        navController.getBackStackEntry(navGraphRoute)
-//    }
-//    return viewModel(parentEntry)
-//}
