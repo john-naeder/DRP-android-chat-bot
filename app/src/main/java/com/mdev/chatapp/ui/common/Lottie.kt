@@ -1,4 +1,4 @@
-package com.mdev.chatapp.ui.home.common
+package com.mdev.chatapp.ui.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue

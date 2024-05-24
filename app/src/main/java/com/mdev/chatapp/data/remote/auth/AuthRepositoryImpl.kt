@@ -1,11 +1,11 @@
 package com.mdev.chatapp.data.remote.auth
 
-import com.mdev.chatapp.data.local.user.AccountModel
+import com.mdev.chatapp.data.local.acccount.UserModel
 import com.mdev.chatapp.data.remote.auth.model.SignInRequest
 import com.mdev.chatapp.data.remote.auth.model.SignUpRequest
-import com.mdev.chatapp.domain.repository.AuthRepository
-import com.mdev.chatapp.domain.repository.AccountRepository
-import com.mdev.chatapp.ui.auth.event.AuthResult
+import com.mdev.chatapp.domain.repository.local.UserRepository
+import com.mdev.chatapp.domain.repository.remote.AuthRepository
+import com.mdev.chatapp.domain.result.AuthResult
 import com.mdev.chatapp.util.Constants.CURRENT_USER
 import com.mdev.chatapp.util.Constants.JWT
 import com.mdev.chatapp.util.Constants.JWT_REFRESH
@@ -18,7 +18,7 @@ import retrofit2.HttpException
 class AuthRepositoryImpl(
     private val authApi: AuthApi,
     private val dataStore: DataStoreHelper,
-    private val accountRepository: AccountRepository
+    private val userRepository: UserRepository
 ) : AuthRepository {
 
     override suspend fun signUp(
@@ -50,8 +50,8 @@ class AuthRepositoryImpl(
             dataStore.setString(JWT + CURRENT_USER, response.tokens.accessToken)
             dataStore.setString(CURRENT_USER, username)
 
-            accountRepository.insertUser(
-                AccountModel(
+            userRepository.insertUser(
+                UserModel(
                     id = response.account.id,
                     username = response.account.username,
                     email = response.account.email,
@@ -145,7 +145,8 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun testConnection(): Boolean {
-        TODO("Not yet implemented")
+    override suspend fun logout() {
+        dataStore.remove(JWT + CURRENT_USER)
+        dataStore.remove(CURRENT_USER)
     }
 }

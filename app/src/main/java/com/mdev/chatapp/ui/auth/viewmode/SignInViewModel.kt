@@ -3,14 +3,13 @@ package com.mdev.chatapp.ui.auth.viewmode
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdev.chatapp.R
-import com.mdev.chatapp.domain.repository.AuthRepository
-import com.mdev.chatapp.ui.auth.event.AuthResult
+import com.mdev.chatapp.domain.repository.remote.AuthRepository
+import com.mdev.chatapp.domain.result.AuthResult
 import com.mdev.chatapp.ui.auth.AuthState
-import com.mdev.chatapp.ui.auth.event.AuthUiEvent
+import com.mdev.chatapp.ui.auth.AuthUiEvent
 import com.mdev.chatapp.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -55,14 +54,14 @@ class SignInViewModel @Inject constructor(
     }
 
     private fun signIn(){
+        state = state.copy(isLoading = true)
         viewModelScope.launch {
-            state = state.copy(isLoading = true)
             val result = authRepository.signIn(
                 state.username,
                 state.password
             )
             uiEventChannel.send(result)
-            state = state.copy(isLoading = false)
         }
+        state = state.copy(isLoading = false)
     }
 }

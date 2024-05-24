@@ -2,15 +2,14 @@ package com.mdev.chatapp.di
 
 import android.app.Application
 import androidx.room.Room
+import com.mdev.chatapp.data.local.LocalDatabase
+import com.mdev.chatapp.data.local.acccount.UserRepositoryImpl
 import com.mdev.chatapp.data.local.app_entry.LocalUserManagerImpl
-import com.mdev.chatapp.data.local.user.AccountDatabase
-import com.mdev.chatapp.data.local.user.AccountRepositoryImpl
+import com.mdev.chatapp.data.local.conversation.ConversationRepositoryImpl
 import com.mdev.chatapp.data.remote.auth.AuthApi
-import com.mdev.chatapp.domain.repository.AuthRepository
 import com.mdev.chatapp.data.remote.auth.AuthRepositoryImpl
-import com.mdev.chatapp.data.remote.home.HomeRepositoryImpl
-import com.mdev.chatapp.domain.repository.HomeRepository
-import com.mdev.chatapp.domain.repository.AccountRepository
+import com.mdev.chatapp.domain.repository.local.UserRepository
+import com.mdev.chatapp.domain.repository.remote.AuthRepository
 import com.mdev.chatapp.domain.user_entry.LocalUserManager
 import com.mdev.chatapp.domain.user_entry.app_entry.AppEntryUserCase
 import com.mdev.chatapp.domain.user_entry.app_entry.ReadAppEntry
@@ -42,14 +41,8 @@ object AuthModule {
 
     @Singleton
     @Provides
-    fun provideAuthRepository(api: AuthApi, dataStore: DataStoreHelper, accountRepository: AccountRepository): AuthRepository {
-        return AuthRepositoryImpl(api, dataStore, accountRepository)
-    }
-
-    @Singleton
-    @Provides
-    fun provideHomeRepository(dataStore: DataStoreHelper): HomeRepository {
-        return HomeRepositoryImpl(dataStore)
+    fun provideAuthRepository(api: AuthApi, dataStore: DataStoreHelper, userRepository: UserRepository): AuthRepository {
+        return AuthRepositoryImpl(api, dataStore, userRepository)
     }
 
     @Singleton
@@ -60,16 +53,16 @@ object AuthModule {
 
     @Singleton
     @Provides
-    fun provideUserDatabase(application: Application): AccountDatabase {
-        return Room.databaseBuilder(application, AccountDatabase::class.java, AccountDatabase.DATABASE_NAME)
+    fun provideLocalDatabase(application: Application): LocalDatabase {
+        return Room.databaseBuilder(application, LocalDatabase::class.java, LocalDatabase.DATABASE_NAME)
             .fallbackToDestructiveMigration()
             .build()
     }
 
     @Singleton
     @Provides
-    fun provideUserRepository(accountDatabase: AccountDatabase): AccountRepository {
-        return AccountRepositoryImpl(accountDatabase.dao)
+    fun provideUserRepository(localDatabase: LocalDatabase): UserRepository {
+        return UserRepositoryImpl(localDatabase.userDao)
     }
 
     @Provides
@@ -84,4 +77,11 @@ object AuthModule {
         readAppEntry = ReadAppEntry(localUserManager),
         saveAppEntry = SaveAppEntry(localUserManager)
     )
+
+    @Provides
+    @Singleton
+    fun provideConversationRepository(localDatabase: LocalDatabase) : ConversationRepositoryImpl {
+        return ConversationRepositoryImpl(localDatabase.conversationDao)
+    }
+
 }

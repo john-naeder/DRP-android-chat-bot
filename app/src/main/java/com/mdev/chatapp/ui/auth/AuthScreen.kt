@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -23,9 +24,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.twotone.ArrowBackIosNew
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHostState
@@ -34,7 +39,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,13 +54,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.mdev.chatapp.R
-import com.mdev.chatapp.data.local.user.AccountModel
-import com.mdev.chatapp.ui.auth.event.AuthResult
+import com.mdev.chatapp.data.local.acccount.UserModel
+import com.mdev.chatapp.domain.result.AuthResult
 import com.mdev.chatapp.ui.auth.common.AuthTextField
 import com.mdev.chatapp.ui.auth.common.SocialMediaLogin
-import com.mdev.chatapp.ui.auth.event.AuthUiEvent
 import com.mdev.chatapp.ui.auth.viewmode.AuthViewModel
 import com.mdev.chatapp.ui.auth.viewmode.SignInViewModel
 import com.mdev.chatapp.ui.auth.viewmode.SignUpViewModel
@@ -68,20 +70,19 @@ import com.mdev.chatapp.ui.theme.Shapes
 @Composable
 fun AuthScreen(
     viewModel: AuthViewModel,
-    navController: NavController,
+    onAuthenticateSuccess: (Route) -> Unit,
+    onNavigateTo: (Route) -> Unit
 ) {
     val users = viewModel.users.collectAsState(initial = emptyList())
+
+    val isLoading = viewModel.state.isLoading
 
     val context = LocalContext.current
     LaunchedEffect(viewModel, context) {
         viewModel.uiEvent.collect {
             when (it) {
                 is AuthResult.Authorized -> {
-                    navController.navigate(Route.HomeNavigator.route) {
-                        popUpTo(Route.AuthScreen.route) {
-                            inclusive = true
-                        }
-                    }
+                    onAuthenticateSuccess(Route.HomeNavigator)
                 }
                 is AuthResult.Unauthorized -> {
                     Toast.makeText(
@@ -101,7 +102,7 @@ fun AuthScreen(
                 is AuthResult.UnknownError -> {
                     Toast.makeText(
                         context,
-                        it.message,
+                        "An unknown error has occurred",
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -109,32 +110,38 @@ fun AuthScreen(
         }
     }
     Surface {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopSection(header = R.string.auth_screen_header)
-            Spacer(modifier = Modifier.height(36.dp))
-            UserSignedInContent(
-                users = users.value,
-                onChoose = { username ->
-                    viewModel.onEvent(AuthUiEvent.SignedInUsernameChanged(username))
-                    viewModel.onEvent(AuthUiEvent.SignedIn)
-                },
-                onDeleteUser = { username ->
-                    viewModel.onEvent(AuthUiEvent.SignedInUsernameChanged(username))
-                    viewModel.onEvent(AuthUiEvent.UnAuthenticatedUserChanged(username))
-                },
-                onSwitchToSignInClick = { navController.navigate(Route.SignIn.route){
-                    popUpTo(Route.Authenticate.route){
-                        inclusive = false
-                    }
-                } },
-                onSwitchToSignUpClick = {
-                    navController.navigate(Route.Signup.route) {
-                        popUpTo(Route.Authenticate.route) {
-                            inclusive = false
-                        }
-                    }
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                TopSection(
+                    header = R.string.auth_screen_header,
+                    isBackButtonVisible = false,
+                    onBackClick = {})
+                Spacer(modifier = Modifier.height(36.dp))
+                UserSignedInContent(
+                    users = users.value,
+                    onChoose = { username ->
+                        viewModel.onEvent(AuthUiEvent.SignedInUsernameChanged(username))
+                        viewModel.onEvent(AuthUiEvent.SignedIn)
+                    },
+                    onDeleteUser = { username ->
+                        viewModel.onEvent(AuthUiEvent.SignedInUsernameChanged(username))
+                        viewModel.onEvent(AuthUiEvent.UnAuthenticatedUserChanged(username))
+                    },
+                    onSwitchToSignInClick = { onNavigateTo(Route.SignIn) },
+                    onSwitchToSignUpClick = { onNavigateTo(Route.Signup) }
+                )
+            }
+            if (isLoading) {
+                // This will be displayed on top of the AuthScreen content when isLoading is true
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.8f)), // This makes the screen look dimmed
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
-            )
+            }
         }
     }
 }
@@ -142,21 +149,20 @@ fun AuthScreen(
 @Composable
 fun SignInScreen(
     viewModel: SignInViewModel,
-    navController: NavController,
+    onSignSuccess: (Route) -> Unit,
+    onNavigateTo: (Route) -> Unit,
+    onBackClick: () -> Unit
 ) {
     val context = LocalContext.current
-    remember { SnackbarHostState() }
+    val isLoading = viewModel.state.isLoading
 
+    remember { SnackbarHostState() }
 
     LaunchedEffect(viewModel, context) {
         viewModel.uiEvent.collect {
             when (it) {
                 is AuthResult.Authorized -> {
-                    navController.navigate(Route.HomeNavigator.route) {
-                        popUpTo(Route.AuthScreen.route) {
-                            inclusive = true
-                        }
-                    }
+                    onSignSuccess(Route.HomeNavigator)
                 }
 
                 is AuthResult.Unauthorized -> {
@@ -186,20 +192,32 @@ fun SignInScreen(
         }
     }
     Surface {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopSection(header = R.string.login)
-            Spacer(modifier = Modifier.height(36.dp))
-            SignInContent(
-                switchToSignUpClicked = {
-                    navController.navigate(Route.Signup.route) {
-                        popUpTo(Route.Authenticate.route) {
-                            inclusive = false
-                        }
-                    }
-                },
-                loginClick = { viewModel.onEvent(AuthUiEvent.SignIn) },
-                viewModel = viewModel
-            )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                TopSection(
+                    header = R.string.login,
+                    onBackClick = onBackClick,
+                    isBackButtonVisible = true
+                )
+                SignInContent(
+                    switchToSignUpClicked = {
+                        onNavigateTo(Route.Signup)
+                    },
+                    loginClick = { viewModel.onEvent(AuthUiEvent.SignIn) },
+                    viewModel = viewModel
+                )
+            }
+        }
+        if (isLoading) {
+            // This will be displayed on top of the AuthScreen content when isLoading is true
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.8f)), // This makes the screen look dimmed
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
         }
     }
 }
@@ -208,18 +226,17 @@ fun SignInScreen(
 @Composable
 fun SignUpScreen(
     viewModel: SignUpViewModel,
-    navController: NavController,
+    onSignUpSuccess: (Route) -> Unit,
+    onNavigateTo: (Route) -> Unit,
+    onBackClick: () -> Unit
 ){
     val context = LocalContext.current
+    val isLoading = viewModel.state.isLoading
     LaunchedEffect(viewModel, context) {
         viewModel.uiEvent.collect {
             when (it) {
                 is AuthResult.Authorized -> {
-                    navController.navigate(Route.HomeNavigator.route) {
-                        popUpTo(Route.AuthScreen.route) {
-                            inclusive = true
-                        }
-                    }
+                    onSignUpSuccess(Route.HomeNavigator)
                 }
 
                 is AuthResult.Unauthorized -> {
@@ -246,30 +263,49 @@ fun SignUpScreen(
                     ).show()
                 }
             }
-        }
-    }
-    Surface {
-        Column(modifier = Modifier.fillMaxSize()) {
-            TopSection(header = R.string.signup)
-            Spacer(modifier = Modifier.height(36.dp))
-            SignUpContent(
-                onSwitchToSignInClick = {
-                    navController.navigate(Route.SignIn.route) {
-                        popUpTo(Route.Authenticate.route) {
-                            inclusive = false
-                        }
-                    }
-                },
-                onSignUp = { viewModel.onEvent(AuthUiEvent.SignUp) },
-                viewModel = viewModel
-            )
+
         }
     }
 
+    Surface {
+        Box(modifier = Modifier.fillMaxSize()) {
+
+            Column(modifier = Modifier.fillMaxSize()) {
+                TopSection(
+                    header = R.string.signup,
+                    onBackClick = onBackClick,
+                    isBackButtonVisible = true
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+                SignUpContent(
+                    onSwitchToSignInClick = {
+                        onNavigateTo(Route.SignIn)
+                    },
+                    onSignUp = { viewModel.onEvent(AuthUiEvent.SignUp) },
+                    viewModel = viewModel
+                )
+            }
+            if (isLoading) {
+                // This will be displayed on top of the AuthScreen content when isLoading is true
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.8f)), // This makes the screen look dimmed
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+        }
+    }
 }
 
 @Composable
-private fun TopSection(@StringRes header: Int) {
+private fun TopSection(
+    @StringRes header: Int,
+    onBackClick: () -> Unit,
+    isBackButtonVisible: Boolean = false,
+) {
     Box(
         contentAlignment = Alignment.TopCenter,
     ) {
@@ -281,6 +317,23 @@ private fun TopSection(@StringRes header: Int) {
             contentDescription = null,
             contentScale = ContentScale.FillBounds
         )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 68.dp),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            if (isBackButtonVisible) {
+                IconButton(
+                    onClick = { onBackClick() },
+                ) {
+                    Icon(
+                        imageVector = Icons.TwoTone.ArrowBackIosNew,
+                        contentDescription = stringResource(id = R.string.back)
+                    )
+                }
+            }
+        }
         Row(
             modifier = Modifier.padding(top = 70.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -341,16 +394,16 @@ private fun InputSignupSection(
     viewModel: SignUpViewModel
 ) {
     AuthTextField(label = R.string.username, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
-    Spacer(modifier = Modifier.height(15.dp))
+    Spacer(modifier = Modifier.height(5.dp))
 
     AuthTextField(label = R.string.email, viewModel = viewModel,  modifier = Modifier.fillMaxWidth())
-    Spacer(modifier = Modifier.height(15.dp))
+    Spacer(modifier = Modifier.height(5.dp))
 
     AuthTextField(label = R.string.password, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
-    Spacer(modifier = Modifier.height(15.dp))
+    Spacer(modifier = Modifier.height(5.dp))
 
     AuthTextField(label = R.string.repassword, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
-    Spacer(modifier = Modifier.height(20.dp))
+    Spacer(modifier = Modifier.height(10.dp))
 
 
     AuthButton(
@@ -401,14 +454,14 @@ private fun InputLoginSection(
         viewModel = viewModel,
         modifier = Modifier.fillMaxWidth()
     )
-    Spacer(modifier = Modifier.height(15.dp))
+    Spacer(modifier = Modifier.height(5.dp))
 
     AuthTextField(
         label = R.string.password,
         viewModel = viewModel,
         modifier = Modifier.fillMaxWidth()
     )
-    Spacer(modifier = Modifier.height(20.dp))
+    Spacer(modifier = Modifier.height(10.dp))
     AuthButton(
         onClick = { loginClick() },
         content = R.string.login,
@@ -423,7 +476,7 @@ private fun InputLoginSection(
 private fun SocialMediaMethodSection() {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = "Or continue with",
+            text = stringResource(id = R.string.or_continue_with),
             style = MaterialTheme.typography.labelMedium.copy(color = Color(0xFF64748B))
         )
         Spacer(modifier = Modifier.height(20.dp))
@@ -495,7 +548,7 @@ private fun BottomSection(
 
 @Composable
 private fun UserSignedInContent(
-    users: List<AccountModel>,
+    users: List<UserModel>,
     onChoose: (String) -> Unit,
     onDeleteUser: (String) -> Unit,
     onSwitchToSignInClick: () -> Unit,

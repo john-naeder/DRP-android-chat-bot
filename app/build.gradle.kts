@@ -81,6 +81,8 @@ dependencies {
 
     // accompanist
     implementation(libs.accompanist.systemuicontroller)
+    implementation(libs.accompanist.swiperefresh)
+    implementation(libs.accompanist.pager)
 
     // Dagger - Hilt
     implementation(libs.hilt.android)

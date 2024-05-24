@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">ChatApp</string>
+    <string name="app_name" translatable="false">DRP CHAT BOT</string>
     <string name="app_logo" translatable="false">App Logo</string>
     <string name="auth_screen_header" translatable="false">DRP</string>
     <string name="auth_screen_title">Become Healthier</string>
@@ -39,6 +39,11 @@
     <string name="password_not_match_error">Re-password does not match with password</string>
     <string name="password_length_error">Password length must be longer than 6</string>
     <string name="required_field">*Required</string>
-    <string name="null_field" />
+    <string name="null_field" translatable="false" />
+    <string name="or_continue_with">Or continue with</string>
+    <string name="conversation_not_found">Conversation not found</string>
+    <string name="server_error">Server error</string>
+    <string name="user_id_not_found">User id not found</string>
+    <string name="option">Home</string>
 
 </resources>

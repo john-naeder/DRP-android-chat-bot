@@ -1,10 +1,10 @@
-package com.mdev.chatapp.data.local.user
+package com.mdev.chatapp.data.local.acccount
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class AccountModel(
+data class UserModel(
     @PrimaryKey
     val id: String,
     val email: String,

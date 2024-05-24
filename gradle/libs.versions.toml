@@ -1,5 +1,6 @@
 [versions]
 accompanist = "0.31.4-beta"
+accompanistSwiperefresh = "0.26.1-alpha"
 agp = "8.3.2"
 coil = "2.5.0"
 compose = "1.5.4"
@@ -30,6 +31,8 @@ retrofit = "2.9.0"
 room = "2.6.1"
 
 [libraries]
+accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistSwiperefresh" }
+accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanistSwiperefresh" }
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }

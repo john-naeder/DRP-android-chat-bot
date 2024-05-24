@@ -29,6 +29,10 @@
     <string name="or">hoặc</string>
     <string name="delete">Xóa</string>
     <string name="new_chat">Trò chuyện mới</string>
+    <string name="field_empty_error">Không được bỏ trống</string>
+    <string name="password_not_match_error">Mật khẩu không trùng nhau</string>
+    <string name="password_length_error">Mật khẩu phải dài ít nhất 6 ký tự</string>
+    <string name="required_field">*Bắt buộc</string>
 
 
 </resources>

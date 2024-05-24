@@ -1,4 +1,4 @@
-package com.mdev.chatapp.ui.auth.event
+package com.mdev.chatapp.ui.auth
 
 sealed class AuthUiEvent {
     data class UsernameChanged(val value: String): AuthUiEvent()

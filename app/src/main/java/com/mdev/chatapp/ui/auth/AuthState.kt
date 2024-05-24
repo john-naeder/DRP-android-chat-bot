@@ -7,7 +7,7 @@ data class AuthState(
 
     val username: String = "",
     val usernameError: Boolean = false,
-    val usernameErrorCode:  Int = R.string.required_field,
+    val usernameErrorCode: Int = R.string.null_field,
 
     val password: String = "",
     val passwordError: Boolean = false,

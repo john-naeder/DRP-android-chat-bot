@@ -14,7 +14,6 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -23,7 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.mdev.chatapp.R
-import com.mdev.chatapp.ui.auth.event.AuthUiEvent
+import com.mdev.chatapp.ui.auth.AuthUiEvent
 import com.mdev.chatapp.ui.auth.viewmode.AuthViewModelInterface
 import com.mdev.chatapp.ui.theme.focusedTextFieldText
 import com.mdev.chatapp.ui.theme.textFieldContainer
@@ -64,15 +63,26 @@ fun AuthTextField(
                     passwordVisible = newPasswordVisible
                 },
                 supportingText = {
-                    Text(
-                        text = when (label) {
-                            R.string.password -> stringResource(id = state.passwordErrorCode)
-                            R.string.repassword -> stringResource(id = state.rePasswordErrorCode)
-                            else -> ""
-                        },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                    when(label){
+                        R.string.password -> {
+                            if (state.passwordError) {
+                                Text(
+                                    text = stringResource(id = state.passwordErrorCode),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                        R.string.repassword -> {
+                            if (state.rePasswordError) {
+                                Text(
+                                    text = stringResource(id = state.rePasswordErrorCode),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    }
                 },
                 isError = when (label) {
                     R.string.password -> state.passwordError
@@ -104,11 +114,12 @@ fun AuthTextField(
                     unfocusedContainerColor = MaterialTheme.colorScheme.textFieldContainer
                 ),
                 supportingText = {
-                    Text(
-                        text = stringResource(id = state.usernameErrorCode),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                    if (state.usernameError)
+                        Text(
+                            text = stringResource(id = state.usernameErrorCode),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
                 },
                 isError = state.usernameError
             )
@@ -135,6 +146,7 @@ fun AuthTextField(
                     unfocusedContainerColor = MaterialTheme.colorScheme.textFieldContainer
                 ),
                 supportingText = {
+                    if (state.emailError)
                     Text(
                         text = stringResource(id = state.emailErrorCode),
                         style = MaterialTheme.typography.bodySmall,

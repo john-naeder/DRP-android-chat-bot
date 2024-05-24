@@ -22,5 +22,6 @@ object Constants {
     const val PASSWORD_NOT_MATCH = "Password and re-password do not match"
 
     // Database
-    const val ACCOUNT_DATABASE_NAME = "account_database"
+    const val LOCAL_DATABASE_NAME = "user_database"
+
 }

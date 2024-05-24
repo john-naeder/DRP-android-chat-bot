@@ -31,6 +31,4 @@ interface AuthApi {
         @Header ("Authorization") token: String
     ): TokensRefreshResponse
 
-    @GET ("")
-    suspend fun testConnection()
 }

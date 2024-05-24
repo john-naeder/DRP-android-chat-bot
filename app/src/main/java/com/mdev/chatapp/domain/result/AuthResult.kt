@@ -1,4 +1,4 @@
-package com.mdev.chatapp.ui.auth.event
+package com.mdev.chatapp.domain.result
 
 
 sealed class AuthResult <T> (val data: T? = null) {
