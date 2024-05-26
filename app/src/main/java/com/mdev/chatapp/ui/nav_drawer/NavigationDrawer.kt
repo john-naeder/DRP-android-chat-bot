@@ -67,10 +67,13 @@ fun DrawerContent(
                                 onClick = {
                                     when (item) {
                                         Route.AuthNavigator -> onLogout()
-                                        selectedItem -> scope.launch{
-                                            drawerState.close()
+                                        selectedItem -> {
+                                            // do nothing
                                         }
                                         else -> onNavigateTo(item)
+                                    }
+                                    scope.launch {
+                                        drawerState.close()
                                     }
                                 },
                                 icon = {

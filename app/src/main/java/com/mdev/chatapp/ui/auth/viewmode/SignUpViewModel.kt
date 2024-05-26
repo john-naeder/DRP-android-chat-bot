@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdev.chatapp.R
 import com.mdev.chatapp.domain.repository.remote.AuthRepository
-import com.mdev.chatapp.domain.result.AuthResult
+import com.mdev.chatapp.domain.result.ApiResult
 import com.mdev.chatapp.ui.auth.AuthState
 import com.mdev.chatapp.ui.auth.AuthUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +22,7 @@ class SignUpViewModel @Inject constructor(
 ): ViewModel(), AuthViewModelInterface {
 
     override var state by mutableStateOf(AuthState())
-    private val uiEventChannel = Channel<AuthResult<Unit>>()
+    private val uiEventChannel = Channel<ApiResult<Unit>>()
     val uiEvent = uiEventChannel.receiveAsFlow()
 
     override fun onEvent(event: AuthUiEvent) {
@@ -85,15 +85,15 @@ class SignUpViewModel @Inject constructor(
         }
     }
     private fun signUp(){
-        state = state.copy(isLoading = true)
         viewModelScope.launch {
+        state = state.copy(isLoading = true)
             val result = authRepository.signUp(
                 state.username,
                 state.password,
                 state.email
             )
             uiEventChannel.send(result)
-        }
         state = state.copy(isLoading = false)
+        }
     }
 }

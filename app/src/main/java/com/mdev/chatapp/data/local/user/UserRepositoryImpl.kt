@@ -1,4 +1,4 @@
-package com.mdev.chatapp.data.local.acccount
+package com.mdev.chatapp.data.local.user
 
 import com.mdev.chatapp.domain.repository.local.UserRepository
 import kotlinx.coroutines.flow.Flow
@@ -10,14 +10,17 @@ class UserRepositoryImpl(private val userDao: UserDao) : UserRepository {
     override suspend fun deleteUser(userModel: UserModel) {
         userDao.deleteUser(userModel)
     }
-    override fun getUserById(id: String): UserModel? {
-        return userDao.getUserByUsername(id)
+    override suspend fun getUserById(id: String): UserModel? {
+        return userDao.getUserById(id)
+    }
+    override suspend fun getUserByUsername(username: String): UserModel? {
+        return userDao.getUserByUsername(username)
     }
 
     override fun getAllUser(): Flow<List<UserModel>> {
         return userDao.getAllUsers()
     }
     override suspend fun deleteUserById(username: String) {
-        userDao.deleteUserById(username)
+        return userDao.deleteUserById(username)
     }
 }

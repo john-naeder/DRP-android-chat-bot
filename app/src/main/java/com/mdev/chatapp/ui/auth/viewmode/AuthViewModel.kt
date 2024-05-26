@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdev.chatapp.domain.repository.local.UserRepository
 import com.mdev.chatapp.domain.repository.remote.AuthRepository
-import com.mdev.chatapp.domain.result.AuthResult
+import com.mdev.chatapp.domain.result.ApiResult
 import com.mdev.chatapp.ui.auth.AuthState
 import com.mdev.chatapp.ui.auth.AuthUiEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +23,7 @@ class AuthViewModel @Inject constructor(
 ): ViewModel(), AuthViewModelInterface{
 
     override var state by mutableStateOf(AuthState())
-    private val uiEventChannel = Channel<AuthResult<Unit>>()
+    private val uiEventChannel = Channel<ApiResult<Unit>>()
     val uiEvent = uiEventChannel.receiveAsFlow()
 
     val users = userRepository.getAllUser()

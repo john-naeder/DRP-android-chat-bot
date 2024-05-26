@@ -1,4 +1,4 @@
-package com.mdev.chatapp.data.local.acccount
+package com.mdev.chatapp.data.local.user
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -22,9 +22,9 @@ interface UserDao {
     fun getAllUsers(): Flow<List<UserModel>>
 
     @Query("SELECT * FROM userModel WHERE username = :username")
-    fun getUserByUsername(username: String): UserModel?
+    suspend fun getUserByUsername(username: String): UserModel?
 
     @Query("SELECT * FROM userModel WHERE id = :id")
-    fun getUserById(id: String): UserModel?
+    suspend fun getUserById(id: String): UserModel?
 
 }

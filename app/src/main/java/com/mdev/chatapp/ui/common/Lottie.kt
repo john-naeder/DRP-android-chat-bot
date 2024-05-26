@@ -42,3 +42,4 @@ fun AnimatedPreloader(modifier: Modifier = Modifier) {
         modifier = modifier
     )
 }
+

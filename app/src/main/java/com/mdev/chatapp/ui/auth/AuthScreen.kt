@@ -55,8 +55,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mdev.chatapp.R
-import com.mdev.chatapp.data.local.acccount.UserModel
-import com.mdev.chatapp.domain.result.AuthResult
+import com.mdev.chatapp.data.local.user.UserModel
+import com.mdev.chatapp.domain.result.ApiResult
 import com.mdev.chatapp.ui.auth.common.AuthTextField
 import com.mdev.chatapp.ui.auth.common.SocialMediaLogin
 import com.mdev.chatapp.ui.auth.viewmode.AuthViewModel
@@ -81,28 +81,28 @@ fun AuthScreen(
     LaunchedEffect(viewModel, context) {
         viewModel.uiEvent.collect {
             when (it) {
-                is AuthResult.Authorized -> {
+                is ApiResult.Success -> {
                     onAuthenticateSuccess(Route.HomeNavigator)
                 }
-                is AuthResult.Unauthorized -> {
+                is ApiResult.Unauthorized -> {
                     Toast.makeText(
                         context,
                         it.message,
                         Toast.LENGTH_LONG
                     ).show()
                 }
-                is AuthResult.Error -> {
+                is ApiResult.Error -> {
                     Toast.makeText(
                         context,
-                        it.message,
+                        context.getString(it.message),
                         Toast.LENGTH_LONG
                     ).show()
                 }
 
-                is AuthResult.UnknownError -> {
+                is ApiResult.UnknownError -> {
                     Toast.makeText(
                         context,
-                        "An unknown error has occurred",
+                        it.message,
                         Toast.LENGTH_LONG
                     ).show()
                 }
@@ -115,7 +115,8 @@ fun AuthScreen(
                 TopSection(
                     header = R.string.auth_screen_header,
                     isBackButtonVisible = false,
-                    onBackClick = {})
+                    onBackClick = {}
+                )
                 Spacer(modifier = Modifier.height(36.dp))
                 UserSignedInContent(
                     users = users.value,
@@ -154,6 +155,7 @@ fun SignInScreen(
     onBackClick: () -> Unit
 ) {
     val context = LocalContext.current
+
     val isLoading = viewModel.state.isLoading
 
     remember { SnackbarHostState() }
@@ -161,11 +163,11 @@ fun SignInScreen(
     LaunchedEffect(viewModel, context) {
         viewModel.uiEvent.collect {
             when (it) {
-                is AuthResult.Authorized -> {
+                is ApiResult.Success -> {
                     onSignSuccess(Route.HomeNavigator)
                 }
 
-                is AuthResult.Unauthorized -> {
+                is ApiResult.Unauthorized -> {
                     Toast.makeText(
                         context,
                         it.message,
@@ -173,15 +175,15 @@ fun SignInScreen(
                     ).show()
                 }
 
-                is AuthResult.Error -> {
+                is ApiResult.Error -> {
                     Toast.makeText(
                         context,
-                        it.message,
+                        context.getString(it.message),
                         Toast.LENGTH_LONG
                     ).show()
                 }
 
-                is AuthResult.UnknownError -> {
+                is ApiResult.UnknownError -> {
                     Toast.makeText(
                         context,
                         it.message,
@@ -207,16 +209,16 @@ fun SignInScreen(
                     viewModel = viewModel
                 )
             }
-        }
-        if (isLoading) {
-            // This will be displayed on top of the AuthScreen content when isLoading is true
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.8f)), // This makes the screen look dimmed
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+            if (isLoading) {
+                // This will be displayed on top of the AuthScreen content when isLoading is true
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.8f)), // This makes the screen look dimmed
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
         }
     }
@@ -235,11 +237,11 @@ fun SignUpScreen(
     LaunchedEffect(viewModel, context) {
         viewModel.uiEvent.collect {
             when (it) {
-                is AuthResult.Authorized -> {
+                is ApiResult.Success -> {
                     onSignUpSuccess(Route.HomeNavigator)
                 }
 
-                is AuthResult.Unauthorized -> {
+                is ApiResult.Unauthorized -> {
                     Toast.makeText(
                         context,
                         it.message,
@@ -247,15 +249,15 @@ fun SignUpScreen(
                     ).show()
                 }
 
-                is AuthResult.Error -> {
+                is ApiResult.Error -> {
                     Toast.makeText(
                         context,
-                        it.message,
+                        context.getString(it.message),
                         Toast.LENGTH_LONG
                     ).show()
                 }
 
-                is AuthResult.UnknownError -> {
+                is ApiResult.UnknownError -> {
                     Toast.makeText(
                         context,
                         it.message,
@@ -269,7 +271,6 @@ fun SignUpScreen(
 
     Surface {
         Box(modifier = Modifier.fillMaxSize()) {
-
             Column(modifier = Modifier.fillMaxSize()) {
                 TopSection(
                     header = R.string.signup,

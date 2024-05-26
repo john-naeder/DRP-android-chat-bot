@@ -1,4 +1,4 @@
-package com.mdev.chatapp.data.local.acccount
+package com.mdev.chatapp.data.local.user
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

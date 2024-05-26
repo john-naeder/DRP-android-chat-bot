@@ -3,7 +3,7 @@ package com.mdev.chatapp.data.remote.chat
 import com.mdev.chatapp.data.remote.chat.model.ConversationInitRequest
 import com.mdev.chatapp.data.remote.chat.model.ConversationInitResponse
 import com.mdev.chatapp.data.remote.chat.model.GetHistoryRequest
-import com.mdev.chatapp.data.remote.chat.model.GetHistoryResponse
+import com.mdev.chatapp.data.remote.chat.model.HistoryResponse
 import com.mdev.chatapp.data.remote.chat.model.NewChatRequest
 import com.mdev.chatapp.data.remote.chat.model.NewChatResponse
 import retrofit2.http.Body
@@ -17,5 +17,5 @@ interface ChatApi {
     @POST("conversation/newChat")
     suspend fun newChat(@Body request: NewChatRequest): NewChatResponse
     @POST("conversation/history")
-    suspend fun getHistory(@Body request: GetHistoryRequest): GetHistoryResponse
+    suspend fun getHistory(@Body request: GetHistoryRequest): HistoryResponse
 }

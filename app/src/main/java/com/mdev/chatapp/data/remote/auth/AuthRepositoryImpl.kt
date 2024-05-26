@@ -1,16 +1,16 @@
 package com.mdev.chatapp.data.remote.auth
 
-import com.mdev.chatapp.data.local.acccount.UserModel
+import com.mdev.chatapp.R
+import com.mdev.chatapp.data.local.user.UserModel
 import com.mdev.chatapp.data.remote.auth.model.SignInRequest
 import com.mdev.chatapp.data.remote.auth.model.SignUpRequest
 import com.mdev.chatapp.domain.repository.local.UserRepository
 import com.mdev.chatapp.domain.repository.remote.AuthRepository
-import com.mdev.chatapp.domain.result.AuthResult
+import com.mdev.chatapp.domain.result.ApiResult
 import com.mdev.chatapp.util.Constants.CURRENT_USER
+import com.mdev.chatapp.util.Constants.CURRENT_USER_ID
 import com.mdev.chatapp.util.Constants.JWT
 import com.mdev.chatapp.util.Constants.JWT_REFRESH
-import com.mdev.chatapp.util.Constants.NO_LOGIN_USER
-import com.mdev.chatapp.util.Constants.TOKEN_NOT_FOUND
 import com.mdev.chatapp.util.DataStoreHelper
 import com.mdev.chatapp.util.Jwt
 import retrofit2.HttpException
@@ -25,128 +25,133 @@ class AuthRepositoryImpl(
         username: String,
         password: String,
         email: String
-    ): AuthResult<Unit> {
+    ): ApiResult<Unit> {
         return try {
             authApi.signUp(SignUpRequest(username, password, email))
             signIn(username, password)
         } catch (e: HttpException) {
             when (e.code()) {
-                400 -> AuthResult.Error("Username already exists")
-                403 -> AuthResult.Error("Invalid credentials")
-                404 -> AuthResult.Error("User not found")
-                else -> AuthResult.Error(e.message())
+                400 -> ApiResult.Error(R.string.username_existed)
+                else -> ApiResult.UnknownError("Sign up error: "+ e.message())
 
             }
         } catch (e: Exception) {
-            AuthResult.UnknownError("Sign up error: " + e.message)
+            ApiResult.UnknownError("Sign up error: " + e.message)
         }
     }
 
-    override suspend fun signIn(username: String, password: String): AuthResult<Unit> {
+    override suspend fun signIn(username: String, password: String): ApiResult<Unit> {
         return try {
             val response = authApi.signIn(request = SignInRequest(username, password))
-            dataStore.setString(JWT + username, response.tokens.accessToken)
-            dataStore.setString(JWT_REFRESH + username, response.tokens.refreshToken)
-            dataStore.setString(JWT + CURRENT_USER, response.tokens.accessToken)
-            dataStore.setString(CURRENT_USER, username)
+            val responseBody = if(response.isSuccessful) response.body()!!
+            else return ApiResult.Error(R.string.user_not_found)
+
+            responseBody.tokens.let {
+                dataStore.setString(JWT + username, it.accessToken)
+                dataStore.setString(JWT_REFRESH + username, it.refreshToken)
+
+            }
+            responseBody.account.let {
+                dataStore.setString(CURRENT_USER, it.username)
+                dataStore.setString(CURRENT_USER_ID, it.id)
+            }
 
             userRepository.insertUser(
                 UserModel(
-                    id = response.account.id,
-                    username = response.account.username,
-                    email = response.account.email,
+                    id = responseBody.account.id,
+                    username = responseBody.account.username,
+                    email = responseBody.account.email,
                 )
             )
 
-            AuthResult.Authorized()
+            ApiResult.Success()
         } catch(e: HttpException) {
             when(e.code()) {
-                404 -> AuthResult.Error(
-                    "User not found" + e.message() + " " + e.code() +
-                            " " + e.response()?.errorBody()?.string()
-                )
-                else -> AuthResult.Error(e.message() + " " + e.code())
+                404 -> ApiResult.Error(R.string.user_not_found)
+                else -> ApiResult.UnknownError(e.message())
             }
         } catch(e: Exception) {
-            AuthResult.UnknownError("Sign in error: " + e.message)
+            ApiResult.UnknownError("Sign in error: " + e.message)
         }
     }
 
-    override suspend fun authenticate(): AuthResult<Unit> {
+    override suspend fun authenticate(): ApiResult<Unit> {
         return try {
             val token = dataStore.getString(JWT + CURRENT_USER)
-                ?: return AuthResult.Error("Authentication failed: $NO_LOGIN_USER")
+                ?: return ApiResult.Error(R.string.null_token_response)
 
             if(Jwt.isJWTExpired(token)) {
                 return refreshToken(dataStore.getString(CURRENT_USER)!!)
             }
             authApi.authenticate("Bearer $token")
-            return AuthResult.Authorized()
+            return ApiResult.Success()
 
         } catch (e: HttpException) {
             when (e.code()) {
-                400 -> AuthResult.Error("Invalid token")
-                401 -> AuthResult.Error("Null token")
-                else -> AuthResult.Error("Authentication failed: " + e.message())
+                400, 401  -> ApiResult.Error(R.string.invalid_token_or_token_not_found)
+                else -> ApiResult.UnknownError("Authentication failed: " + e.message())
             }
         } catch (e: Exception) {
-            AuthResult.UnknownError("Authentication error: " + e.message + e.stackTraceToString())
+            ApiResult.UnknownError("Authentication error: " + e.message + e.stackTraceToString())
         }
     }
 
-    override suspend fun authenticateSignedUser(username: String): AuthResult<Unit> {
+    override suspend fun authenticateSignedUser(username: String): ApiResult<Unit> {
         return try {
             val token = dataStore.getString("jwt_$username") ?:
-                return AuthResult.Error("Authentication failed: $TOKEN_NOT_FOUND")
+                return ApiResult.Error(R.string.null_token_response)
 
             if(Jwt.isJWTExpired(token)) {
                 return refreshToken(username)
             }
+
             dataStore.setString(CURRENT_USER, username)
+            dataStore.setString(CURRENT_USER_ID, userRepository.getUserByUsername(username)!!.id)
             dataStore.setString(JWT + CURRENT_USER, token)
-            AuthResult.Authorized()
+            ApiResult.Success()
+
         } catch (e: HttpException) {
             when (e.code()) {
-                400 -> AuthResult.Error("Invalid token")
-                401 -> AuthResult.Error("Null token")
-                else -> AuthResult.Error("Authentication failed: " + e.message())
+                400, 401 -> ApiResult.Error(R.string.invalid_token_or_token_not_found)
+                else -> ApiResult.UnknownError("Authentication failed: " + e.message())
             }
         } catch (e: Exception) {
-            AuthResult.UnknownError("Authentication error: " + e.message + e.stackTraceToString())
+            ApiResult.UnknownError("Authentication error: " + e.message + e.stackTraceToString())
         }
     }
-    override suspend fun refreshToken(username: String): AuthResult<Unit> {
+    override suspend fun refreshToken(username: String): ApiResult<Unit> {
         return try {
             val token = dataStore.getString(JWT_REFRESH +  username)
-                ?: return AuthResult.Error("Refresh token failed: $TOKEN_NOT_FOUND")
+                ?: return ApiResult.Error(R.string.null_token_response)
 
-            val response = authApi.refreshToken("Bearer $token")
+            val response = authApi.refreshToken("Bearer $token").body()
+                ?: return ApiResult.Error(R.string.refresh_token_not_found_or_invalid)
             dataStore.setString(JWT + username, response.accessToken)
             dataStore.setString(JWT + CURRENT_USER, response.accessToken)
             authenticateSignedUser(username)
         } catch (e: HttpException) {
             when (e.code()) {
-                400 -> AuthResult.Error("Invalid token")
-                401 -> AuthResult.Error("Null token")
-                else -> AuthResult.Error("Authentication failed: " + e.message())
+                400, 401 -> ApiResult.Error(R.string.invalid_token_or_token_not_found)
+                else -> ApiResult.UnknownError("Authentication failed: " + e.message())
             }
         } catch (e: Exception) {
-            AuthResult.UnknownError("Refresh Authentication error: " + e.message + e.stackTraceToString())
+            ApiResult.UnknownError("Refresh Authentication error: " + e.message + e.stackTraceToString())
         }
     }
 
-    override suspend fun unAuthenticateUser(username: String): AuthResult<Unit> {
+    override suspend fun unAuthenticateUser(username: String): ApiResult<Unit> {
         return try {
             dataStore.remove(JWT + username)
             dataStore.remove(JWT_REFRESH + username)
-            AuthResult.Unauthorized("User $username unauthenticated")
+            ApiResult.Unauthorized("User $username unauthenticated")
         } catch (e: Exception) {
-            AuthResult.UnknownError("Authentication error: " + e.message + e.stackTraceToString())
+            ApiResult.UnknownError("Authentication error: " + e.message + e.stackTraceToString())
         }
     }
 
     override suspend fun logout() {
         dataStore.remove(JWT + CURRENT_USER)
         dataStore.remove(CURRENT_USER)
+        dataStore.remove(CURRENT_USER_ID)
     }
 }

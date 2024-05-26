@@ -37,46 +37,42 @@ import androidx.compose.ui.unit.dp
 import com.mdev.chatapp.ui.theme.spacing
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnrememberedMutableState")
 @Composable
 internal fun ChatInput(
     modifier: Modifier = Modifier,
-    onMessageChange: (String) -> Unit
+    viewModel: ChatViewModel
 ) {
-
     val context = LocalContext.current
-
-    var input by remember { mutableStateOf(TextFieldValue("")) }
-    val textEmpty: Boolean by derivedStateOf { input.text.isEmpty() }
+    val state = viewModel.state
     Row(
         modifier = modifier
             .height(56.dp)
             .fillMaxWidth()
-            .padding(vertical = MaterialTheme.spacing.extraSmall),
+            .padding(vertical = MaterialTheme.spacing.extraSmall)
+            .padding(horizontal = MaterialTheme.spacing.small),
         verticalAlignment = Alignment.Bottom
     ) {
         TextField(
             modifier = Modifier
                 .clip(MaterialTheme.shapes.extraLarge)
                 .weight(1f)
-//                .padding(bottom = MaterialTheme.spacing.extraSmall)
                 .focusable(true),
-            value = input,
-            onValueChange = { input = it },
+            value = state.inputMessage,
+            onValueChange = { viewModel.onEvent(ChatUIEvent.OnInputMessageChanged(it)) },
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent
             ),
             placeholder = {
-                Text(text = "Message")
+                Text(text = "Aa")
             },
             leadingIcon = {
                 IconButton(onClick = {
                     Toast.makeText(
                         context,
-                        "Attach File Clicked.\n(Not Available)",
+                        "Not Available",
                         Toast.LENGTH_SHORT
                     ).show()
                 }) {
@@ -105,20 +101,17 @@ internal fun ChatInput(
                 .clip(CircleShape),
             shape = CircleShape,
             onClick = {
-                if (!textEmpty) {
-                    onMessageChange(input.text)
-                    input = TextFieldValue("")
+                if (state.inputMessage.isNotEmpty()){
+                    viewModel.onEvent(ChatUIEvent.SendMessage(state.inputMessage))
                 } else {
-                    Toast.makeText(
-                        context,
-                        "Sound Recorder Clicked.\n(Not Available)",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    // TODO(Send message by voice)
                 }
             }
         ) {
             Icon(
-                imageVector = if (textEmpty) Icons.Filled.Mic else Icons.TwoTone.Send,
+                imageVector = if (
+                    state.inputMessage.isEmpty()
+                ) Icons.Filled.Mic else Icons.TwoTone.Send,
                 contentDescription = null
             )
         }

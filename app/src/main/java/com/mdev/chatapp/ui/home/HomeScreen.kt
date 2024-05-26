@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.mdev.chatapp.R
+import com.mdev.chatapp.ui.common.BaseScreen
 import com.mdev.chatapp.ui.common.Lottie
 import com.mdev.chatapp.ui.common.MainTopAppBar
 import com.mdev.chatapp.ui.nav_drawer.DrawerContent
@@ -51,9 +52,7 @@ fun HomeScreen(
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
     val scope = rememberCoroutineScope()
-
     val selectedItem = Route.HomeScreen
 
 
@@ -73,79 +72,38 @@ fun HomeScreen(
         }
     }
 
-    Surface {
-        ModalNavigationDrawer(
-            drawerContent = {
-                DrawerContent(
-                    scope,
-                    drawerState,
-                    selectedItem,
-                    onLogout = {
-                        navDrawerViewModel.onEvent(NavDrawerUIEvent.Logout)
-                    },
-                    onNavigateTo = {
-                        navDrawerViewModel.onEvent(
-                            when (it) {
-                                Route.HomeScreen -> NavDrawerUIEvent.Home
-                                Route.SettingsScreen -> NavDrawerUIEvent.Settings
-                                Route.ChatScreen -> NavDrawerUIEvent.NewChat
-                                Route.HistoryScreen -> NavDrawerUIEvent.History
-                                Route.ProfileScreen -> NavDrawerUIEvent.Profile
-                                Route.AboutScreen -> NavDrawerUIEvent.About
-                                else -> NavDrawerUIEvent.Home
-                            }
-                        )
-                    }
-                )
-            },
-            drawerState = drawerState,
-        ) {
+    BaseScreen(
+        scope = scope,
+        drawerState = drawerState,
+        selectedItem = selectedItem,
+        navDrawerViewModel = navDrawerViewModel,
+        scrollBehavior = scrollBehavior,
+        content = {
             HomeContent(
-                scrollBehavior = scrollBehavior,
-                scope = scope,
-                drawerState = drawerState,
-                onViewHistory = {
-                    // TODO
-                },
                 onNewChat = {
                     navDrawerViewModel.onEvent(NavDrawerUIEvent.NewChat)
                 }
             )
         }
-    }
+    )
+
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeContent(
-    scrollBehavior: TopAppBarScrollBehavior,
-    scope: CoroutineScope,
-    drawerState: DrawerState,
-    onViewHistory: () -> Unit,
     onNewChat: () -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            MainTopAppBar(
-                scrollBehavior = scrollBehavior,
-                onViewHistoryClick = { onViewHistory() },
-                onOpenDrawerClick = { scope.launch { drawerState.open() } },
-                currentRoute = Route.HomeScreen
+    Surface(
+        modifier = Modifier
+            .padding(6.dp),
+        content = {
+            HomeInnerContent(
+                onNewChatClick = onNewChat
             )
         }
-    ) { innerPadding ->
-        Surface(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(6.dp),
-            content = {
-                HomeInnerContent(
-                    onNewChatClick = onNewChat
-                )
-            }
-        )
-    }
+    )
+
 }
 
 @Composable

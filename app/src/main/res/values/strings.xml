@@ -45,5 +45,17 @@
     <string name="server_error">Server error</string>
     <string name="user_id_not_found">User id not found</string>
     <string name="option">Home</string>
+    <string name="user_cancelled">The answer was cancelled by user</string>
+    <string name="chatbot_failed_to_answer">The chatbot was failed to answer</string>
+    <string name="no_internet_connection">Please connect internet to continue</string>
+    <string name="username_existed">Username already exist</string>
+    <string name="user_not_found">User does not exists or wrong password</string>
+    <string name="token_not_found">Token not found</string>
+    <string name="invalid_token_or_token_not_found">Invalid token or token not found</string>
+    <string name="refresh_token_not_found_or_invalid">Refresh token not found or invalid token</string>
+    <string name="text_copied">Text copied</string>
+    <string name="cancel">Cancel</string>
+    <string name="null_token_response">Null token responded</string>
+    <string name="null_response_body">Null response body</string>
 
 </resources>

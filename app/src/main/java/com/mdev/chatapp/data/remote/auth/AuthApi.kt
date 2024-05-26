@@ -4,6 +4,7 @@ import com.mdev.chatapp.data.remote.auth.model.SignInRequest
 import com.mdev.chatapp.data.remote.auth.model.SignUpRequest
 import com.mdev.chatapp.data.remote.auth.model.TokenResponse
 import com.mdev.chatapp.data.remote.auth.model.TokensRefreshResponse
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -19,16 +20,16 @@ interface AuthApi {
     @POST ("login")
     suspend fun signIn(
         @Body request: SignInRequest
-    ): TokenResponse
+    ): Response<TokenResponse>
 
     @GET ("authenticate")
     suspend fun authenticate(
         @Header ("Authorization") token: String
-    ): TokenResponse
+    ): Response<TokenResponse>
 
     @GET ("refreshToken")
     suspend fun refreshToken(
         @Header ("Authorization") token: String
-    ): TokensRefreshResponse
+    ): Response<TokensRefreshResponse>
 
 }

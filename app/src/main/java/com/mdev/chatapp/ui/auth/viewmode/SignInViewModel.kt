@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdev.chatapp.R
 import com.mdev.chatapp.domain.repository.remote.AuthRepository
-import com.mdev.chatapp.domain.result.AuthResult
+import com.mdev.chatapp.domain.result.ApiResult
 import com.mdev.chatapp.ui.auth.AuthState
 import com.mdev.chatapp.ui.auth.AuthUiEvent
 import com.mdev.chatapp.util.Constants
@@ -22,7 +22,7 @@ class SignInViewModel @Inject constructor(
     private val authRepository: AuthRepository,
 ): ViewModel(), AuthViewModelInterface {
     override var state by mutableStateOf(AuthState())
-    private val uiEventChannel = Channel<AuthResult<Unit>>()
+    private val uiEventChannel = Channel<ApiResult<Unit>>()
     val uiEvent = uiEventChannel.receiveAsFlow()
 
     override fun onEvent(event: AuthUiEvent) {
@@ -39,11 +39,7 @@ class SignInViewModel @Inject constructor(
             }
             is AuthUiEvent.SignIn -> {
                 viewModelScope.launch {
-                    if (state.username.isEmpty() || state.password.isEmpty()) {
-                        uiEventChannel.send(AuthResult.Error(Constants.VALIDATE_ERROR_EMPTY_FIELD))
-                    } else {
-                        signIn()
-                    }
+                    signIn()
                 }
             }
             else -> {
@@ -54,14 +50,14 @@ class SignInViewModel @Inject constructor(
     }
 
     private fun signIn(){
-        state = state.copy(isLoading = true)
         viewModelScope.launch {
+        state = state.copy(isLoading = true)
             val result = authRepository.signIn(
                 state.username,
                 state.password
             )
             uiEventChannel.send(result)
-        }
         state = state.copy(isLoading = false)
+        }
     }
 }
