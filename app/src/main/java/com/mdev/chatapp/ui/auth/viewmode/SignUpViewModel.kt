@@ -10,6 +10,7 @@ import com.mdev.chatapp.domain.repository.remote.AuthRepository
 import com.mdev.chatapp.domain.result.ApiResult
 import com.mdev.chatapp.ui.auth.AuthState
 import com.mdev.chatapp.ui.auth.AuthUiEvent
+import com.mdev.chatapp.util.Util
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -19,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val authRepository: AuthRepository,
-): ViewModel(), AuthViewModelInterface {
+) : ViewModel(), AuthViewModelInterface {
 
     override var state by mutableStateOf(AuthState())
     private val uiEventChannel = Channel<ApiResult<Unit>>()
@@ -29,7 +30,8 @@ class SignUpViewModel @Inject constructor(
         when (event) {
             is AuthUiEvent.UsernameChanged -> {
                 val usernameError = event.value.isEmpty()
-                val usernameErrorCode = if (usernameError) R.string.field_empty_error else R.string.null_field
+                val usernameErrorCode =
+                    if (usernameError) R.string.field_empty_error else R.string.null_field
                 state = state.copy(
                     username = event.value,
                     usernameError = usernameError,
@@ -68,32 +70,33 @@ class SignUpViewModel @Inject constructor(
             }
 
             is AuthUiEvent.EmailChanged -> {
-                val emailError = event.value.isEmpty()
-                val emailErrorCode = if (emailError) R.string.field_empty_error else R.string.null_field
+                val emailError = event.value.isEmpty() || !Util.isEmailValid(event.value)
+                val emailErrorCode = if (event.value.isEmpty()) R.string.field_empty_error
+                    else if (Util.isEmailValid(event.value)) R.string.email_invalid_error
+                    else R.string.null_field
                 state = state.copy(
-                    email = event.value,
-                    emailError = emailError,
-                    emailErrorCode = emailErrorCode
+                    email = event.value, emailError = emailError, emailErrorCode = emailErrorCode
                 )
             }
+
             is AuthUiEvent.SignUp -> {
                 signUp()
             }
+
             else -> {
                 // do nothing
             }
         }
     }
-    private fun signUp(){
+
+    private fun signUp() {
         viewModelScope.launch {
-        state = state.copy(isLoading = true)
+            state = state.copy(isLoading = true)
             val result = authRepository.signUp(
-                state.username,
-                state.password,
-                state.email
+                state.username, state.password, state.email
             )
             uiEventChannel.send(result)
-        state = state.copy(isLoading = false)
+            state = state.copy(isLoading = false)
         }
     }
 }

@@ -24,10 +24,13 @@ import com.mdev.chatapp.ui.auth.viewmode.SignInViewModel
 import com.mdev.chatapp.ui.auth.viewmode.SignUpViewModel
 import com.mdev.chatapp.ui.chat.ChatScreen
 import com.mdev.chatapp.ui.chat.ChatViewModel
+import com.mdev.chatapp.ui.history.HistoryScreen
+import com.mdev.chatapp.ui.history.HistoryViewModel
 import com.mdev.chatapp.ui.home.HomeScreen
 import com.mdev.chatapp.ui.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.onboarding.OnBoardingScreen
 import com.mdev.chatapp.ui.onboarding.OnBoardingViewModel
+import com.mdev.chatapp.util.Constants
 import com.mdev.chatapp.util.Constants.INIT_CONVERSATION_ID
 
 @Composable
@@ -153,9 +156,9 @@ fun NavGraph(
                         },
                         onNavigateTo = {
                             navController.navigate(it.route) {
-                                popUpTo(Route.HomeNavigator.route) {
-                                    inclusive = false
-                                }
+//                                popUpTo(Route.HomeNavigator.route) {
+//                                    inclusive = false
+//                                }
                             }
                         },
                         navDrawerViewModel = viewModel
@@ -169,7 +172,33 @@ fun NavGraph(
                     // TODO
                 }
                 composable(Route.HistoryScreen.route) {
-                    // TODO
+                    val navDrawerViewModel: NavigateDrawerViewModel = hiltViewModel()
+                    val historyViewModel: HistoryViewModel = hiltViewModel()
+                    HistoryScreen(
+                        navDrawerViewModel = navDrawerViewModel,
+                        historyViewModel = historyViewModel,
+                        onNavigateTo = {
+                            navController.navigate(it.route) {
+//                                popUpTo(Route.HomeNavigator.route) {
+//                                    inclusive = false
+//                                }
+                            }
+                        },
+                        onLogout = {
+                            navController.navigate(Route.AuthNavigator.route) {
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = true
+                                }
+                            }
+                        },
+                        onItemClick = {
+                            navController.navigate("${Route.ChatScreen.route}/$it"){
+//                                popUpTo(Route.HistoryScreen.route) {
+//                                    inclusive = false
+//                                }
+                            }
+                        }
+                    )
                 }
                 composable(Route.AboutScreen.route) {
                     // TODO
@@ -179,7 +208,7 @@ fun NavGraph(
                     val navigateDrawerViewModel: NavigateDrawerViewModel = hiltViewModel()
 
                     ChatScreen(
-                        conversationId = "",
+                        conversationId = INIT_CONVERSATION_ID,
                         onLogout = {
                             navController.navigate(Route.AuthNavigator.route) {
                                 popUpTo(Route.HomeNavigator.route) {
@@ -189,9 +218,9 @@ fun NavGraph(
                         },
                         onNavigateTo = {
                             navController.navigate(it.route) {
-                                popUpTo(Route.HomeNavigator.route) {
-                                    inclusive = false
-                                }
+//                                popUpTo(Route.HomeNavigator.route) {
+//                                    inclusive = false
+//                                }
                             }
                         },
                         chatViewModel = chatViewModel,
@@ -205,7 +234,7 @@ fun NavGraph(
                             type = NavType.StringType
                         }
                     )
-                ) {
+                ) { it ->
                     val id = it.arguments?.getString("conversationId") ?: INIT_CONVERSATION_ID
                     val chatViewModel: ChatViewModel = hiltViewModel()
                     val navigateDrawerViewModel: NavigateDrawerViewModel = hiltViewModel()
@@ -219,11 +248,11 @@ fun NavGraph(
                                 }
                             }
                         },
-                        onNavigateTo = {
-                            navController.navigate(it.route) {
-                                popUpTo(Route.HomeNavigator.route) {
-                                    inclusive = false
-                                }
+                        onNavigateTo = { route ->
+                            navController.navigate(route.route) {
+//                                popUpTo(Route.HomeNavigator.route) {
+//                                    inclusive = false
+//                                }
                             }
                         },
                         chatViewModel = chatViewModel,

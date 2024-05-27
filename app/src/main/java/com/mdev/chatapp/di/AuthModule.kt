@@ -18,14 +18,20 @@ import com.mdev.chatapp.domain.user_entry.app_entry.SaveAppEntry
 import com.mdev.chatapp.domain.repository.remote.ChatRepository
 import com.mdev.chatapp.data.remote.chat.ChatRepositoryImpl
 import com.mdev.chatapp.domain.repository.local.ConversationRepository
+import com.mdev.chatapp.ui.history.HistoryRepository
+import com.mdev.chatapp.ui.history.HistoryRepositoryImpl
 import com.mdev.chatapp.util.Constants
 import com.mdev.chatapp.util.DataStoreHelper
+import com.mdev.chatapp.util.RetryInterceptor
+import com.mdev.chatapp.util.StringProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 
@@ -36,8 +42,18 @@ object AuthModule {
     @Singleton
     @Provides
     fun provideAuthApi(): AuthApi {
+        val retryInterceptor = RetryInterceptor(3)
+
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor(retryInterceptor)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .writeTimeout(20, TimeUnit.SECONDS)
+            .build()
+
         return Retrofit.Builder()
             .baseUrl(Constants.AUTH_API_BASE_LINK)
+            .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
             .create(AuthApi::class.java)
@@ -46,8 +62,14 @@ object AuthModule {
     @Singleton
     @Provides
     fun provideChatApi(): ChatApi {
+        val okHttpClient = OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .build()
         return Retrofit.Builder()
-            .baseUrl(Constants.AUTH_API_BASE_LINK)
+            .baseUrl(Constants.CHAT_API_BASE_LINK)
+            .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
             .create(ChatApi::class.java)
@@ -79,6 +101,12 @@ object AuthModule {
 
     @Singleton
     @Provides
+    fun provideHistoryRepository(api: ChatApi): HistoryRepository {
+        return HistoryRepositoryImpl(api)
+    }
+
+    @Singleton
+    @Provides
     fun provideLocalDatabase(application: Application): LocalDatabase {
         return Room.databaseBuilder(application, LocalDatabase::class.java, LocalDatabase.DATABASE_NAME)
             .fallbackToDestructiveMigration()
@@ -103,6 +131,12 @@ object AuthModule {
     @Provides
     fun provideDataStoreHelper(application: Application): DataStoreHelper {
         return DataStoreHelper(application)
+    }
+
+    @Singleton
+    @Provides
+    fun provideStringProvider(application: Application): StringProvider {
+        return StringProvider(application)
     }
 
 }

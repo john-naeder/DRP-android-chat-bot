@@ -1,10 +1,10 @@
 package com.mdev.chatapp.ui.chat
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +26,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
@@ -48,8 +47,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.mdev.chatapp.R
 import com.mdev.chatapp.data.remote.chat.model.HistoryResponse
 import com.mdev.chatapp.ui.common.AnimatedDots
@@ -59,6 +56,7 @@ import com.mdev.chatapp.ui.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.navgraph.Route
 import com.mdev.chatapp.util.Constants
 import com.mdev.chatapp.util.UIEvent
+import dev.jeziellago.compose.markdowntext.MarkdownText
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,7 +68,10 @@ fun ChatScreen(
     chatViewModel: ChatViewModel,
     navDrawerViewModel: NavigateDrawerViewModel
 ) {
-    val chatState = remember { mutableStateOf(ChatState(conversationId = conversationId)) }
+    chatViewModel.updateConversationId(conversationId)
+
+    val chatState = chatViewModel.state
+
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val selectedItem = Route.ChatScreen
@@ -98,13 +99,13 @@ fun ChatScreen(
         navDrawerViewModel = navDrawerViewModel,
         content = {
             ChatContent(
-                chatState = chatState.value,
+                chatState = chatState,
                 historyChat = chatViewModel.historyChats.value
             )
         },
         bottomBar = {
             Crossfade(
-                targetState = chatState.value.isInputVisibility,
+                targetState = chatViewModel.state.isInputVisibility,
                 label = "",
                 content = {
                     if (it) {
@@ -138,9 +139,10 @@ fun ChatScreen(
 @Composable
 private fun ChatContent(
     chatState: ChatState,
-    historyChat: HistoryResponse,
+    historyChat: HistoryResponse
 ) {
     val scrollState = rememberScrollState()
+
     if (scrollState.isScrollInProgress)
         LocalHapticFeedback.current.performHapticFeedback(HapticFeedbackType.TextHandleMove)
     val chatSize by remember {
@@ -153,8 +155,8 @@ private fun ChatContent(
             scrollState.animateScrollTo(scrollState.maxValue)
     }
 
-    LaunchedEffect(chatState.forceScroll) {
-        scrollState.animateScrollBy(100f)
+    LaunchedEffect(key1 = historyChat.messages.size) {
+        scrollState.animateScrollTo(scrollState.maxValue)
     }
 
     Column(
@@ -271,11 +273,17 @@ fun ChatBubble(
                     typeWriterPass = typeWriterPass
                 )
             } else {
-                Text(
+//                Text(
+//                    modifier = Modifier.padding(8.dp),
+//                    text = content.trim(),
+//                    overflow = TextOverflow.Ellipsis,
+//                    maxLines = if (isExpanded) Int.MAX_VALUE else 10,
+//                )
+                MarkdownText(
+                    markdown = content.trim(),
                     modifier = Modifier.padding(8.dp),
-                    text = content.trim(),
-                    overflow = TextOverflow.Ellipsis,
                     maxLines = if (isExpanded) Int.MAX_VALUE else 10,
+//                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

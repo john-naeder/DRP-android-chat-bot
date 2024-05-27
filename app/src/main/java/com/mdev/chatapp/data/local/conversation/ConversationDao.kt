@@ -13,10 +13,10 @@ interface ConversationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertConversation(conversationModel: ConversationModel)
 
-    @Query("SELECT * FROM conversationModel WHERE user_id = :userId")
+    @Query("SELECT * FROM conversationModel WHERE userId = :userId")
     fun getAllConversationByUserId(userId: String): Flow<List<ConversationModel>>
 
-    @Query("DELETE FROM ConversationModel WHERE conversation_id = :conversationId")
+    @Query("DELETE FROM ConversationModel WHERE conversationId = :conversationId")
     suspend fun deleteConversationById(conversationId: String)
 
 

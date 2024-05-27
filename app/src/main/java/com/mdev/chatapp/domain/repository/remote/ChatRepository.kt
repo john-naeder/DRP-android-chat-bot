@@ -9,4 +9,5 @@ interface ChatRepository {
     suspend fun newChat(userId: String, conversationId: String, message: String): ApiResult<NewChatResponse>
     suspend fun loadHistoryChat(conversationId: String): ApiResult<HistoryResponse>
     suspend fun initConversation(userId: String): ApiResult<ConversationInitResponse>
+//    suspend fun newLongChat(userId: String, conversationId: String, message: String): ApiResult<NewChatResponse>
 }

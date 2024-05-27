@@ -3,8 +3,10 @@ package com.mdev.chatapp.util
 object Constants {
 
     // Api Base Links
-    const val AUTH_API_BASE_LINK = "https://drpteam.vercel.app/v1/api/"
-
+//    const val AUTH_API_BASE_LINK = "https://drpteam.vercel.app/v1/api/"
+//    const val AUTH_API_BASE_LINK = "https://drpteam.zeabur.app/v1/api/"
+    const val AUTH_API_BASE_LINK = "https://drpteam.up.railway.app/v1/api/"
+    const val CHAT_API_BASE_LINK = "https://drpteam.up.railway.app/v1/api/"
     // Datastore Keys
     const val USER_SETTINGS = "user_setting"
     const val CURRENT_USER =  "current_user"
@@ -18,5 +20,6 @@ object Constants {
 
     // Chat
     const val INIT_CONVERSATION_ID = "new_conversation_id"
+    const val NEW_CHAT = "new chat"
 
 }

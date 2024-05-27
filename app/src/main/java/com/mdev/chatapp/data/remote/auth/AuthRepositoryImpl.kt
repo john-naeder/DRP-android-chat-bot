@@ -1,5 +1,6 @@
 package com.mdev.chatapp.data.remote.auth
 
+import android.util.Log
 import com.mdev.chatapp.R
 import com.mdev.chatapp.data.local.user.UserModel
 import com.mdev.chatapp.data.remote.auth.model.SignInRequest
@@ -12,7 +13,7 @@ import com.mdev.chatapp.util.Constants.CURRENT_USER_ID
 import com.mdev.chatapp.util.Constants.JWT
 import com.mdev.chatapp.util.Constants.JWT_REFRESH
 import com.mdev.chatapp.util.DataStoreHelper
-import com.mdev.chatapp.util.Jwt
+import com.mdev.chatapp.util.Util
 import retrofit2.HttpException
 
 class AuthRepositoryImpl(
@@ -32,7 +33,7 @@ class AuthRepositoryImpl(
         } catch (e: HttpException) {
             when (e.code()) {
                 400 -> ApiResult.Error(R.string.username_existed)
-                else -> ApiResult.UnknownError("Sign up error: "+ e.message())
+                else -> ApiResult.UnknownError("Sign up error: " + e.message())
 
             }
         } catch (e: Exception) {
@@ -43,13 +44,12 @@ class AuthRepositoryImpl(
     override suspend fun signIn(username: String, password: String): ApiResult<Unit> {
         return try {
             val response = authApi.signIn(request = SignInRequest(username, password))
-            val responseBody = if(response.isSuccessful) response.body()!!
+            val responseBody = if (response.isSuccessful) response.body()!!
             else return ApiResult.Error(R.string.user_not_found)
 
             responseBody.tokens.let {
                 dataStore.setString(JWT + username, it.accessToken)
                 dataStore.setString(JWT_REFRESH + username, it.refreshToken)
-
             }
             responseBody.account.let {
                 dataStore.setString(CURRENT_USER, it.username)
@@ -65,12 +65,12 @@ class AuthRepositoryImpl(
             )
 
             ApiResult.Success()
-        } catch(e: HttpException) {
-            when(e.code()) {
+        } catch (e: HttpException) {
+            when (e.code()) {
                 404 -> ApiResult.Error(R.string.user_not_found)
                 else -> ApiResult.UnknownError(e.message())
             }
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             ApiResult.UnknownError("Sign in error: " + e.message)
         }
     }
@@ -80,7 +80,7 @@ class AuthRepositoryImpl(
             val token = dataStore.getString(JWT + CURRENT_USER)
                 ?: return ApiResult.Error(R.string.null_token_response)
 
-            if(Jwt.isJWTExpired(token)) {
+            if (Util.isJWTExpired(token)) {
                 return refreshToken(dataStore.getString(CURRENT_USER)!!)
             }
             authApi.authenticate("Bearer $token")
@@ -88,7 +88,7 @@ class AuthRepositoryImpl(
 
         } catch (e: HttpException) {
             when (e.code()) {
-                400, 401  -> ApiResult.Error(R.string.invalid_token_or_token_not_found)
+                400, 401 -> ApiResult.Error(R.string.invalid_token_or_token_not_found)
                 else -> ApiResult.UnknownError("Authentication failed: " + e.message())
             }
         } catch (e: Exception) {
@@ -98,10 +98,10 @@ class AuthRepositoryImpl(
 
     override suspend fun authenticateSignedUser(username: String): ApiResult<Unit> {
         return try {
-            val token = dataStore.getString("jwt_$username") ?:
-                return ApiResult.Error(R.string.null_token_response)
+            val token = dataStore.getString(JWT + username)
+                ?: return ApiResult.Error(R.string.null_token_response)
 
-            if(Jwt.isJWTExpired(token)) {
+            if (Util.isJWTExpired(token)) {
                 return refreshToken(username)
             }
 
@@ -119,19 +119,24 @@ class AuthRepositoryImpl(
             ApiResult.UnknownError("Authentication error: " + e.message + e.stackTraceToString())
         }
     }
+
     override suspend fun refreshToken(username: String): ApiResult<Unit> {
         return try {
-            val token = dataStore.getString(JWT_REFRESH +  username)
+            val token = dataStore.getString(JWT_REFRESH + username)
                 ?: return ApiResult.Error(R.string.null_token_response)
+            Log.d("refreshToken", "refreshToken: $token")
+            val response = authApi.refreshToken("Bearer $token")
 
-            val response = authApi.refreshToken("Bearer $token").body()
-                ?: return ApiResult.Error(R.string.refresh_token_not_found_or_invalid)
-            dataStore.setString(JWT + username, response.accessToken)
-            dataStore.setString(JWT + CURRENT_USER, response.accessToken)
+            Log.d("refreshToken", "${response.code()}")
+
+
+
+            dataStore.setString(JWT + username, response.body()!!.accessToken)
+            dataStore.setString(JWT + CURRENT_USER, response.body()!!.accessToken)
             authenticateSignedUser(username)
         } catch (e: HttpException) {
             when (e.code()) {
-                400, 401 -> ApiResult.Error(R.string.invalid_token_or_token_not_found)
+                400, 401, 404 -> ApiResult.Error(R.string.invalid_token_or_token_not_found)
                 else -> ApiResult.UnknownError("Authentication failed: " + e.message())
             }
         } catch (e: Exception) {

@@ -79,6 +79,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+
+    // Compose
+    implementation("com.github.jeziellago:compose-markdown:0.5.0")
+
     // accompanist
     implementation(libs.accompanist.systemuicontroller)
     implementation(libs.accompanist.swiperefresh)

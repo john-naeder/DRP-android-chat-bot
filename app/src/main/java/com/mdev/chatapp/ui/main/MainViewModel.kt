@@ -24,8 +24,8 @@ class MainViewModel @Inject constructor(
     val startDestination: State<String> = _startDestination
 
     init {
-        appEntryUserCase.readAppEntry().onEach {shouldStartFromAuthScreen ->
-            if(shouldStartFromAuthScreen){
+        appEntryUserCase.readAppEntry().onEach {
+            if(it){
                 _startDestination.value = Route.AuthNavigator.route
             } else {
                 _startDestination.value = Route.AppStart.route

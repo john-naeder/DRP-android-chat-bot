@@ -8,7 +8,7 @@ import com.mdev.chatapp.data.local.conversation.ConversationDao
 import com.mdev.chatapp.data.local.conversation.ConversationModel
 import com.mdev.chatapp.util.Constants
 
-@Database(entities = [UserModel::class, ConversationModel::class], version = 5)
+@Database(entities = [UserModel::class, ConversationModel::class], version = 6)
 abstract class LocalDatabase : RoomDatabase(){
     abstract val userDao: UserDao
     abstract val conversationDao: ConversationDao

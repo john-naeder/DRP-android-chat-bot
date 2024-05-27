@@ -52,10 +52,19 @@
     <string name="user_not_found">User does not exists or wrong password</string>
     <string name="token_not_found">Token not found</string>
     <string name="invalid_token_or_token_not_found">Invalid token or token not found</string>
-    <string name="refresh_token_not_found_or_invalid">Refresh token not found or invalid token</string>
+    <string name="refresh_token_not_found_or_invalid">Login session ended, please login again to continue</string>
     <string name="text_copied">Text copied</string>
     <string name="cancel">Cancel</string>
     <string name="null_token_response">Null token responded</string>
     <string name="null_response_body">Null response body</string>
+    <string name="email_invalid_error">Invalid email type</string>
+    <string name="title">Title:</string>
+    <string name="edit">Edit</string>
+    <string name="accept">Accept</string>
+    <string name="history_title">History title</string>
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="delete_confirm">Are you sure that want to delete this conversation?</string>
+    <string name="id">Id:</string>
 
 </resources>

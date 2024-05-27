@@ -69,7 +69,7 @@ fun BaseScreen(
                     Box(
                         modifier = Modifier
                             .padding(it)
-                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp, top = 4.dp)
+                            .padding(start = 16.dp, end = 16.dp, top = 4.dp)
                             .fillMaxHeight(),
                         content = {
                             content()

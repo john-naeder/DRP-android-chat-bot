@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.TextUnit
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.delay
 
 @Composable
@@ -125,21 +126,12 @@ fun TypewriterText(
                 typeWriterPass()
         }
     }
-    Text(
-        text = AnnotatedString(currentText),
+    MarkdownText(
+        markdown = text,
         modifier = modifier,
         color = color,
         fontSize = fontSize,
-        fontWeight = fontWeight,
-        fontFamily = fontFamily,
-        letterSpacing = letterSpacing,
-        textDecoration = textDecoration,
-        textAlign = textAlign,
-        lineHeight = lineHeight,
-        overflow = overflow,
-        softWrap = softWrap,
-        maxLines = maxLines,
-        onTextLayout = onTextLayout,
         style = style,
+        maxLines = maxLines
     )
 }

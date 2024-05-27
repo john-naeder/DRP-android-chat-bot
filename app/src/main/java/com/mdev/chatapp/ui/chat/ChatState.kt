@@ -8,6 +8,8 @@ data class ChatState (
 
     val isWaitingForResponse: Boolean = false,
     val isInputVisibility: Boolean = true,
+    val isLoading: Boolean = false,
+    val isErrorOccurred: Boolean = false,
 
 
     var forceScroll: Int = 0,
