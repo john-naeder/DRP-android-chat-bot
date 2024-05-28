@@ -34,10 +34,11 @@
     <string name="logout">Logout</string>
     <string name="or">Or</string>
     <string name="delete">Delete</string>
-    <string name="new_chat">New chat</string>
+    <string name="chat">Chat</string>
     <string name="field_empty_error">This field can not be empty</string>
     <string name="password_not_match_error">Re-password does not match with password</string>
     <string name="password_length_error">Password length must be longer than 6</string>
+    <string name="password_contain_error">contain at least 1 special character</string>
     <string name="required_field">*Required</string>
     <string name="null_field" translatable="false" />
     <string name="or_continue_with">Or continue with</string>
@@ -46,7 +47,7 @@
     <string name="user_id_not_found">User id not found</string>
     <string name="option">Home</string>
     <string name="user_cancelled">The answer was cancelled by user</string>
-    <string name="chatbot_failed_to_answer">The chatbot was failed to answer</string>
+    <string name="chatbot_failed_to_answer">The chat bot was failed to answer</string>
     <string name="no_internet_connection">Please connect internet to continue</string>
     <string name="username_existed">Username already exist</string>
     <string name="user_not_found">User does not exists or wrong password</string>
@@ -65,6 +66,10 @@
     <string name="no">No</string>
     <string name="yes">Yes</string>
     <string name="delete_confirm">Are you sure that want to delete this conversation?</string>
-    <string name="id">Id:</string>
+    <string name="id" translatable="false">Id:</string>
+    <string name="username_invalid_error">Invalid username</string>
+    <string name="invalid_otp">Invalid OTP</string>
+    <string name="email_not_found">Email not found</string>
+    <string name="continue_to_signup">Continue to sign up</string>
 
 </resources>

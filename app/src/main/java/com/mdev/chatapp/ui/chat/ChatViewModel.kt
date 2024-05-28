@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdev.chatapp.data.local.conversation.ConversationModel
@@ -23,18 +24,23 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val chatRepository: ChatRepository,
     private val conversationRepository: ConversationRepository,
     private val dataStore: DataStoreHelper,
     private val stringProvider: StringProvider
 ) : ViewModel() {
-    var state by mutableStateOf(ChatState(conversationId = INIT_CONVERSATION_ID))
-    var historyChats = mutableStateOf( HistoryResponse(listOf()))
+
+    val conversationId = savedStateHandle.get<String>("conversationId") ?: INIT_CONVERSATION_ID
+
+    var state by mutableStateOf(ChatState(conversationId = conversationId))
+
+    var historyChats = mutableStateOf(HistoryResponse(listOf()))
     var followUpQuestion = mutableStateOf(listOf<Message>())
 
     init {
         loadCurrentUser()
-        loadHistory()
+        refreshHistory()
     }
 
     fun onEvent(event: ChatUIEvent) {
@@ -213,6 +219,7 @@ class ChatViewModel @Inject constructor(
         }
     }
     fun updateConversationId(conversationId: String) {
+        Log.d("mine", "updateConversationId: $conversationId")
         state = state.copy(conversationId = conversationId)
         refreshHistory()
     }

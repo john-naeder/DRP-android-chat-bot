@@ -161,6 +161,9 @@ fun NavGraph(
 //                                }
                             }
                         },
+                        onBackClick = {
+                            navController.popBackStack()
+                        },
                         navDrawerViewModel = viewModel
 
                     )
@@ -197,50 +200,17 @@ fun NavGraph(
 //                                    inclusive = false
 //                                }
                             }
+                        },
+                        onBackClick = {
+                            navController.popBackStack()
                         }
                     )
                 }
-                composable(Route.AboutScreen.route) {
-                    // TODO
-                }
-                composable(Route.ChatScreen.route) {
+                composable(Route.ChatScreen.route){
                     val chatViewModel: ChatViewModel = hiltViewModel()
                     val navigateDrawerViewModel: NavigateDrawerViewModel = hiltViewModel()
 
                     ChatScreen(
-                        conversationId = INIT_CONVERSATION_ID,
-                        onLogout = {
-                            navController.navigate(Route.AuthNavigator.route) {
-                                popUpTo(Route.HomeNavigator.route) {
-                                    inclusive = true
-                                }
-                            }
-                        },
-                        onNavigateTo = {
-                            navController.navigate(it.route) {
-//                                popUpTo(Route.HomeNavigator.route) {
-//                                    inclusive = false
-//                                }
-                            }
-                        },
-                        chatViewModel = chatViewModel,
-                        navDrawerViewModel = navigateDrawerViewModel
-                    )
-                }
-                composable(
-                    route = "${Route.ChatScreen.route}/{conversationId}",
-                    arguments = listOf(
-                        navArgument("conversationId") {
-                            type = NavType.StringType
-                        }
-                    )
-                ) { it ->
-                    val id = it.arguments?.getString("conversationId") ?: INIT_CONVERSATION_ID
-                    val chatViewModel: ChatViewModel = hiltViewModel()
-                    val navigateDrawerViewModel: NavigateDrawerViewModel = hiltViewModel()
-
-                    ChatScreen(
-                        conversationId = id,
                         onLogout = {
                             navController.navigate(Route.AuthNavigator.route) {
                                 popUpTo(Route.HomeNavigator.route) {
@@ -255,9 +225,48 @@ fun NavGraph(
 //                                }
                             }
                         },
+                        onBackClick = {
+                            navController.popBackStack()
+                        },
                         chatViewModel = chatViewModel,
                         navDrawerViewModel = navigateDrawerViewModel
                     )
+                }
+                composable(
+                    route = "${Route.ChatScreen.route}/{conversationId}",
+                    arguments = listOf(
+                        navArgument("conversationId") {
+                            type = NavType.StringType
+                        }
+                    )
+                ) {
+                    val chatViewModel: ChatViewModel = hiltViewModel()
+                    val navigateDrawerViewModel: NavigateDrawerViewModel = hiltViewModel()
+
+                    ChatScreen(
+                        onLogout = {
+                            navController.navigate(Route.AuthNavigator.route) {
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = true
+                                }
+                            }
+                        },
+                        onNavigateTo = { route ->
+                            navController.navigate(route.route) {
+//                                popUpTo(Route.HomeNavigator.route) {
+//                                    inclusive = false
+//                                }
+                            }
+                        },
+                        onBackClick = {
+                            navController.popBackStack()
+                        },
+                        chatViewModel = chatViewModel,
+                        navDrawerViewModel = navigateDrawerViewModel
+                    )
+                }
+                composable(Route.AboutScreen.route) {
+                    // TODO
                 }
             }
         }

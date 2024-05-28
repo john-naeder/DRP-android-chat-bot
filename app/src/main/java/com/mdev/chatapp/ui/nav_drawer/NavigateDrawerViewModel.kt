@@ -41,6 +41,9 @@ class NavigateDrawerViewModel @Inject constructor(
             is NavDrawerUIEvent.Settings -> {
                 sendUIEvent(UIEvent.NavigateTo(Route.SettingsScreen))
             }
+            is NavDrawerUIEvent.Back -> {
+                sendUIEvent(UIEvent.Back)
+            }
         }
     }
 

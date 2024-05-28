@@ -62,15 +62,13 @@ import dev.jeziellago.compose.markdowntext.MarkdownText
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
-    conversationId: String,
     onLogout: (Route) -> Unit,
     onNavigateTo: (Route) -> Unit,
+    onBackClick: () -> Unit,
     chatViewModel: ChatViewModel,
     navDrawerViewModel: NavigateDrawerViewModel
 ) {
-    chatViewModel.updateConversationId(conversationId)
-
-    val chatState = chatViewModel.state
+    val chatState = chatViewModel.state.copy()
 
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -86,6 +84,9 @@ fun ChatScreen(
                 }
                 is UIEvent.NavigateTo -> {
                     onNavigateTo(it.route)
+                }
+                is UIEvent.Back -> {
+                    onBackClick()
                 }
             }
         }

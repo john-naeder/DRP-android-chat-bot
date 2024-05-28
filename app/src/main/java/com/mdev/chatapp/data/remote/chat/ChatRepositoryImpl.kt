@@ -1,8 +1,5 @@
 package com.mdev.chatapp.data.remote.chat
 
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresExtension
 import com.mdev.chatapp.R
 import com.mdev.chatapp.data.remote.chat.model.ConversationInitRequest
 import com.mdev.chatapp.data.remote.chat.model.ConversationInitResponse
@@ -12,7 +9,6 @@ import com.mdev.chatapp.data.remote.chat.model.NewChatRequest
 import com.mdev.chatapp.data.remote.chat.model.NewChatResponse
 import com.mdev.chatapp.domain.repository.remote.ChatRepository
 import com.mdev.chatapp.domain.result.ApiResult
-import retrofit2.HttpException
 
 class ChatRepositoryImpl(
     private val chatApi: ChatApi,
@@ -22,74 +18,72 @@ class ChatRepositoryImpl(
         conversationId: String,
         message: String
     ) : ApiResult<NewChatResponse> {
-        return try{
-            val response = chatApi.newChat(NewChatRequest(conversation_id = conversationId, id = userId, query = message))
-            ApiResult.Success(response = response)
-        } catch (e: HttpException){
-            when (e.code()) {
+        return try {
+            val response = chatApi.newChat(
+                NewChatRequest(
+                    conversation_id = conversationId,
+                    id = userId,
+                    query = message
+                )
+            )
+            when (response.code()) {
+                200 -> {
+                    val body = response.body()
+                    if (body != null) {
+                        ApiResult.Success(response = body)
+                    } else {
+                        ApiResult.Error(R.string.server_error)
+                    }
+                }
+                404 -> ApiResult.Error(R.string.conversation_not_found)
                 500 -> ApiResult.Error(R.string.server_error)
-                else -> ApiResult.UnknownError("Api: " + e.code())
+                else -> ApiResult.UnknownError(response.message())
             }
-        } catch (e: Exception){
-            ApiResult.UnknownError("Other: " + e.message)
+        } catch (e: Throwable) {
+            ApiResult.UnknownError("Other error: " + e.message + " Type: " + e.javaClass.simpleName)
         }
     }
 
+
     override suspend fun loadHistoryChat(conversationId: String): ApiResult<HistoryResponse> {
-        return try{
+        return try {
             val response = chatApi.getHistory(GetHistoryRequest(conversationId))
-            ApiResult.Success(response = response)
-        } catch (e: HttpException){
-            when (e.code()) {
+            when (response.code()) {
+                200 -> {
+                    val body = response.body()
+                    if (body != null) {
+                        ApiResult.Success(response = body)
+                    } else {
+                        ApiResult.Error(R.string.server_error)
+                    }
+                }
                 404 -> ApiResult.Error(R.string.conversation_not_found)
                 500 -> ApiResult.Error(R.string.server_error)
-                else -> ApiResult.UnknownError(e.message())
+                else -> ApiResult.UnknownError(response.message())
             }
+        } catch (e: Throwable) {
+            ApiResult.UnknownError("Other error: " + e.message + " Type: " + e.javaClass.simpleName)
         }
     }
 
     override suspend fun initConversation(userId: String) : ApiResult<ConversationInitResponse> {
-        return try{
+        return try {
             val response = chatApi.initChat(ConversationInitRequest(userId))
-            Log.d("initCon", "initConversation: $response")
-            ApiResult.Success(response = response)
-        } catch (e: HttpException){
-            when (e.code()) {
-                404 -> ApiResult.Error(R.string.user_id_not_found)
+            when (response.code()) {
+                200 -> {
+                    val body = response.body()
+                    if (body != null) {
+                        ApiResult.Success(response = body)
+                    } else {
+                        ApiResult.Error(R.string.server_error)
+                    }
+                }
+                404 -> ApiResult.Error(R.string.conversation_not_found)
                 500 -> ApiResult.Error(R.string.server_error)
-                else -> ApiResult.UnknownError(e.message())
+                else -> ApiResult.UnknownError(response.message())
             }
+        } catch (e: Throwable) {
+            ApiResult.UnknownError("Other error: " + e.message + " Type: " + e.javaClass.simpleName)
         }
     }
-
-
-//    override suspend fun newLongChat(userId: String, conversationId: String, message: String): ApiResult<NewChatResponse> {
-//        return try{
-//            val call = chatApi.newLongChat(NewChatRequest(conversation_id = conversationId, id = userId, query = message))
-//            val response = call.execute()
-//            val stringBuilder = StringBuilder()
-//            if (response.isSuccessful) {
-//                val responseBody = response.body()
-//                if (responseBody != null) {
-//                    withContext(Dispatchers.IO) {
-//                        responseBody.byteStream().bufferedReader().useLines { lines ->
-//                            lines.forEach { line ->
-//                                stringBuilder.append(line)
-//                            }
-//                        }
-//                    }
-//                    ApiResult.Success(response = NewChatResponse(messages = listOf(stringBuilder.toString())))
-//                } else {
-//                    ApiResult.Error(R.string.server_error)
-//                }
-//            } else {
-//                ApiResult.Error(R.string.server_error)
-//            }
-//        } catch (e: HttpException){
-//            when (e.code()) {
-//                500 -> ApiResult.Error(R.string.server_error)
-//                else -> ApiResult.UnknownError(e.message())
-//            }
-//        }
-//    }
 }

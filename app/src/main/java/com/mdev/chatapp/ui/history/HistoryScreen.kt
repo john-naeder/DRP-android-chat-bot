@@ -1,6 +1,5 @@
 package com.mdev.chatapp.ui.history
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
@@ -15,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.Delete
 import androidx.compose.material.icons.twotone.Edit
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,7 +32,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,16 +48,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mdev.chatapp.R
-import com.mdev.chatapp.data.local.conversation.ConversationModel
-import com.mdev.chatapp.data.remote.chat.model.Conversation
-import com.mdev.chatapp.ui.chat.ChatState
+import com.mdev.chatapp.data.remote.history.Model.Conversation
 import com.mdev.chatapp.ui.common.BaseScreen
 import com.mdev.chatapp.ui.common.Lottie
 import com.mdev.chatapp.ui.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.navgraph.Route
 import com.mdev.chatapp.util.UIEvent
 import dev.jeziellago.compose.markdowntext.MarkdownText
-import java.time.ZonedDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,7 +63,8 @@ fun HistoryScreen(
     historyViewModel: HistoryViewModel,
     onItemClick: (String) -> Unit,
     onNavigateTo: (Route) -> Unit,
-    onLogout: (Route) -> Unit
+    onLogout: (Route) -> Unit,
+    onBackClick: () -> Unit
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -89,6 +84,9 @@ fun HistoryScreen(
 
                 is UIEvent.NavigateTo -> {
                     onNavigateTo(it.route)
+                }
+                is UIEvent.Back -> {
+                    onBackClick()
                 }
             }
         }
@@ -112,11 +110,10 @@ fun HistoryScreen(
             }
         )
         if (state.isLoading) {
-            // This will be displayed on top of the AuthScreen content when isLoading is true
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.8f)), // This makes the screen look dimmed
+                    .background(Color.Black.copy(alpha = 0.8f)),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()

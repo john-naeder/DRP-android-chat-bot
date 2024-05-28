@@ -8,4 +8,5 @@ sealed class NavDrawerUIEvent {
     data object About : NavDrawerUIEvent()
     data object Settings : NavDrawerUIEvent()
     data object Profile : NavDrawerUIEvent()
+    data object Back: NavDrawerUIEvent()
 }

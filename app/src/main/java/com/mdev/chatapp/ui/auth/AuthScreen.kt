@@ -1,8 +1,10 @@
 package com.mdev.chatapp.ui.auth
 
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -52,12 +54,15 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mdev.chatapp.R
 import com.mdev.chatapp.data.local.user.UserModel
 import com.mdev.chatapp.domain.result.ApiResult
 import com.mdev.chatapp.ui.auth.common.AuthTextField
+import com.mdev.chatapp.ui.auth.common.OTPTextField
+import com.mdev.chatapp.ui.auth.common.OtpTextFieldDefaults
 import com.mdev.chatapp.ui.auth.common.SocialMediaLogin
 import com.mdev.chatapp.ui.auth.viewmode.AuthViewModel
 import com.mdev.chatapp.ui.auth.viewmode.SignInViewModel
@@ -66,6 +71,72 @@ import com.mdev.chatapp.ui.navgraph.Route
 import com.mdev.chatapp.ui.theme.BlueGray
 import com.mdev.chatapp.ui.theme.Roboto
 import com.mdev.chatapp.ui.theme.Shapes
+
+
+@Composable
+private fun TopSection(
+    @StringRes header: Int,
+    onBackClick: () -> Unit,
+    isBackButtonVisible: Boolean = false,
+) {
+    Box(
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        Image(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(fraction = 0.35f),
+            painter = painterResource(id = R.drawable.bookmark_shape),
+            contentDescription = null,
+            contentScale = ContentScale.FillBounds
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 68.dp),
+            horizontalArrangement = Arrangement.Start
+        ) {
+            if (isBackButtonVisible) {
+                IconButton(
+                    onClick = { onBackClick() },
+                ) {
+                    Icon(
+                        imageVector = Icons.TwoTone.ArrowBackIosNew,
+                        contentDescription = stringResource(id = R.string.back)
+                    )
+                }
+            }
+        }
+        Row(
+            modifier = Modifier.padding(top = 70.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                modifier = Modifier.size(42.dp),
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = stringResource(id = R.string.app_logo),
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Column {
+                Text(
+                    text = stringResource(id = R.string.auth_screen_header),
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+                Text(
+                    text = stringResource(id = R.string.auth_screen_title),
+                    style = MaterialTheme.typography.titleMedium,
+                )
+            }
+        }
+        Text(
+            modifier = Modifier
+                .padding(bottom = 20.dp)
+                .align(Alignment.BottomCenter),
+            text = stringResource(id = header),
+            style = MaterialTheme.typography.headlineLarge,
+        )
+    }
+}
 
 @Composable
 fun AuthScreen(
@@ -205,16 +276,17 @@ fun SignInScreen(
                     switchToSignUpClicked = {
                         onNavigateTo(Route.Signup)
                     },
-                    loginClick = { viewModel.onEvent(AuthUiEvent.SignIn) },
-                    viewModel = viewModel
+                    onSignInClick = { viewModel.onEvent(AuthUiEvent.SignIn) },
+                    onUsernameChanged = { viewModel.onEvent(AuthUiEvent.UsernameChanged(it)) },
+                    onPasswordChange = { viewModel.onEvent(AuthUiEvent.PasswordChanged(it)) },
+                    state = viewModel.state
                 )
             }
             if (isLoading) {
-                // This will be displayed on top of the AuthScreen content when isLoading is true
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.8f)), // This makes the screen look dimmed
+                        .background(Color.Black.copy(alpha = 0.8f)),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -241,14 +313,6 @@ fun SignUpScreen(
                     onSignUpSuccess(Route.HomeNavigator)
                 }
 
-                is ApiResult.Unauthorized -> {
-                    Toast.makeText(
-                        context,
-                        it.message,
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-
                 is ApiResult.Error -> {
                     Toast.makeText(
                         context,
@@ -263,6 +327,9 @@ fun SignUpScreen(
                         it.message,
                         Toast.LENGTH_LONG
                     ).show()
+                }
+                else -> {
+                    // do nothing
                 }
             }
 
@@ -282,16 +349,24 @@ fun SignUpScreen(
                     onSwitchToSignInClick = {
                         onNavigateTo(Route.SignIn)
                     },
-                    onSignUp = { viewModel.onEvent(AuthUiEvent.SignUp) },
-                    viewModel = viewModel
+                    onContinueToSignUp = {
+                        viewModel.state = viewModel.state.copy(isVerifyOTP = true)
+                        viewModel.onEvent(AuthUiEvent.SendOTP)
+                    },
+                    state = viewModel.state,
+                    onPasswordChange = { viewModel.onEvent(AuthUiEvent.PasswordChanged(it)) },
+                    onRePasswordChanged = { viewModel.onEvent(AuthUiEvent.RePasswordChanged(it)) },
+                    onUsernameChanged = { viewModel.onEvent(AuthUiEvent.UsernameChanged(it)) },
+                    onEmailChanged = { viewModel.onEvent(AuthUiEvent.EmailChanged(it)) },
+                    onOTPChanged = { viewModel.onEvent(AuthUiEvent.OTPChanged(it)) },
+                    onOTPSubmit = { viewModel.onEvent(AuthUiEvent.SignUp) }
                 )
             }
             if (isLoading) {
-                // This will be displayed on top of the AuthScreen content when isLoading is true
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.8f)), // This makes the screen look dimmed
+                        .background(Color.Black.copy(alpha = 0.8f)),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
@@ -302,85 +377,132 @@ fun SignUpScreen(
 }
 
 @Composable
-private fun TopSection(
-    @StringRes header: Int,
-    onBackClick: () -> Unit,
-    isBackButtonVisible: Boolean = false,
-) {
-    Box(
-        contentAlignment = Alignment.TopCenter,
-    ) {
-        Image(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(fraction = 0.35f),
-            painter = painterResource(id = R.drawable.bookmark_shape),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 68.dp),
-            horizontalArrangement = Arrangement.Start
-        ) {
-            if (isBackButtonVisible) {
-                IconButton(
-                    onClick = { onBackClick() },
-                ) {
-                    Icon(
-                        imageVector = Icons.TwoTone.ArrowBackIosNew,
-                        contentDescription = stringResource(id = R.string.back)
-                    )
-                }
-            }
-        }
-        Row(
-            modifier = Modifier.padding(top = 70.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                modifier = Modifier.size(42.dp),
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = stringResource(id = R.string.app_logo),
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Column {
-                Text(
-                    text = stringResource(id = R.string.auth_screen_header),
-                    style = MaterialTheme.typography.headlineMedium,
-                )
-                Text(
-                    text = stringResource(id = R.string.auth_screen_title),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-        }
-        Text(
-            modifier = Modifier
-                .padding(bottom = 20.dp)
-                .align(Alignment.BottomCenter),
-            text = stringResource(id = header),
-            style = MaterialTheme.typography.headlineLarge,
-        )
-    }
-}
-
-@Composable
 fun SignUpContent(
     onSwitchToSignInClick: () -> Unit,
-    onSignUp: () -> Unit,
-    viewModel: SignUpViewModel
+    onContinueToSignUp: () -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onRePasswordChanged: (String) -> Unit,
+    onUsernameChanged: (String) -> Unit,
+    onEmailChanged: (String) -> Unit,
+    onOTPChanged: (String) -> Unit,
+    onOTPSubmit: () -> Unit,
+    state: AuthState,
 ) {
+    val otpVisibleState = remember { MutableTransitionState(state.isVerifyOTP).apply { targetState = state.isVerifyOTP } }
+    Log.d("SignUpContent", "otpVisibleState: ${otpVisibleState.currentState}")
+    val signUpVisibleState = remember { MutableTransitionState(!state.isVerifyOTP).apply { targetState = !state.isVerifyOTP } }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 30.dp)
     ) {
-        InputSignupSection(
-            onSignUpClick = { onSignUp() },
-            viewModel = viewModel
+//        AnimatedVisibility(
+//            visibleState = otpVisibleState,
+//            enter = fadeIn() + slideInHorizontally(),
+//            exit = fadeOut() + slideOutHorizontally()
+//        ) {
+        if (state.isVerifyOTP)
+            Column(
+                modifier = Modifier.fillMaxSize()
+
+            ){
+                OTPTextField(
+                    value = state.otp,
+                    onTextChanged = {
+                        onOTPChanged(it)
+                    },
+                    numDigits = 6,
+                    isMasked = true,
+                    digitContainerStyle = OtpTextFieldDefaults.outlinedContainer(),
+                    textStyle = MaterialTheme.typography.titleLarge,
+                    isError = true
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+                AuthButton(
+                    onClick = { onOTPSubmit() },
+                    content = R.string.signup,
+                    enabled = state.otp.isNotEmpty()
+                )
+            }
+//        }
+
+//        AnimatedVisibility(
+//            visibleState = signUpVisibleState,
+//            enter = fadeIn() + slideInHorizontally(),
+//            exit = fadeOut() + slideOutHorizontally()
+//        ) {
+        else {
+            InputSignupSection(
+                onSignUpClick = { onContinueToSignUp() },
+                onUsernameChanged = { onUsernameChanged(it) },
+                onEmailChanged = { onEmailChanged(it) },
+                onPasswordChange = { onPasswordChange(it) },
+                onRePasswordChanged = { onRePasswordChanged(it) },
+                onSwitchToSignInClick = { onSwitchToSignInClick() },
+                state = state
+            )
+        }
+    }
+}
+
+@Composable
+private fun InputSignupSection(
+    onSignUpClick: () -> Unit,
+    onUsernameChanged: (String) -> Unit,
+    onEmailChanged: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onRePasswordChanged: (String) -> Unit,
+    onSwitchToSignInClick: () -> Unit,
+    state: AuthState,
+) {
+    Column (
+        modifier = Modifier.fillMaxSize()
+    ) {
+
+        AuthTextField(
+            label = R.string.username,
+            state = state,
+            modifier = Modifier.fillMaxWidth(),
+            onUsernameChanged = onUsernameChanged
         )
+//        Spacer(modifier = Modifier.height(5.dp))
+
+        AuthTextField(
+            label = R.string.email,
+            onEmailChanged = onEmailChanged,
+            state = state,
+            modifier = Modifier.fillMaxWidth()
+        )
+//        Spacer(modifier = Modifier.height(5.dp))
+
+        AuthTextField(
+            label = R.string.password,
+            state = state,
+            onPasswordChange = onPasswordChange,
+            modifier = Modifier.fillMaxWidth()
+        )
+//        Spacer(modifier = Modifier.height(5.dp))
+
+        AuthTextField(
+            label = R.string.repassword,
+            state = state,
+            onRePasswordChanged = onRePasswordChanged,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+        AuthButton(
+            onClick = { onSignUpClick() },
+            content = R.string.continue_to_signup,
+            enabled = state.passwordError.not()
+                    && state.rePasswordError.not()
+                    && state.password.isNotEmpty()
+                    && state.rePassword.isNotEmpty()
+                    && state.username.isNotEmpty()
+                    && state.email.isNotEmpty()
+                    && state.emailError.not()
+        )
+        Spacer(modifier = Modifier.height(10.dp))
         BottomSection(
             text = R.string.have_account,
             textBold = R.string.login_now,
@@ -389,42 +511,14 @@ fun SignUpContent(
     }
 }
 
-@Composable
-private fun InputSignupSection(
-    onSignUpClick: () -> Unit,
-    viewModel: SignUpViewModel
-) {
-    AuthTextField(label = R.string.username, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
-    Spacer(modifier = Modifier.height(5.dp))
-
-    AuthTextField(label = R.string.email, viewModel = viewModel,  modifier = Modifier.fillMaxWidth())
-    Spacer(modifier = Modifier.height(5.dp))
-
-    AuthTextField(label = R.string.password, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
-    Spacer(modifier = Modifier.height(5.dp))
-
-    AuthTextField(label = R.string.repassword, viewModel = viewModel, modifier = Modifier.fillMaxWidth())
-    Spacer(modifier = Modifier.height(10.dp))
-
-
-    AuthButton(
-        onClick = { onSignUpClick() },
-        content = R.string.signup,
-        enabled = viewModel.state.passwordError.not()
-                && viewModel.state.rePasswordError.not()
-                && viewModel.state.password.isNotEmpty()
-                && viewModel.state.rePassword.isNotEmpty()
-                && viewModel.state.username.isNotEmpty()
-                && viewModel.state.email.isNotEmpty()
-    )
-}
-
 
 @Composable
 fun SignInContent(
     switchToSignUpClicked: () -> Unit,
-    loginClick: () ->Unit,
-    viewModel: SignInViewModel
+    onSignInClick: () ->Unit,
+    onUsernameChanged: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    state: AuthState
 ) {
     Column(
         modifier = Modifier
@@ -432,8 +526,10 @@ fun SignInContent(
             .padding(horizontal = 30.dp)
     ) {
         InputLoginSection(
-            loginClick = { loginClick() },
-            viewModel = viewModel
+            loginClick = onSignInClick ,
+            onUsernameChanged = onUsernameChanged,
+            onPasswordChange = onPasswordChange,
+            state = state
         )
         Spacer(modifier = Modifier.height(30.dp))
         SocialMediaMethodSection()
@@ -448,27 +544,31 @@ fun SignInContent(
 @Composable
 private fun InputLoginSection(
     loginClick: () -> Unit,
-    viewModel: SignInViewModel
+    onUsernameChanged: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    state: AuthState
 ) {
     AuthTextField(
         label =  R.string.username,
-        viewModel = viewModel,
+        state = state,
+        onUsernameChanged = onUsernameChanged,
         modifier = Modifier.fillMaxWidth()
     )
     Spacer(modifier = Modifier.height(5.dp))
 
     AuthTextField(
         label = R.string.password,
-        viewModel = viewModel,
+        state = state,
+        onPasswordChange = onPasswordChange,
         modifier = Modifier.fillMaxWidth()
     )
     Spacer(modifier = Modifier.height(10.dp))
     AuthButton(
         onClick = { loginClick() },
         content = R.string.login,
-        enabled = viewModel.state.username.isNotEmpty()
-                && viewModel.state.password.isNotEmpty()
-                && viewModel.state.passwordError.not()
+        enabled = state.username.isNotEmpty()
+                && state.password.isNotEmpty()
+                && state.passwordError.not()
     )
 }
 
@@ -505,7 +605,6 @@ private fun SocialMediaMethodSection() {
         }
     }
 }
-
 
 @Composable
 private fun BottomSection(
@@ -654,6 +753,7 @@ fun UserSignedInBottom(
                     onClick = { onSignInAnother() },
                     content = R.string.another_account
                 )
+                Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = stringResource(id = R.string.dont_have_account),
                     style = MaterialTheme.typography.titleMedium,
@@ -705,12 +805,12 @@ fun UserSignedInBottomButton(
         onClick = { onClick() },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp)
     ) {
         Text(
+            textAlign = TextAlign.Center,
             text = stringResource(id = content),
             fontSize = 16.sp,
-            fontWeight = FontWeight.Normal
+            fontWeight = FontWeight.Normal,
         )
     }
 }

@@ -1,6 +1,7 @@
 package com.mdev.chatapp.ui.common
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.twotone.ArrowForwardIos
 import androidx.compose.material.icons.twotone.ArrowForwardIos
 import androidx.compose.material.icons.twotone.History
 import androidx.compose.material.icons.twotone.Menu
@@ -26,7 +27,8 @@ fun MainTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior,
     currentRoute: Route,
     onOpenDrawerClick: () -> Unit,
-    onViewHistoryClick: () -> Unit
+    onViewHistoryClick: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     Surface(
         shadowElevation = 8.dp
@@ -53,6 +55,19 @@ fun MainTopAppBar(
                             Icon(
                                 imageVector = Icons.TwoTone.History,
                                 contentDescription = stringResource(R.string.history)
+                            )
+                        }
+                    )
+                }
+                if (currentRoute != Route.HomeScreen) {
+                    IconButton(
+                        onClick = {
+                            onBackClick()
+                        },
+                        content = {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.TwoTone.ArrowForwardIos,
+                                contentDescription = stringResource(R.string.settings)
                             )
                         }
                     )

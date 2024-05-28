@@ -63,7 +63,13 @@ fun BaseScreen(
                         scrollBehavior = scrollBehavior,
                         currentRoute = selectedItem,
                         onOpenDrawerClick = { scope.launch { drawerState.open() } },
-                    ) {}
+                        onBackClick = {
+                            navDrawerViewModel.onEvent(NavDrawerUIEvent.Back)
+                        },
+                        onViewHistoryClick = {
+                            navDrawerViewModel.onEvent(NavDrawerUIEvent.History)
+                        }
+                    )
                 },
                 content = {
                     Box(

@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.mdev.chatapp.R
+import com.mdev.chatapp.ui.auth.AuthState
 import com.mdev.chatapp.ui.auth.AuthUiEvent
 import com.mdev.chatapp.ui.auth.viewmode.AuthViewModelInterface
 import com.mdev.chatapp.ui.theme.focusedTextFieldText
@@ -33,9 +34,12 @@ import com.mdev.chatapp.ui.theme.unfocusedTextFieldText
 fun AuthTextField(
     modifier: Modifier = Modifier,
     @StringRes label: Int,
-    viewModel: AuthViewModelInterface
+    state: AuthState,
+    onPasswordChange: (String) -> Unit = {},
+    onRePasswordChanged: (String) -> Unit = {},
+    onUsernameChanged: (String) -> Unit = {},
+    onEmailChanged: (String) -> Unit = {},
 ){
-    val state = viewModel.state
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -50,11 +54,11 @@ fun AuthTextField(
                     password = newPassword
                     when (label) {
                         R.string.password -> {
-                            viewModel.onEvent(AuthUiEvent.PasswordChanged(newPassword))
+                            onPasswordChange(newPassword)
 
                         }
                         R.string.repassword -> {
-                            viewModel.onEvent(AuthUiEvent.RePasswordChanged(newPassword))
+                            onRePasswordChanged(newPassword)
                         }
                     }
                 },
@@ -103,7 +107,7 @@ fun AuthTextField(
                 },
                 value = state.username,
                 onValueChange = { newUsername ->
-                    viewModel.onEvent(AuthUiEvent.UsernameChanged(newUsername))
+                    onUsernameChanged(newUsername)
                 },
                 singleLine = true,
                 placeholder = { Text("Abc123") },
@@ -135,7 +139,7 @@ fun AuthTextField(
                 },
                 value = state.email,
                 onValueChange = { newEmail ->
-                    viewModel.onEvent(AuthUiEvent.EmailChanged(newEmail))
+                    onEmailChanged(newEmail)
                 },
                 singleLine = true,
                 placeholder = { Text("duydeptrai@example.com") },
@@ -177,7 +181,7 @@ fun PasswordTextField(
         value = password,
         onValueChange = onPasswordChange,
         singleLine = true,
-        placeholder = { Text("thisIsSuperVjpzoPasswordOfDuy") },
+        placeholder = { Text("HutaoVoTao@123") },
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         trailingIcon = {

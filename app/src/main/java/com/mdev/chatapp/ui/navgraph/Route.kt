@@ -30,5 +30,5 @@ sealed class Route(
     data object SettingsScreen : Route("settings_screen", icon = Icons.TwoTone.Settings, title = R.string.settings)
     data object HistoryScreen : Route("history_screen", icon = Icons.TwoTone.History, title = R.string.history)
     data object AboutScreen : Route("about", icon = Icons.TwoTone.Info, title = R.string.about)
-    data object ChatScreen : Route("chat_screen", icon = Icons.TwoTone.ChatBubble, title = R.string.new_chat)
+    data object ChatScreen : Route("chat_screen", icon = Icons.TwoTone.ChatBubble, title = R.string.chat)
 }

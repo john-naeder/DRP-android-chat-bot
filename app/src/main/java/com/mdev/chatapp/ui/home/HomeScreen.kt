@@ -10,16 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.twotone.MarkChatUnread
-import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,13 +28,10 @@ import androidx.compose.ui.unit.dp
 import com.mdev.chatapp.R
 import com.mdev.chatapp.ui.common.BaseScreen
 import com.mdev.chatapp.ui.common.Lottie
-import com.mdev.chatapp.ui.common.MainTopAppBar
-import com.mdev.chatapp.ui.nav_drawer.DrawerContent
 import com.mdev.chatapp.ui.nav_drawer.NavDrawerUIEvent
 import com.mdev.chatapp.ui.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.navgraph.Route
 import com.mdev.chatapp.util.UIEvent
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
@@ -47,6 +40,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     onLogout: (Route) -> Unit,
     onNavigateTo: (Route) -> Unit,
+    onBackClick: () -> Unit,
     navDrawerViewModel: NavigateDrawerViewModel
 ) {
     val context = LocalContext.current
@@ -65,8 +59,8 @@ fun HomeScreen(
                 is UIEvent.NavigateTo -> {
                     onNavigateTo(event.route)
                 }
-                else -> {
-                    // Do nothing
+                is UIEvent.Back -> {
+                    onBackClick()
                 }
             }
         }
@@ -134,7 +128,7 @@ private fun HomeInnerContent(
             content = {
                 Icon(
                     imageVector = Icons.TwoTone.MarkChatUnread,
-                    contentDescription = stringResource(R.string.new_chat)
+                    contentDescription = stringResource(R.string.chat)
                 )
             },
         )

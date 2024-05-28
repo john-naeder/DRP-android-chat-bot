@@ -21,5 +21,11 @@ data class AuthState(
     val emailError: Boolean = false,
     val emailErrorCode: Int = R.string.required_field,
 
+    val isVerifyOTP: Boolean = false,
+
+    val otp: String = "",
+    val otpError: Boolean = false,
+    val otpErrorCode: Int = R.string.required_field,
+
     val signedInUsernameChanged: String = ""
 )

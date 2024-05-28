@@ -1,10 +1,12 @@
 package com.mdev.chatapp.data.remote.auth
 
-import android.util.Log
 import com.mdev.chatapp.R
 import com.mdev.chatapp.data.local.user.UserModel
+import com.mdev.chatapp.data.remote.auth.model.ResetPasswordResquest
 import com.mdev.chatapp.data.remote.auth.model.SignInRequest
 import com.mdev.chatapp.data.remote.auth.model.SignUpRequest
+import com.mdev.chatapp.data.remote.auth.model.SendOTPRequest
+import com.mdev.chatapp.data.remote.auth.model.VerifyOTPRequest
 import com.mdev.chatapp.domain.repository.local.UserRepository
 import com.mdev.chatapp.domain.repository.remote.AuthRepository
 import com.mdev.chatapp.domain.result.ApiResult
@@ -22,11 +24,7 @@ class AuthRepositoryImpl(
     private val userRepository: UserRepository
 ) : AuthRepository {
 
-    override suspend fun signUp(
-        username: String,
-        password: String,
-        email: String
-    ): ApiResult<Unit> {
+    override suspend fun signUp(username: String, password: String, email: String): ApiResult<Unit> {
         return try {
             authApi.signUp(SignUpRequest(username, password, email))
             signIn(username, password)
@@ -124,12 +122,8 @@ class AuthRepositoryImpl(
         return try {
             val token = dataStore.getString(JWT_REFRESH + username)
                 ?: return ApiResult.Error(R.string.null_token_response)
-            Log.d("refreshToken", "refreshToken: $token")
+
             val response = authApi.refreshToken("Bearer $token")
-
-            Log.d("refreshToken", "${response.code()}")
-
-
 
             dataStore.setString(JWT + username, response.body()!!.accessToken)
             dataStore.setString(JWT + CURRENT_USER, response.body()!!.accessToken)
@@ -158,5 +152,68 @@ class AuthRepositoryImpl(
         dataStore.remove(JWT + CURRENT_USER)
         dataStore.remove(CURRENT_USER)
         dataStore.remove(CURRENT_USER_ID)
+    }
+
+    override suspend fun sendOTP(email: String): ApiResult<Unit> {
+        return try {
+            authApi.sendOTP(SendOTPRequest(email))
+            ApiResult.Success()
+        } catch (e: HttpException) {
+            when (e.code()) {
+                500 -> ApiResult.Error(R.string.server_error)
+                else -> ApiResult.UnknownError("Send OTP (API error): " + e.message() + e.code())
+            }
+        } catch (e: Exception) {
+            ApiResult.UnknownError("Send OTP error: " + e.message)
+        }
+    }
+
+    override suspend fun verifyOTP(email: String, otp: String): ApiResult<Unit> {
+        return try {
+            authApi.verifyOTP(VerifyOTPRequest(email, otp))
+            ApiResult.Success()
+        } catch (e: HttpException) {
+            when (e.code()) {
+                400 -> ApiResult.Error(R.string.invalid_otp)
+                500 -> ApiResult.Error(R.string.server_error)
+                else -> ApiResult.UnknownError("Verify OTP (API error): " + e.message() + e.code())
+            }
+        } catch (e: Exception) {
+            ApiResult.UnknownError("Verify OTP error: " + e.message)
+        }
+    }
+
+    override suspend fun resetPassword(email: String): ApiResult<Unit> {
+        return try {
+            authApi.resetPasswordOTP(SendOTPRequest(email))
+            ApiResult.Success()
+        } catch (e: HttpException) {
+            when (e.code()) {
+                500 -> ApiResult.Error(R.string.server_error)
+                else -> ApiResult.UnknownError("Reset password (API error): " + e.message() + e.code())
+            }
+        } catch (e: Exception) {
+            ApiResult.UnknownError("Reset password error: " + e.message)
+        }
+    }
+
+    override suspend fun resetPasswordOTP(
+        email: String,
+        otp: String,
+        password: String
+    ): ApiResult<Unit> {
+        return try {
+            authApi.resetPassword(ResetPasswordResquest(email, otp, password))
+            ApiResult.Success()
+        } catch (e: HttpException) {
+            when (e.code()) {
+                400 -> ApiResult.Error(R.string.invalid_otp)
+                404 -> ApiResult.Error(R.string.email_not_found)
+                500 -> ApiResult.Error(R.string.server_error)
+                else -> ApiResult.UnknownError("Reset password OTP (API error): " + e.message() + e.code())
+            }
+        } catch (e: Exception) {
+            ApiResult.UnknownError("Reset password OTP error: " + e.message)
+        }
     }
 }

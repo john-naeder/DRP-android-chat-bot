@@ -1,21 +1,17 @@
 package com.mdev.chatapp.ui.history
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mdev.chatapp.data.local.conversation.ConversationModel
-import com.mdev.chatapp.data.remote.chat.model.GetConversationIdsResponse
-import com.mdev.chatapp.domain.repository.local.ConversationRepository
 import com.mdev.chatapp.domain.result.ApiResult
-import com.mdev.chatapp.ui.auth.AuthState
 import com.mdev.chatapp.util.Constants
 import com.mdev.chatapp.util.DataStoreHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,20 +32,18 @@ class HistoryViewModel @Inject constructor(
             getConversations()
         }
     }
-
     private fun getConversations() {
         viewModelScope.launch {
             state = state.copy(isLoading = true)
             when (val result = historyRepository.getConversations(currentUserId)) {
                 is ApiResult.Success -> {
-                    state = state.copy(conversations = result.response!!.data)
-                    Log.d("HistoryViewModel", "Success: ${result.response.data}")
+                    state = state.copy(conversations = result.response!!.data.reversed())
                 }
                 is ApiResult.Error -> {
-                    Log.e("HistoryViewModel", "Error: ${result.message}")
+
                 }
                 is ApiResult.UnknownError -> {
-                    Log.e("HistoryViewModel", "Unknown error: ${result.message}")
+
                 }
                 else -> {
                     // Do nothing

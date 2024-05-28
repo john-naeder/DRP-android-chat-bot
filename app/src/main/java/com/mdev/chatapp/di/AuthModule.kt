@@ -19,7 +19,7 @@ import com.mdev.chatapp.domain.repository.remote.ChatRepository
 import com.mdev.chatapp.data.remote.chat.ChatRepositoryImpl
 import com.mdev.chatapp.domain.repository.local.ConversationRepository
 import com.mdev.chatapp.ui.history.HistoryRepository
-import com.mdev.chatapp.ui.history.HistoryRepositoryImpl
+import com.mdev.chatapp.data.remote.history.HistoryRepositoryImpl
 import com.mdev.chatapp.util.Constants
 import com.mdev.chatapp.util.DataStoreHelper
 import com.mdev.chatapp.util.RetryInterceptor
@@ -42,10 +42,10 @@ object AuthModule {
     @Singleton
     @Provides
     fun provideAuthApi(): AuthApi {
-        val retryInterceptor = RetryInterceptor(3)
+//        val retryInterceptor = RetryInterceptor(3)
 
         val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(retryInterceptor)
+//            .addInterceptor(retryInterceptor)
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(20, TimeUnit.SECONDS)
             .writeTimeout(20, TimeUnit.SECONDS)

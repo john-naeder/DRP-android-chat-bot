@@ -28,11 +28,38 @@
     <string name="logout">Đăng xuất</string>
     <string name="or">hoặc</string>
     <string name="delete">Xóa</string>
-    <string name="new_chat">Trò chuyện mới</string>
+    <string name="chat">Trò chuyện</string>
     <string name="field_empty_error">Không được bỏ trống</string>
     <string name="password_not_match_error">Mật khẩu không trùng nhau</string>
     <string name="password_length_error">Mật khẩu phải dài ít nhất 6 ký tự</string>
+    <string name="password_contain_error">chứa ít nhất một ký tự đặt biệt</string>
     <string name="required_field">*Bắt buộc</string>
+    <string name="or_continue_with">Hoặc tiếp tục với</string>
+    <string name="conversation_not_found">Không tìm thấy cuộc trò chuyện</string>
+    <string name="server_error">"Server lỗi "</string>
+    <string name="user_id_not_found">Không tìm thấy id người dùng</string>
+    <string name="option">"Trang chủ "</string>
+    <string name="user_cancelled">Câu trả lời đã bị hủy bời người dùng</string>
+    <string name="chatbot_failed_to_answer">"Chat bot không thể trả lời câu này "</string>
+    <string name="no_internet_connection">Vui lòng kết nối internet để tiếp tục</string>
+    <string name="username_existed">"Tên đăng nhập đã tồn tại "</string>
+    <string name="user_not_found">"Tên đăng nhập sai hoặc không tồn tại "</string>
+    <string name="token_not_found">Không tìm thấy token</string>
+    <string name="invalid_token_or_token_not_found">Token rỗng hoặc không hợp lệ</string>
+    <string name="refresh_token_not_found_or_invalid">"Phiên đăng nhập đã kết thúc, vui lòng đăng nhập lại "</string>
+    <string name="text_copied">"Đã sao chép "</string>
+    <string name="cancel">Hủy</string>
+    <string name="null_token_response">Token phản hồi rỗng</string>
+    <string name="null_response_body">Thân phản hồi rỗng</string>
+    <string name="email_invalid_error">Email không hợp lệ</string>
+    <string name="title">Tiêu đề:</string>
+    <string name="edit">Chỉnh sửa</string>
+    <string name="accept">"chấp nhận "</string>
+    <string name="history_title">Tiêu đề cuộc trò chuyện</string>
+    <string name="no">không</string>
+    <string name="yes">có</string>
+    <string name="delete_confirm">Bạn có chắc là muốn xóa không?</string>
+    <string name="username_invalid_error">Tên không hợp lệ</string>
 
 
 </resources>

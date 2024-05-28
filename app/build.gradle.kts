@@ -79,6 +79,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Youtube 
+    implementation("com.pierfrancescosoffritti.androidyoutubeplayer:core:11.1.0")
 
     // Compose
     implementation("com.github.jeziellago:compose-markdown:0.5.0")

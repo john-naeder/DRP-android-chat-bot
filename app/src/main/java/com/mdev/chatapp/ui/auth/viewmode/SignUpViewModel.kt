@@ -1,5 +1,6 @@
 package com.mdev.chatapp.ui.auth.viewmode
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,9 +30,17 @@ class SignUpViewModel @Inject constructor(
     override fun onEvent(event: AuthUiEvent) {
         when (event) {
             is AuthUiEvent.UsernameChanged -> {
-                val usernameError = event.value.isEmpty()
+                val usernameError = event.value.isEmpty() || !Util.isValidUsername(event.value)
                 val usernameErrorCode =
-                    if (usernameError) R.string.field_empty_error else R.string.null_field
+                    if (usernameError) {
+                        when {
+                            event.value.isEmpty() -> R.string.field_empty_error
+                            !Util.isValidUsername(event.value) -> R.string.username_invalid_error
+                            else -> R.string.null_field
+                        }
+                    } else {
+                        R.string.null_field
+                    }
                 state = state.copy(
                     username = event.value,
                     usernameError = usernameError,
@@ -40,10 +49,11 @@ class SignUpViewModel @Inject constructor(
             }
 
             is AuthUiEvent.PasswordChanged -> {
-                val passwordError = event.value.isEmpty() || event.value.length < 6
+                val passwordError = !Util.isPasswordValid(event.value)
                 val passwordErrorCode = when {
                     event.value.isEmpty() -> R.string.field_empty_error
                     event.value.length < 6 -> R.string.password_length_error
+                    !event.value.matches(Regex(".*[^a-zA-Z0-9 ].*")) -> R.string.password_contain_error
                     else -> R.string.null_field
                 }
                 state = state.copy(
@@ -54,11 +64,9 @@ class SignUpViewModel @Inject constructor(
             }
 
             is AuthUiEvent.RePasswordChanged -> {
-                val rePasswordError =
-                    event.value.isEmpty() || event.value.length < 6 || state.password != event.value
+                val rePasswordError = !Util.isPasswordValid(event.value) || (state.password != event.value)
+
                 val rePasswordErrorCode = when {
-                    event.value.isEmpty() -> R.string.field_empty_error
-                    event.value.length < 6 -> R.string.password_length_error
                     state.password != event.value -> R.string.password_not_match_error
                     else -> R.string.null_field
                 }
@@ -72,11 +80,24 @@ class SignUpViewModel @Inject constructor(
             is AuthUiEvent.EmailChanged -> {
                 val emailError = event.value.isEmpty() || !Util.isEmailValid(event.value)
                 val emailErrorCode = if (event.value.isEmpty()) R.string.field_empty_error
-                    else if (Util.isEmailValid(event.value)) R.string.email_invalid_error
+                    else if (!Util.isEmailValid(event.value)) R.string.email_invalid_error
                     else R.string.null_field
                 state = state.copy(
                     email = event.value, emailError = emailError, emailErrorCode = emailErrorCode
                 )
+            }
+
+            is AuthUiEvent.OTPChanged -> {
+                val otpError = event.value.isEmpty()
+                val otpErrorCode = if (event.value.isEmpty()) R.string.field_empty_error
+                else R.string.null_field
+                state = state.copy(
+                    otp = event.value, otpError = otpError, otpErrorCode = otpErrorCode
+                )
+            }
+
+            is AuthUiEvent.SendOTP -> {
+                sendOTP()
             }
 
             is AuthUiEvent.SignUp -> {
@@ -92,11 +113,50 @@ class SignUpViewModel @Inject constructor(
     private fun signUp() {
         viewModelScope.launch {
             state = state.copy(isLoading = true)
-            val result = authRepository.signUp(
+            val otpResult = authRepository.verifyOTP(
+                email = state.email, otp = state.otp
+            )
+
+            if (otpResult is ApiResult.Error) {
+                uiEventChannel.send(otpResult)
+                state = state.copy(isLoading = false, isVerifyOTP = true)
+                return@launch
+            }
+
+            if (otpResult is ApiResult.UnknownError) {
+                uiEventChannel.send(otpResult)
+                state = state.copy(isLoading = false, isVerifyOTP = true)
+                return@launch
+            }
+
+            val signUpResult = authRepository.signUp(
                 state.username, state.password, state.email
             )
-            uiEventChannel.send(result)
+            uiEventChannel.send(signUpResult)
             state = state.copy(isLoading = false)
         }
     }
+
+    private fun sendOTP() {
+        viewModelScope.launch {
+            state = state.copy(isLoading = true)
+            authRepository.sendOTP(state.email)
+            when (val result = authRepository.sendOTP(state.email)) {
+                is ApiResult.Error -> {
+                    uiEventChannel.send(result)
+                    state = state.copy(isLoading = false)
+                    return@launch
+                }
+                is ApiResult.UnknownError -> {
+                    uiEventChannel.send(result)
+                    state = state.copy(isLoading = false)
+                    return@launch
+                }
+                else -> {
+                    state = state.copy(isLoading = false, isVerifyOTP = true)
+                }
+            }
+        }
+    }
+
 }
