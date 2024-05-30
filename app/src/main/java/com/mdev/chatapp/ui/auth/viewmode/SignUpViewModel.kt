@@ -103,6 +103,9 @@ class SignUpViewModel @Inject constructor(
             is AuthUiEvent.SignUp -> {
                 signUp()
             }
+            is AuthUiEvent.ResetState -> {
+                state = AuthState()
+            }
 
             else -> {
                 // do nothing
@@ -125,7 +128,7 @@ class SignUpViewModel @Inject constructor(
 
             if (otpResult is ApiResult.UnknownError) {
                 uiEventChannel.send(otpResult)
-                state = state.copy(isLoading = false, isVerifyOTP = true)
+                state = state.copy(isLoading = false, isVerifyOTP = true, otp = "")
                 return@launch
             }
 
@@ -152,7 +155,7 @@ class SignUpViewModel @Inject constructor(
                     state = state.copy(isLoading = false)
                     return@launch
                 }
-                else -> {
+                is ApiResult.Success -> {
                     state = state.copy(isLoading = false, isVerifyOTP = true)
                 }
             }

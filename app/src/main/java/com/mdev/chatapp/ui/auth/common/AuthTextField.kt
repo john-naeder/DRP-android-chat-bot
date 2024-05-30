@@ -151,11 +151,11 @@ fun AuthTextField(
                 ),
                 supportingText = {
                     if (state.emailError)
-                    Text(
-                        text = stringResource(id = state.emailErrorCode),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                        Text(
+                            text = stringResource(id = state.emailErrorCode),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
                 },
                 isError = state.emailError
             )

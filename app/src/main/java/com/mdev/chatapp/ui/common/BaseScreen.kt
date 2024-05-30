@@ -15,9 +15,9 @@ import androidx.compose.runtime.Composable
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.mdev.chatapp.ui.nav_drawer.DrawerContent
-import com.mdev.chatapp.ui.nav_drawer.NavDrawerUIEvent
-import com.mdev.chatapp.ui.nav_drawer.NavigateDrawerViewModel
+import com.mdev.chatapp.ui.common.nav_drawer.DrawerContent
+import com.mdev.chatapp.ui.common.nav_drawer.NavDrawerUIEvent
+import com.mdev.chatapp.ui.common.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.navgraph.Route
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

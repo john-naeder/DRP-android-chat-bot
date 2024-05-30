@@ -1,7 +1,6 @@
 package com.mdev.chatapp.data.remote.auth.model
 
-data class ResetPasswordResquest (
+data class ResetPasswordRequest(
     val email: String,
-    val otp: String,
     val password: String
 )

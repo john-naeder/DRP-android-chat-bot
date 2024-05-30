@@ -9,10 +9,14 @@ sealed class AuthUiEvent {
     data class DeleteUserChanged(val value: String): AuthUiEvent()
     data class UnAuthenticatedUserChanged(val username: String): AuthUiEvent()
     data class OTPChanged(val value: String): AuthUiEvent()
+    data object ResetPassword: AuthUiEvent()
     data object SignIn: AuthUiEvent()
     data object SignUp: AuthUiEvent()
     data object Authenticated: AuthUiEvent()
     data object SignedIn: AuthUiEvent()
     data object SendOTP: AuthUiEvent()
+    data object SendResetPasswordOTP: AuthUiEvent()
+    data object VerifyResetPasswordOTP: AuthUiEvent()
+    data object ResetState: AuthUiEvent()
 
 }

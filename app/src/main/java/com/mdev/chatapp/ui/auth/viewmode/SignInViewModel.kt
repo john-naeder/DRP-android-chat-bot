@@ -37,15 +37,40 @@ class SignInViewModel @Inject constructor(
                 val passwordErrorCode = if (passwordError) R.string.field_empty_error else R.string.null_field
                 state = state.copy(password = event.value, passwordError = passwordError, passwordErrorCode = passwordErrorCode)
             }
+            is AuthUiEvent.RePasswordChanged -> {
+                val rePasswordError = event.value != state.password
+                val rePasswordErrorCode = if (rePasswordError) R.string.field_empty_error else R.string.null_field
+                state = state.copy(
+                    rePassword = event.value,
+                    rePasswordError = rePasswordError,
+                    rePasswordErrorCode = rePasswordErrorCode
+                )
+            }
+            is AuthUiEvent.EmailChanged -> {
+                val emailError = event.value.isEmpty()
+                val emailErrorCode = if (emailError) R.string.field_empty_error else R.string.null_field
+                state = state.copy(email = event.value, emailError = emailError, emailErrorCode = emailErrorCode)
+            }
+            is AuthUiEvent.OTPChanged -> {
+                val otpError = event.value.isEmpty()
+                val otpErrorCode = if (otpError) R.string.field_empty_error else R.string.null_field
+                state = state.copy(otp = event.value, otpError = otpError, otpErrorCode = otpErrorCode)
+            }
             is AuthUiEvent.SignIn -> {
-                viewModelScope.launch {
-                    signIn()
-                }
+                signIn()
+            }
+            is AuthUiEvent.SendResetPasswordOTP -> {
+                sendOTP()
+            }
+            is AuthUiEvent.VerifyResetPasswordOTP -> {
+                verifyOTP()
+            }
+            AuthUiEvent.ResetPassword -> {
+                resetPassword()
             }
             else -> {
                 // do nothing
             }
-
         }
     }
 
@@ -59,5 +84,83 @@ class SignInViewModel @Inject constructor(
             uiEventChannel.send(result)
         state = state.copy(isLoading = false)
         }
+    }
+    private fun sendOTP() {
+        viewModelScope.launch {
+            state = state.copy(isLoading = true)
+            authRepository.sendOTP(state.email)
+            when (val result = authRepository.resetPasswordOTP(state.email)) {
+                is ApiResult.Error -> {
+                    uiEventChannel.send(result)
+                    state = state.copy(isLoading = false)
+                    return@launch
+                }
+                is ApiResult.UnknownError -> {
+                    uiEventChannel.send(result)
+                    state = state.copy(isLoading = false)
+                    return@launch
+                }
+                is ApiResult.Success -> {
+                    state = state.copy(isLoading = false, isInputEmailOTP = false, isVerifyOTP = true)
+                }
+            }
+        }
+    }
+
+    private fun verifyOTP() {
+        viewModelScope.launch {
+            state = state.copy(isLoading = true)
+            val otpResult = authRepository.verifyOTP(
+                email = state.email, otp = state.otp
+            )
+            when (otpResult){
+                is ApiResult.Error -> {
+                    uiEventChannel.send(otpResult)
+                    state = state.copy(isLoading = false)
+                    return@launch
+                }
+                is ApiResult.UnknownError -> {
+                    uiEventChannel.send(otpResult)
+                    state = state.copy(isLoading = false)
+                    return@launch
+                }
+                is ApiResult.Success -> {
+                    state = state.copy(isLoading = false, isVerifyOTP = false, isResetPassword = true, otp = "")
+                }
+            }
+        }
+    }
+
+    private fun resetPassword() {
+        viewModelScope.launch {
+            state = state.copy(isLoading = true)
+            val result = authRepository.resetPassword(
+                email = state.email,
+                password = state.password
+            )
+            when (result) {
+                is ApiResult.Error -> {
+                    uiEventChannel.send(result)
+                    state = state.copy(isLoading = false, isVerifyOTP = true)
+                    return@launch
+                }
+
+                is ApiResult.UnknownError -> {
+                    uiEventChannel.send(result)
+                    state = state.copy(isLoading = false, isVerifyOTP = true)
+                    return@launch
+                }
+
+                is ApiResult.Success -> {
+                    resetState()
+                    uiEventChannel.send(ApiResult.Error(R.string.reset_password_success))
+                }
+            }
+            state = state.copy(isLoading = false)
+        }
+    }
+
+    private fun resetState() {
+        state = AuthState()
     }
 }

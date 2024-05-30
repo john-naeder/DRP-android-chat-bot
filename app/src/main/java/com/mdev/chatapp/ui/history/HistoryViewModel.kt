@@ -45,9 +45,6 @@ class HistoryViewModel @Inject constructor(
                 is ApiResult.UnknownError -> {
 
                 }
-                else -> {
-                    // Do nothing
-                }
             }
             state = state.copy(isLoading = false)
         }

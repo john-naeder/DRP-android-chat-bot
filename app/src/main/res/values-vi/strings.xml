@@ -8,7 +8,7 @@
     <string name="login_now">Đăng nhập ngay</string>
     <string name="password">Mật khẩu</string>
     <string name="repassword">Nhập lại mật khẩu</string>
-    <string name="forgot">Đã quên?</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
     <string name="username">Tên đăng nhập</string>
     <string name="auth_failed">Xác thực thất bại</string>
     <string name="another_account">Đăng nhập tài khoản khác</string>
@@ -24,7 +24,7 @@
     <string name="welcome">Chào mừng</string>
     <string name="search">Tìm kiếm</string>
     <string name="home">Trang chủ</string>
-    <string name="profile">Thông tin</string>
+    <string name="profile">Hồ sơ người dùng</string>
     <string name="logout">Đăng xuất</string>
     <string name="or">hoặc</string>
     <string name="delete">Xóa</string>
@@ -40,7 +40,7 @@
     <string name="user_id_not_found">Không tìm thấy id người dùng</string>
     <string name="option">"Trang chủ "</string>
     <string name="user_cancelled">Câu trả lời đã bị hủy bời người dùng</string>
-    <string name="chatbot_failed_to_answer">"Chat bot không thể trả lời câu này "</string>
+    <string name="chat_bot_failed_to_answer">"Chat bot không thể trả lời câu này "</string>
     <string name="no_internet_connection">Vui lòng kết nối internet để tiếp tục</string>
     <string name="username_existed">"Tên đăng nhập đã tồn tại "</string>
     <string name="user_not_found">"Tên đăng nhập sai hoặc không tồn tại "</string>

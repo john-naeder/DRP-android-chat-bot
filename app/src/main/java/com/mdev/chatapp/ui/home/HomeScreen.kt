@@ -28,8 +28,8 @@ import androidx.compose.ui.unit.dp
 import com.mdev.chatapp.R
 import com.mdev.chatapp.ui.common.BaseScreen
 import com.mdev.chatapp.ui.common.Lottie
-import com.mdev.chatapp.ui.nav_drawer.NavDrawerUIEvent
-import com.mdev.chatapp.ui.nav_drawer.NavigateDrawerViewModel
+import com.mdev.chatapp.ui.common.nav_drawer.NavDrawerUIEvent
+import com.mdev.chatapp.ui.common.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.navgraph.Route
 import com.mdev.chatapp.util.UIEvent
 import kotlinx.coroutines.launch

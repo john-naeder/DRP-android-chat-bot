@@ -1,4 +1,4 @@
-package com.mdev.chatapp.ui.nav_drawer
+package com.mdev.chatapp.ui.common.nav_drawer
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +24,6 @@ import com.mdev.chatapp.ui.navgraph.Route
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun DrawerContent(
     scope: CoroutineScope,
@@ -35,7 +34,6 @@ fun DrawerContent(
 ) {
     val listOfItem = listOf(
         Route.HomeScreen,
-        Route.SettingsScreen,
         Route.ChatScreen,
         Route.HistoryScreen,
         Route.ProfileScreen,

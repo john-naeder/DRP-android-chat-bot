@@ -1,4 +1,4 @@
-package com.mdev.chatapp.ui.nav_drawer
+package com.mdev.chatapp.ui.common.nav_drawer
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

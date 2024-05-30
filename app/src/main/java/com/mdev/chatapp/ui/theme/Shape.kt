@@ -9,3 +9,4 @@ val Shapes = Shapes(
     medium = RoundedCornerShape(8.dp),
     large = RoundedCornerShape(0.dp)
 )
+val DefaultShape = RoundedCornerShape(16.dp)

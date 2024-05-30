@@ -16,6 +16,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.mdev.chatapp.ui.about.AboutScreen
 import com.mdev.chatapp.ui.auth.AuthScreen
 import com.mdev.chatapp.ui.auth.SignInScreen
 import com.mdev.chatapp.ui.auth.SignUpScreen
@@ -27,11 +28,9 @@ import com.mdev.chatapp.ui.chat.ChatViewModel
 import com.mdev.chatapp.ui.history.HistoryScreen
 import com.mdev.chatapp.ui.history.HistoryViewModel
 import com.mdev.chatapp.ui.home.HomeScreen
-import com.mdev.chatapp.ui.nav_drawer.NavigateDrawerViewModel
+import com.mdev.chatapp.ui.common.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.onboarding.OnBoardingScreen
 import com.mdev.chatapp.ui.onboarding.OnBoardingViewModel
-import com.mdev.chatapp.util.Constants
-import com.mdev.chatapp.util.Constants.INIT_CONVERSATION_ID
 
 @Composable
 fun NavGraph(
@@ -132,12 +131,6 @@ fun NavGraph(
                         }
                     )
                 }
-                composable(Route.ForgotPassword.route) {
-                    // TODO
-                }
-                composable(Route.OTP.route) {
-                    // TODO
-                }
             }
 
             navigation(
@@ -169,9 +162,6 @@ fun NavGraph(
                     )
                 }
                 composable(Route.ProfileScreen.route) {
-                    // TODO
-                }
-                composable(Route.SettingsScreen.route) {
                     // TODO
                 }
                 composable(Route.HistoryScreen.route) {
@@ -266,7 +256,23 @@ fun NavGraph(
                     )
                 }
                 composable(Route.AboutScreen.route) {
-                    // TODO
+                    val navDrawerViewModel: NavigateDrawerViewModel = hiltViewModel()
+                    AboutScreen(
+                        navDrawerViewModel = navDrawerViewModel,
+                        onBackClick = {
+                            navController.popBackStack()
+                        },
+                        onNavigateTo = {
+                            navController.navigate(it.route)
+                        },
+                        onLogout = {
+                            navController.navigate(Route.AuthNavigator.route) {
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = true
+                                }
+                            }
+                        }
+                    )
                 }
             }
         }

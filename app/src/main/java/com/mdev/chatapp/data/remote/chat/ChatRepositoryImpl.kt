@@ -1,5 +1,6 @@
 package com.mdev.chatapp.data.remote.chat
 
+import android.util.Log
 import com.mdev.chatapp.R
 import com.mdev.chatapp.data.remote.chat.model.ConversationInitRequest
 import com.mdev.chatapp.data.remote.chat.model.ConversationInitResponse
@@ -26,6 +27,7 @@ class ChatRepositoryImpl(
                     query = message
                 )
             )
+            Log.d("ChatRepositoryImpl", "newChat: ${response.body()}")
             when (response.code()) {
                 200 -> {
                     val body = response.body()

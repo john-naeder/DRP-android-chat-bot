@@ -151,9 +151,6 @@ class ChatViewModel @Inject constructor(
                         )
                     )
                 }
-                else -> {
-                    // do nothing
-                }
             }
             changeAllowToInput(true)
         }
@@ -209,9 +206,6 @@ class ChatViewModel @Inject constructor(
                                 )
                             )
                         )
-                    }
-                    else -> {
-                        // do nothing
                     }
                 }
             }

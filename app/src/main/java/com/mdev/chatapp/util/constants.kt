@@ -2,6 +2,8 @@ package com.mdev.chatapp.util
 
 object Constants {
 
+    const val INTRO_VID_ID: String = "ChukpOHfAI8"
+
     // Api Base Links
 //    const val AUTH_API_BASE_LINK = "https://drpteam.vercel.app/v1/api/"
 //    const val AUTH_API_BASE_LINK = "https://drpteam.zeabur.app/v1/api/"

@@ -1,6 +1,6 @@
 package com.mdev.chatapp.data.remote.auth
 
-import com.mdev.chatapp.data.remote.auth.model.ResetPasswordResquest
+import com.mdev.chatapp.data.remote.auth.model.ResetPasswordRequest
 import com.mdev.chatapp.data.remote.auth.model.SignInRequest
 import com.mdev.chatapp.data.remote.auth.model.SignUpRequest
 import com.mdev.chatapp.data.remote.auth.model.TokenResponse
@@ -51,7 +51,7 @@ interface AuthApi {
 
     @POST ("reset/password")
     suspend fun resetPassword(
-        @Body request: ResetPasswordResquest
+        @Body request: ResetPasswordRequest
     )
 
 }

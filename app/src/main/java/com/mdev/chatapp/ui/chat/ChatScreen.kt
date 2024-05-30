@@ -52,7 +52,7 @@ import com.mdev.chatapp.data.remote.chat.model.HistoryResponse
 import com.mdev.chatapp.ui.common.AnimatedDots
 import com.mdev.chatapp.ui.common.BaseScreen
 import com.mdev.chatapp.ui.common.TypewriterText
-import com.mdev.chatapp.ui.nav_drawer.NavigateDrawerViewModel
+import com.mdev.chatapp.ui.common.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.navgraph.Route
 import com.mdev.chatapp.util.Constants
 import com.mdev.chatapp.util.UIEvent

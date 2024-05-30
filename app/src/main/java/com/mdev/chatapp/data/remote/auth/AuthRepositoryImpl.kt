@@ -2,7 +2,7 @@ package com.mdev.chatapp.data.remote.auth
 
 import com.mdev.chatapp.R
 import com.mdev.chatapp.data.local.user.UserModel
-import com.mdev.chatapp.data.remote.auth.model.ResetPasswordResquest
+import com.mdev.chatapp.data.remote.auth.model.ResetPasswordRequest
 import com.mdev.chatapp.data.remote.auth.model.SignInRequest
 import com.mdev.chatapp.data.remote.auth.model.SignUpRequest
 import com.mdev.chatapp.data.remote.auth.model.SendOTPRequest
@@ -142,7 +142,7 @@ class AuthRepositoryImpl(
         return try {
             dataStore.remove(JWT + username)
             dataStore.remove(JWT_REFRESH + username)
-            ApiResult.Unauthorized("User $username unauthenticated")
+            ApiResult.UnknownError("Unauthenticated user: $username")
         } catch (e: Exception) {
             ApiResult.UnknownError("Authentication error: " + e.message + e.stackTraceToString())
         }
@@ -159,10 +159,12 @@ class AuthRepositoryImpl(
             authApi.sendOTP(SendOTPRequest(email))
             ApiResult.Success()
         } catch (e: HttpException) {
-            when (e.code()) {
+            val apiResult = when (e.code()) {
+                400 -> ApiResult.Error(R.string.email_already_registered)
                 500 -> ApiResult.Error(R.string.server_error)
                 else -> ApiResult.UnknownError("Send OTP (API error): " + e.message() + e.code())
             }
+            apiResult
         } catch (e: Exception) {
             ApiResult.UnknownError("Send OTP error: " + e.message)
         }
@@ -183,12 +185,13 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun resetPassword(email: String): ApiResult<Unit> {
+    override suspend fun resetPasswordOTP(email: String): ApiResult<Unit> {
         return try {
             authApi.resetPasswordOTP(SendOTPRequest(email))
             ApiResult.Success()
         } catch (e: HttpException) {
             when (e.code()) {
+                404 -> ApiResult.Error(R.string.email_not_found)
                 500 -> ApiResult.Error(R.string.server_error)
                 else -> ApiResult.UnknownError("Reset password (API error): " + e.message() + e.code())
             }
@@ -197,13 +200,12 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun resetPasswordOTP(
+    override suspend fun resetPassword(
         email: String,
-        otp: String,
         password: String
     ): ApiResult<Unit> {
         return try {
-            authApi.resetPassword(ResetPasswordResquest(email, otp, password))
+            authApi.resetPassword(ResetPasswordRequest(email, password))
             ApiResult.Success()
         } catch (e: HttpException) {
             when (e.code()) {

@@ -51,7 +51,7 @@ import com.mdev.chatapp.R
 import com.mdev.chatapp.data.remote.history.Model.Conversation
 import com.mdev.chatapp.ui.common.BaseScreen
 import com.mdev.chatapp.ui.common.Lottie
-import com.mdev.chatapp.ui.nav_drawer.NavigateDrawerViewModel
+import com.mdev.chatapp.ui.common.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.navgraph.Route
 import com.mdev.chatapp.util.UIEvent
 import dev.jeziellago.compose.markdowntext.MarkdownText
@@ -140,7 +140,7 @@ fun HistoryContent(
                     HistoryItem(
 //                        id = conversation.conversationId,
 //                        title = conversation.conversationTitle,
-                        id = conversation.conversation_id,
+                        time = conversation.updated_at,
                         title = conversation.first_content,
                         onClick = {
 //                            onItemClick(conversation.conversationId)
@@ -167,7 +167,7 @@ fun HistoryContent(
 @Composable
 fun HistoryItem(
     title: String,
-    id: String,
+    time: String,
     onClick: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
@@ -211,11 +211,11 @@ fun HistoryItem(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = stringResource(id = R.string.id),
+                            text = stringResource(id = R.string.updated_at),
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text = id,
+                            text = time,
                             overflow = TextOverflow.Ellipsis
                         )
                     }

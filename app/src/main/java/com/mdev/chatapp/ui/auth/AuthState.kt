@@ -22,6 +22,8 @@ data class AuthState(
     val emailErrorCode: Int = R.string.required_field,
 
     val isVerifyOTP: Boolean = false,
+    val isInputEmailOTP: Boolean = false,
+    val isResetPassword: Boolean = false,
 
     val otp: String = "",
     val otpError: Boolean = false,
