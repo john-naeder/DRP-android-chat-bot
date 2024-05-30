@@ -1,9 +1,11 @@
 package com.mdev.chatapp.ui.chat
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.speech.SpeechRecognizer
 import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -16,10 +18,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.automirrored.twotone.Send
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.twotone.Send
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,19 +33,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import androidx.core.content.ContextCompat
 import com.mdev.chatapp.ui.theme.spacing
 
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun ChatInput(
+    speechRecognizer: SpeechRecognizer,
+    recognizerIntent: Intent,
+    permissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
     modifier: Modifier = Modifier,
     viewModel: ChatViewModel
 ) {
@@ -63,6 +66,25 @@ fun ChatInput(
                 .padding(horizontal = MaterialTheme.spacing.small),
             verticalAlignment = Alignment.Bottom
         ) {
+            TextButton(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .clip(CircleShape)
+                    .align(Alignment.CenterVertically),
+                shape = CircleShape,
+                onClick = {
+                    Toast.makeText(
+                        context,
+                        "Camera Clicked.\n(Not Available)",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                },
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.CameraAlt,
+                    contentDescription = null
+                )
+            }
             TextField(
                 modifier = Modifier
                     .clip(MaterialTheme.shapes.extraLarge)
@@ -81,30 +103,30 @@ fun ChatInput(
                 placeholder = {
                     Text(text = "Aa")
                 },
-                leadingIcon = {
-                    IconButton(onClick = {
-                        Toast.makeText(
-                            context,
-                            "Not Available",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }) {
-                        Icon(imageVector = Icons.Filled.AttachFile, contentDescription = "File")
-                    }
-                },
                 trailingIcon = {
                     Row {
-                        IconButton(onClick = {
-                            Toast.makeText(
-                                context,
-                                "Camera Clicked.\n(Not Available)",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }) {
-                            Icon(
-                                imageVector = Icons.Filled.CameraAlt,
-                                contentDescription = "Camera"
-                            )
+                        if (!state.isListening) {
+                            IconButton(onClick = {
+                                if (ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) ==
+                                    android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                                    speechRecognizer.startListening(recognizerIntent)
+                                } else {
+                                    permissionLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                                }                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Mic,
+                                    contentDescription = "Microphone"
+                                )
+                            }
+                        } else {
+                            IconButton(onClick = {
+                                speechRecognizer.stopListening()
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Stop,
+                                    contentDescription = "Microphone"
+                                )
+                            }
                         }
                     }
                 },
@@ -118,17 +140,12 @@ fun ChatInput(
                     .align(Alignment.CenterVertically),
                 shape = CircleShape,
                 onClick = {
-                    if (state.inputMessage.isNotEmpty()) {
-                        viewModel.onEvent(ChatUIEvent.SendMessage(state.inputMessage))
-                    } else {
-                        // TODO(Send message by voice)
-                    }
-                }
+                    viewModel.onEvent(ChatUIEvent.SendMessage(state.inputMessage))
+                },
+                enabled = state.inputMessage.isNotEmpty()
             ) {
                 Icon(
-                    imageVector = if (
-                        state.inputMessage.isEmpty()
-                    ) Icons.Filled.Mic else Icons.TwoTone.Send,
+                    imageVector = Icons.AutoMirrored.TwoTone.Send,
                     contentDescription = null
                 )
             }

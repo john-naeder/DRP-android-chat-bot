@@ -1,5 +1,6 @@
 package com.mdev.chatapp.ui.auth
 
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
@@ -153,7 +154,6 @@ fun AuthScreen(
                 is ApiResult.Success -> {
                     onAuthenticateSuccess(Route.HomeNavigator)
                 }
-
                 is ApiResult.Error -> {
                     Toast.makeText(
                         context,
@@ -168,6 +168,9 @@ fun AuthScreen(
                         it.message,
                         Toast.LENGTH_LONG
                     ).show()
+                }
+                is ApiResult.LogError -> {
+                    Log.d("AuthScreen", it.message.toString())
                 }
             }
         }
@@ -244,6 +247,9 @@ fun SignInScreen(
                         it.message,
                         Toast.LENGTH_LONG
                     ).show()
+                }
+                is ApiResult.LogError -> {
+                    Log.d("SignInScreen", it.message)
                 }
             }
         }
@@ -331,6 +337,9 @@ fun SignUpScreen(
                         it.message,
                         Toast.LENGTH_LONG
                     ).show()
+                }
+                is ApiResult.LogError -> {
+                    Log.d("SignUpScreen", it.message)
                 }
             }
 

@@ -103,6 +103,9 @@ class SignInViewModel @Inject constructor(
                 is ApiResult.Success -> {
                     state = state.copy(isLoading = false, isInputEmailOTP = false, isVerifyOTP = true)
                 }
+                else -> {
+                    // do nothing
+                }
             }
         }
     }
@@ -126,6 +129,9 @@ class SignInViewModel @Inject constructor(
                 }
                 is ApiResult.Success -> {
                     state = state.copy(isLoading = false, isVerifyOTP = false, isResetPassword = true, otp = "")
+                }
+                else -> {
+                    // do nothing
                 }
             }
         }
@@ -154,6 +160,9 @@ class SignInViewModel @Inject constructor(
                 is ApiResult.Success -> {
                     resetState()
                     uiEventChannel.send(ApiResult.Error(R.string.reset_password_success))
+                }
+                is ApiResult.LogError -> {
+                    // Do nothing
                 }
             }
             state = state.copy(isLoading = false)

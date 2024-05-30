@@ -1,11 +1,11 @@
 package com.mdev.chatapp.ui.navgraph
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.twotone.Logout
 import androidx.compose.material.icons.twotone.ChatBubble
 import androidx.compose.material.icons.twotone.History
 import androidx.compose.material.icons.twotone.Home
 import androidx.compose.material.icons.twotone.Info
-import androidx.compose.material.icons.twotone.Logout
 import androidx.compose.material.icons.twotone.PeopleAlt
 import androidx.compose.material.icons.twotone.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -18,11 +18,9 @@ sealed class Route(
 ) {
     data object AppStart : Route("app_start")
     data object OnBoarding : Route("onboarding")
-    data object AuthNavigator : Route("auth_navigator", icon = Icons.TwoTone.Logout, title = R.string.logout)
+    data object AuthNavigator : Route("auth_navigator", icon = Icons.AutoMirrored.TwoTone.Logout, title = R.string.logout)
     data object SignIn : Route("login_screen")
     data object Signup : Route("signup_screen")
-    data object OTP : Route("otp_screen")
-    data object ForgotPassword : Route("forgot_password_screen")
     data object AuthScreen : Route("AuthScreen")
     data object HomeNavigator : Route("home_navigator", icon = Icons.TwoTone.Home, title = R.string.home)
     data object HomeScreen : Route("home_screen", icon = Icons.TwoTone.Home, title = R.string.home)

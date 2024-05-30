@@ -37,13 +37,10 @@ class HistoryViewModel @Inject constructor(
             state = state.copy(isLoading = true)
             when (val result = historyRepository.getConversations(currentUserId)) {
                 is ApiResult.Success -> {
-                    state = state.copy(conversations = result.response!!.data.reversed())
+                    state = state.copy(conversations = result.response!!.data)
                 }
-                is ApiResult.Error -> {
-
-                }
-                is ApiResult.UnknownError -> {
-
+                else -> {
+                    Log.d("HistoryViewModel", "getConversations: ${result.data.toString()}")
                 }
             }
             state = state.copy(isLoading = false)

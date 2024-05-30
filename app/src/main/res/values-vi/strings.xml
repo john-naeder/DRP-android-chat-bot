@@ -60,6 +60,23 @@
     <string name="yes">có</string>
     <string name="delete_confirm">Bạn có chắc là muốn xóa không?</string>
     <string name="username_invalid_error">Tên không hợp lệ</string>
+    <string name="invalid_otp">OTP không hợp lệ</string>
+    <string name="email_not_found">Không tìm thấy email</string>
+    <string name="continue_to">tiếp tục</string>
+    <string name="enter_your_email">Nhập email của bạn</string>
+    <string name="reset_password">reset password</string>
+    <string name="find_account">Tìm tài khoản của bạn</string>
+    <string name="reset_password_success">Cài lại mật khẩu thành công</string>
+    <string name="enter_your_new_password">Nhập mật khẩu mới của bạn</string>
+    <string name="choose_other_email">Chọn email khác</string>
+    <string name="cancel_reset">Hủy đặt lại mật khẩu</string>
+    <string name="submit">Gửi</string>
+    <string name="email_already_registered">Email đã được đăng ký</string>
+    <string name="about_text">**Tôi không biết viết gì cả, chỉ cần biết Duy đẹp trai là được**</string>
+    <string name="updated_at">Cập nhật lần cuối:</string>
+    <string name="language">"Ngôn ngữ "</string>
+    <string name="voice_recognition_not_available">"Nhận diện giọng nói không hỗ trợ "</string>
+    <string name="permission_required">Hoạt động này yêu cầu quyền truy cập từ máy người dùng</string>
 
 
 </resources>

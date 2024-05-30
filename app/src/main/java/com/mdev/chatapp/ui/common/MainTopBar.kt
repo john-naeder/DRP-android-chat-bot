@@ -2,7 +2,6 @@ package com.mdev.chatapp.ui.common
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.twotone.ArrowForwardIos
-import androidx.compose.material.icons.twotone.ArrowForwardIos
 import androidx.compose.material.icons.twotone.History
 import androidx.compose.material.icons.twotone.Menu
 import androidx.compose.material3.DrawerState
@@ -95,7 +94,7 @@ fun DrawerTopBar(
                 },
                 content = {
                     Icon(
-                        imageVector = Icons.TwoTone.ArrowForwardIos,
+                        imageVector = Icons.AutoMirrored.TwoTone.ArrowForwardIos,
                         contentDescription = stringResource(R.string.settings)
                     )
                 }

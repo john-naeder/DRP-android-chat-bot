@@ -1,7 +1,12 @@
 package com.mdev.chatapp.ui.chat
 
-import android.util.Log
+import android.content.Intent
+import android.os.Bundle
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
@@ -26,7 +31,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -68,14 +72,12 @@ fun ChatScreen(
     chatViewModel: ChatViewModel,
     navDrawerViewModel: NavigateDrawerViewModel
 ) {
-    val chatState = chatViewModel.state.copy()
-
     val context = LocalContext.current
+
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val selectedItem = Route.ChatScreen
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     LaunchedEffect(navDrawerViewModel, context) {
         navDrawerViewModel.uiEvent.collect {
             when (it) {
@@ -91,6 +93,63 @@ fun ChatScreen(
             }
         }
     }
+
+    val chatState by remember { mutableStateOf(ChatState()) }
+
+    val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
+    val recognizerIntent = remember {
+        Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US")
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, "vi-VN")
+        }
+    }
+
+
+
+    val speechListener = remember {
+        object : android.speech.RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {
+                chatViewModel.onEvent(ChatUIEvent.IsListening(true))
+            }
+
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() {
+                chatViewModel.onEvent(ChatUIEvent.IsListening(false))
+            }
+
+            override fun onError(error: Int) {
+                chatViewModel.onEvent(ChatUIEvent.IsListening(false))
+            }
+
+            override fun onResults(results: Bundle?) {
+                chatViewModel.onEvent(ChatUIEvent.IsListening(false))
+                val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (!matches.isNullOrEmpty()) {
+                     chatViewModel.onEvent(ChatUIEvent.OnInputMessageChangedByListening(matches[0]))
+                }
+            }
+
+            override fun onPartialResults(partialResults: Bundle?) {}
+            override fun onEvent(eventType: Int, params: Bundle?) {}
+        }
+    }
+
+    LaunchedEffect(speechRecognizer) {
+        speechRecognizer.setRecognitionListener(speechListener)
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                speechRecognizer.startListening(recognizerIntent)
+            }
+        }
+    )
+
 
     BaseScreen(
         scope = scope,
@@ -111,6 +170,9 @@ fun ChatScreen(
                 content = {
                     if (it) {
                         ChatInput(
+                            speechRecognizer,
+                            recognizerIntent,
+                            permissionLauncher,
                             modifier = Modifier.fillMaxWidth(),
                             viewModel = chatViewModel
                         )

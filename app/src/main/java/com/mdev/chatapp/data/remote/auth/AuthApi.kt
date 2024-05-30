@@ -18,7 +18,7 @@ interface AuthApi {
     @POST ("sign-up")
     suspend fun signUp(
         @Body request: SignUpRequest
-    )
+    ): Response<Unit>
 
     @POST ("login")
     suspend fun signIn(
@@ -38,20 +38,20 @@ interface AuthApi {
     @POST ("sendOTP")
     suspend fun sendOTP(
         @Body request: SendOTPRequest
-    )
+    ): Response<Unit>
     @POST ("verifyOTP")
     suspend fun verifyOTP(
         @Body request: VerifyOTPRequest
-    )
+    ): Response<Unit>
 
     @POST ("reset/getOTP")
     suspend fun resetPasswordOTP(
         @Body request: SendOTPRequest
-    )
+    ): Response<Unit>
 
     @POST ("reset/password")
     suspend fun resetPassword(
         @Body request: ResetPasswordRequest
-    )
+    ): Response<Unit>
 
 }

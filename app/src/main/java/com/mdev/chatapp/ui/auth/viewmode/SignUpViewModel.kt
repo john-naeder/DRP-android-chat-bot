@@ -158,6 +158,9 @@ class SignUpViewModel @Inject constructor(
                 is ApiResult.Success -> {
                     state = state.copy(isLoading = false, isVerifyOTP = true)
                 }
+                else -> {
+                    // Do nothing
+                }
             }
         }
     }

@@ -11,18 +11,18 @@ data class Page(
 
 val pages = listOf(
     Page(
-        title = "To Do List Mobile App 2024.",
-        description = "Sản phẩm chống cháy bài giữa kỳ của tụi em",
+        title = "App chat DRP.",
+        description = "Được phát triển bởi 3 chú be vjp zo.",
         image = R.drawable.onboarding1
     ),
     Page(
-        title = "Bài còn nhiều sai xót về mặt UI/UX",
-        description = "Nhóm có không có bông hồng làm đạo diễn nghệ thuật.",
+        title = "Mục đích",
+        description = "Cung cấp chat bot hỗ trợ tư vấn ăn uống.",
         image = R.drawable.onboarding2
     ),
     Page(
-        title = "Tận dụng vào để học MVVM",
-        description = "Các khái niệm cơ bản để phát triển ứng dụng Android",
+        title = "Enzuyzepzaivl",
+        description = "Hết ý tưởng ghi rồi",
         image = R.drawable.onboarding3
     )
 )

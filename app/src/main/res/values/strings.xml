@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">DRP CHAT BOT</string>
+    <string name="app_name" translatable="false">DRP chat</string>
     <string name="app_logo" translatable="false">App Logo</string>
     <string name="auth_screen_header" translatable="false">DRP</string>
     <string name="auth_screen_title">Become Healthier</string>
@@ -83,7 +83,7 @@
     <string name="about_text">**This is super cool about context**</string>
     <string name="updated_at">Last use:</string>
     <string name="language">Language</string>
-    <string name="dynamic_theme_notice">On Android 12+ your app theme colors are based on your home screen background</string>
-    <string name="theme">Theme</string>
+    <string name="voice_recognition_not_available">Voice recognition is not avaible</string>
+    <string name="permission_required">This action require permisson from user setting to use</string>
 
 </resources>

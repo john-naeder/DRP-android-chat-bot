@@ -27,7 +27,7 @@ class NavigateDrawerViewModel @Inject constructor(
                 sendUIEvent(UIEvent.NavigateTo(Route.HomeScreen))
             }
             is NavDrawerUIEvent.Profile -> {
-                sendUIEvent(UIEvent.NavigateTo(Route.ProfileScreen))
+//                sendUIEvent(UIEvent.NavigateTo(Route.ProfileScreen))
             }
             is NavDrawerUIEvent.NewChat -> {
                 sendUIEvent(UIEvent.NavigateTo(Route.ChatScreen))

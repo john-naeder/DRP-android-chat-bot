@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val chatRepository: ChatRepository,
     private val conversationRepository: ConversationRepository,
     private val dataStore: DataStoreHelper,
@@ -32,15 +32,18 @@ class ChatViewModel @Inject constructor(
 ) : ViewModel() {
 
     val conversationId = savedStateHandle.get<String>("conversationId") ?: INIT_CONVERSATION_ID
-
     var state by mutableStateOf(ChatState(conversationId = conversationId))
+
 
     var historyChats = mutableStateOf(HistoryResponse(listOf()))
     var followUpQuestion = mutableStateOf(listOf<Message>())
 
     init {
         loadCurrentUser()
-        refreshHistory()
+        if (conversationId != INIT_CONVERSATION_ID)
+            refreshHistory()
+        Log.d("ChatViewModel", "conversationId: $conversationId")
+
     }
 
     fun onEvent(event: ChatUIEvent) {
@@ -52,7 +55,11 @@ class ChatViewModel @Inject constructor(
             is ChatUIEvent.SendMessage -> {
                 sendMessage()
             }
-
+            is ChatUIEvent.IsListening -> {
+                state = state.copy(isListening = event.isListening)
+            }
+            is ChatUIEvent.OnInputMessageChangedByListening -> {
+                state = state.copy(inputMessage = state.inputMessage + " " + event.value)            }
             ChatUIEvent.CancelSendMessage -> {
                 // TODO
             }
@@ -151,6 +158,9 @@ class ChatViewModel @Inject constructor(
                         )
                     )
                 }
+                else -> {
+                    // Do nothing
+                }
             }
             changeAllowToInput(true)
         }
@@ -166,7 +176,6 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-
     private fun loadHistory() {
         viewModelScope.launch {
             if (state.isErrorOccurred) {
@@ -174,8 +183,7 @@ class ChatViewModel @Inject constructor(
             }
             state = state.copy(isLoading = true)
             if (state.conversationId !== INIT_CONVERSATION_ID) {
-                Log.d("ChatViewModel", "loadHistory: ${state.conversationId}")
-                val result = chatRepository.loadHistoryChat(state.conversationId)
+                 val result = chatRepository.loadHistoryChat(state.conversationId)
                 when (result) {
                     is ApiResult.Success -> {
                         historyChats.value = result.response!!
@@ -207,16 +215,13 @@ class ChatViewModel @Inject constructor(
                             )
                         )
                     }
+                    else -> {
+                        // Do nothing
+                    }
                 }
             }
             state = state.copy(isLoading = false)
         }
     }
-    fun updateConversationId(conversationId: String) {
-        Log.d("mine", "updateConversationId: $conversationId")
-        state = state.copy(conversationId = conversationId)
-        refreshHistory()
-    }
-
 
 }

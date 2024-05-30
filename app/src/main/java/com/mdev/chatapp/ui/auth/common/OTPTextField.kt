@@ -173,8 +173,7 @@ private fun RowScope.OutlinedDigitContainer(
                 shape = digitBoxStyle.shape
             )
             .background(
-                color = digitBoxStyle.containerColor
-                    ?: MaterialTheme.colorScheme.background,
+                color = digitBoxStyle.containerColor,
                 shape = digitBoxStyle.shape
             )
             .padding(2.dp),
