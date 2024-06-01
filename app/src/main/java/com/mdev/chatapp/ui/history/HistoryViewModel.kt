@@ -6,9 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mdev.chatapp.data.local.conversation.ConversationModel
 import com.mdev.chatapp.data.remote.history.Model.Conversation
-import com.mdev.chatapp.domain.repository.remote.ChatRepository
 import com.mdev.chatapp.domain.repository.remote.HistoryRepository
 import com.mdev.chatapp.domain.result.ApiResult
 import com.mdev.chatapp.util.Constants

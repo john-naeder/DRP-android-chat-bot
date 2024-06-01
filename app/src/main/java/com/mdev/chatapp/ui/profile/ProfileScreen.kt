@@ -113,6 +113,7 @@ fun ProfileScreen(
                     state = state,
                     onValueChange = { profileViewModel.onEvent(it) }
                 )
+
             }
         )
         if (state.isLoading) {
@@ -246,13 +247,13 @@ fun ProfileContent(
                             .weight(1f)
                             .padding(top = 8.dp, start = 2.dp, end = 2.dp, bottom = 8.dp)
                             .clip(RoundedCornerShape(32.dp))
-                            .height(32.dp)
+                            .height(50.dp)
                             .background(MaterialTheme.colorScheme.inverseOnSurface),
                         ) {
                         OutlinedButton(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(32.dp),
+                                .height(50.dp),
                             onClick = {
                                 onValueChange(ProfileUIEvent.OnSaveClicked)
                             },
@@ -266,13 +267,13 @@ fun ProfileContent(
                             .weight(1f)
                             .padding(top = 8.dp, start = 2.dp, end = 2.dp, bottom = 8.dp)
                             .clip(RoundedCornerShape(32.dp))
-                            .height(32.dp)
+                            .height(50.dp)
                             .background(MaterialTheme.colorScheme.inverseOnSurface),
                     ) {
                         OutlinedButton(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(32.dp),
+                                .height(50.dp),
                             onClick = {
                                 onValueChange(ProfileUIEvent.OnCancelClicked)
                             },
@@ -286,7 +287,7 @@ fun ProfileContent(
                     modifier = Modifier
                         .padding(top = 8.dp, start = 2.dp, end = 2.dp, bottom = 8.dp)
                         .clip(RoundedCornerShape(32.dp))
-                        .height(32.dp)
+                        .height(50.dp)
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.inverseOnSurface),
                     contentAlignment = Alignment.Center,
@@ -294,7 +295,7 @@ fun ProfileContent(
                     OutlinedButton(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(32.dp),
+                            .height(50.dp),
                         onClick = {
                             onValueChange(ProfileUIEvent.OnEditClicked)
                         },

@@ -413,7 +413,7 @@ private fun InputSignupSection(
             )
             Spacer(modifier = Modifier.height(5.dp))
             AuthButton(
-                onClick = { onUIEvent(AuthUiEvent.SignUp) },
+                onClick = { onUIEvent(AuthUiEvent.SendOTP) },
                 content = R.string.continue_to,
                 enabled = state.passwordError.not()
                         && state.rePasswordError.not()
@@ -453,7 +453,7 @@ private fun InputSignupSection(
                 )
             }
             AuthButton(
-                onClick = { onUIEvent(AuthUiEvent.SendOTP) },
+                onClick = { onUIEvent(AuthUiEvent.SignUp) },
                 content = R.string.continue_to,
                 enabled = state.otpError.not()
             )

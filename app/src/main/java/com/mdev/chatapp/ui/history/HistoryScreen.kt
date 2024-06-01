@@ -90,7 +90,8 @@ fun HistoryScreen(
         }
     }
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
+            .padding(horizontal = 16.dp),
     ) {
         BaseScreen(
             scope = scope,

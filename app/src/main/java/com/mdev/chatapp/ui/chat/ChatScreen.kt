@@ -4,18 +4,24 @@ import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -23,10 +29,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.twotone.Stop
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ElevatedCard
@@ -36,8 +40,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -62,9 +66,9 @@ import coil.decode.SvgDecoder
 import coil.request.CachePolicy
 import com.mdev.chatapp.R
 import com.mdev.chatapp.data.remote.chat.model.HistoryResponse
+import com.mdev.chatapp.data.remote.chat.model.Message
 import com.mdev.chatapp.ui.common.AnimatedDots
 import com.mdev.chatapp.ui.common.BaseScreen
-import com.mdev.chatapp.ui.common.TypewriterText
 import com.mdev.chatapp.ui.common.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.navgraph.Route
 import com.mdev.chatapp.util.UIEvent
@@ -87,6 +91,7 @@ fun ChatScreen(
     val selectedItem = Route.ChatScreen
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
     LaunchedEffect(navDrawerViewModel, context) {
         navDrawerViewModel.uiEvent.collect {
             when (it) {
@@ -104,6 +109,7 @@ fun ChatScreen(
     }
 
     val chatState = chatViewModel.state
+    val followUpQuestion = chatViewModel.followUpQuestion
 
     val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
     val recognizerIntent = remember {
@@ -174,7 +180,12 @@ fun ChatScreen(
             ) {
                 ChatContent(
                     chatState = chatState,
-                    historyChat = chatViewModel.historyChats.value
+                    historyChat = chatViewModel.historyChats,
+                    followUpQuestion = followUpQuestion,
+                    onClickFollowUp = { message ->
+                        chatViewModel.onEvent(ChatUIEvent.OnViewFollowUpQuestion)
+                        chatViewModel.onEvent(ChatUIEvent.SendMessage(message.content))
+                    }
                 )
             }
         },
@@ -182,14 +193,15 @@ fun ChatScreen(
             Crossfade(
                 targetState = chatViewModel.state.isInputVisibility,
                 label = "",
-                content = {
-                    if (it) {
+                content = { isChatInputVisible ->
+                    if (isChatInputVisible) {
                         ChatInput(
                             speechRecognizer,
                             recognizerIntent,
                             permissionLauncher,
                             modifier = Modifier.fillMaxWidth(),
-                            viewModel = chatViewModel
+                            state = chatState,
+                            onUIEvent = { chatViewModel.onEvent(it) }
                         )
                     } else {
                         BottomAppBar(
@@ -217,9 +229,17 @@ fun ChatScreen(
 @Composable
 private fun ChatContent(
     chatState: ChatState,
-    historyChat: HistoryResponse
+    historyChat: HistoryResponse,
+    followUpQuestion: List<Message>,
+    onClickFollowUp: (Message) -> Unit
 ) {
     val scrollState = rememberScrollState()
+
+    val followUpQuestion1 = stringResource(id = R.string.follow_up_1)
+    val followUpQuestion2 = stringResource(id = R.string.follow_up_2)
+    val followUpQuestion3 = stringResource(id = R.string.follow_up_3)
+
+    val defaultFollowUpQuestion = listOf(followUpQuestion1 ,followUpQuestion2, followUpQuestion3)
 
     if (scrollState.isScrollInProgress)
         LocalHapticFeedback.current.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -262,6 +282,69 @@ private fun ChatContent(
                     )
                 }
             )
+        }
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .fillMaxHeight(),
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        AnimatedVisibility(
+            visible = chatState.isViewFollowUpQuestion,
+            enter = slideInVertically(
+                initialOffsetY = { fullHeight -> fullHeight }
+            ) + fadeIn(),
+            exit = slideOutVertically(
+                targetOffsetY = { fullHeight -> fullHeight }
+            ) + fadeOut()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
+            ) {
+                Column(
+                    verticalArrangement = Arrangement.Bottom
+                ) {
+                    if(followUpQuestion.isEmpty()){
+                        defaultFollowUpQuestion.forEach {
+                            OutlinedButton(
+                                modifier = Modifier.fillMaxWidth(),
+                                content = {
+                                    Text(
+                                        text = it,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+
+                                    )
+                                },
+                                onClick = {
+                                    onClickFollowUp(Message(content = it, role = "user", content_type = "text", type = ""))
+                                }
+                            )
+                        }
+                    }
+                    else {
+                        followUpQuestion.forEach {
+                            OutlinedButton(
+                                modifier = Modifier.fillMaxWidth(),
+                                content = {
+                                    Text(
+                                        text = it.content,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                },
+                                onClick = {
+                                    onClickFollowUp(it)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -340,11 +423,9 @@ fun ChatBubble(
     ChatBubble(
         owner = owner,
         onClick = {
-            Log.d("ChatBubble", "click detected")
             isExpanded = !isExpanded
         },
         onLongClick = {
-            Log.d("ChatBubble", "Long click detected")
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             clipboardManager.setText(AnnotatedString(content))
             Toast

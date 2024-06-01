@@ -6,5 +6,6 @@ sealed class ChatUIEvent {
     data object CancelSendMessage: ChatUIEvent()
     data class IsListening(val isListening: Boolean): ChatUIEvent()
     data class OnInputMessageChangedByListening(val value: String): ChatUIEvent()
+    data object OnViewFollowUpQuestion: ChatUIEvent()
 
 }

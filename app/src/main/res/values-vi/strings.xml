@@ -90,6 +90,9 @@
     <string name="info">Thông tin</string>
     <string name="body_mass_index">Chỉ số cơ thể</string>
     <string name="select_date">Chọn ngày</string>
+    <string name="follow_up_1">Bạn có thể giới thiệu cho tôi những thực phẩm giàu chất dinh dưỡng không?</string>
+    <string name="follow_up_2">Tôi nên ăn gì để tăng sức đề kháng cho người bệnh?</string>
+    <string name="follow_up_3">Có cách nào để giảm cân mà vẫn đảm bảo cung cấp đủ dinh dưỡng không?</string>
 
 
 </resources>

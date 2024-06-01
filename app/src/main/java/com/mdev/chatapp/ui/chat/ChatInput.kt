@@ -18,9 +18,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.automirrored.twotone.Send
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.PlaylistAdd
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,10 +50,10 @@ fun ChatInput(
     recognizerIntent: Intent,
     permissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
     modifier: Modifier = Modifier,
-    viewModel: ChatViewModel
+    state: ChatState,
+    onUIEvent: (ChatUIEvent) -> Unit
 ) {
     val context = LocalContext.current
-    val state = viewModel.state
     val scrollState = remember { ScrollState(0) }
     Box (
         modifier = modifier
@@ -73,15 +75,11 @@ fun ChatInput(
                     .align(Alignment.CenterVertically),
                 shape = CircleShape,
                 onClick = {
-                    Toast.makeText(
-                        context,
-                        "Camera Clicked.\n(Not Available)",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    onUIEvent(ChatUIEvent.OnViewFollowUpQuestion)
                 },
             ) {
                 Icon(
-                    imageVector = Icons.Filled.CameraAlt,
+                    imageVector = Icons.AutoMirrored.Filled.PlaylistAdd,
                     contentDescription = null
                 )
             }
@@ -94,7 +92,7 @@ fun ChatInput(
                     .fillMaxHeight()
                     .heightIn(min = TextFieldDefaults.MinHeight, max = 4 * TextFieldDefaults.MinHeight),
                 value = state.inputMessage,
-                onValueChange = { viewModel.onEvent(ChatUIEvent.OnInputMessageChanged(it)) },
+                onValueChange = { onUIEvent(ChatUIEvent.OnInputMessageChanged(it)) },
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
@@ -140,7 +138,7 @@ fun ChatInput(
                     .align(Alignment.CenterVertically),
                 shape = CircleShape,
                 onClick = {
-                    viewModel.onEvent(ChatUIEvent.SendMessage(state.inputMessage))
+                    onUIEvent(ChatUIEvent.SendMessage(state.inputMessage))
                 },
                 enabled = state.inputMessage.isNotEmpty()
             ) {

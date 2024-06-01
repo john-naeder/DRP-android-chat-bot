@@ -1,16 +1,13 @@
 package com.mdev.chatapp.ui.chat
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mdev.chatapp.data.local.conversation.ConversationModel
 import com.mdev.chatapp.data.remote.chat.model.HistoryResponse
 import com.mdev.chatapp.data.remote.chat.model.Message
-import com.mdev.chatapp.domain.repository.local.ConversationRepository
 import com.mdev.chatapp.domain.repository.remote.ChatRepository
 import com.mdev.chatapp.domain.result.ApiResult
 import com.mdev.chatapp.util.Constants
@@ -26,17 +23,16 @@ import javax.inject.Inject
 class ChatViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val chatRepository: ChatRepository,
-    private val conversationRepository: ConversationRepository,
     private val dataStore: DataStoreHelper,
     private val stringProvider: StringProvider
 ) : ViewModel() {
 
-    val conversationId = savedStateHandle.get<String>("conversationId") ?: INIT_CONVERSATION_ID
+    private val conversationId = savedStateHandle.get<String>("conversationId") ?: INIT_CONVERSATION_ID
     var state by mutableStateOf(ChatState(conversationId = conversationId))
 
 
-    val historyChats = mutableStateOf(HistoryResponse(listOf()))
-    var followUpQuestion = mutableStateOf(listOf<Message>())
+    var historyChats by mutableStateOf(HistoryResponse(listOf()))
+    var followUpQuestion by mutableStateOf(listOf<Message>())
 
     init {
         loadCurrentUser()
@@ -51,15 +47,18 @@ class ChatViewModel @Inject constructor(
             }
 
             is ChatUIEvent.SendMessage -> {
-                sendMessage()
+                sendMessage(event.message)
             }
             is ChatUIEvent.IsListening -> {
                 state = state.copy(isListening = event.isListening)
             }
             is ChatUIEvent.OnInputMessageChangedByListening -> {
                 state = state.copy(inputMessage = state.inputMessage + " " + event.value)            }
-            ChatUIEvent.CancelSendMessage -> {
+            is ChatUIEvent.CancelSendMessage -> {
                 // TODO
+            }
+            is ChatUIEvent.OnViewFollowUpQuestion -> {
+                state = state.copy(isViewFollowUpQuestion = !state.isViewFollowUpQuestion)
             }
         }
     }
@@ -74,11 +73,11 @@ class ChatViewModel @Inject constructor(
         state = state.copy(inputMessage = "")
     }
 
-    private fun sendMessage() {
-        val message = state.inputMessage
+    private fun sendMessage(message: String = state.inputMessage) {
+
         resetInput()
-        historyChats.value = historyChats.value.copy(
-            messages = historyChats.value.messages
+        historyChats = historyChats.copy(
+            messages = historyChats.messages
                     + Message(
                 role = "user",
                 content_type = "text",
@@ -92,17 +91,10 @@ class ChatViewModel @Inject constructor(
                 val result = chatRepository.initConversation(state.currentUserId)
                 if (result is ApiResult.Success) {
                     state = state.copy(conversationId = result.response!!.conversation_id)
-                    conversationRepository.insertConversation(
-                        conversationModel = ConversationModel(
-                            userId = state.currentUserId,
-                            conversationId = result.response.conversation_id,
-                            conversationTitle = Constants.NEW_CHAT
-                        )
-                    )
                 }
                 else {
-                    historyChats.value = historyChats.value.copy(
-                        messages = historyChats.value.messages
+                    historyChats = historyChats.copy(
+                        messages = historyChats.messages
                                 + Message(
                             role = "assistant",
                             content_type = "text",
@@ -121,11 +113,11 @@ class ChatViewModel @Inject constructor(
 
             when (result) {
                 is ApiResult.Success -> {
-                    historyChats.value = historyChats.value.copy(
-                        messages = historyChats.value.messages
+                    historyChats = historyChats.copy(
+                        messages = historyChats.messages
                                 + result.response!!.messages[0]
                     )
-                    followUpQuestion.value = listOf(
+                    followUpQuestion = listOf(
                         result.response.messages[1],
                         result.response.messages[2],
                         result.response.messages[3]
@@ -134,8 +126,8 @@ class ChatViewModel @Inject constructor(
 
                 is ApiResult.Error -> {
                     val errorMessage = stringProvider.getString(result.message)
-                    historyChats.value = historyChats.value.copy(
-                        messages = historyChats.value.messages
+                    historyChats = historyChats.copy(
+                        messages = historyChats.messages
                                 + Message(
                             role = "assistant",
                             content_type = "text",
@@ -146,8 +138,8 @@ class ChatViewModel @Inject constructor(
                 }
 
                 is ApiResult.UnknownError -> {
-                    historyChats.value = historyChats.value.copy(
-                        messages = historyChats.value.messages
+                    historyChats = historyChats.copy(
+                        messages = historyChats.messages
                                 + Message(
                             role = "assistant",
                             content_type = "text",
@@ -181,15 +173,14 @@ class ChatViewModel @Inject constructor(
             }
             state = state.copy(isLoading = true)
             if (state.conversationId !== INIT_CONVERSATION_ID) {
-                 val result = chatRepository.loadHistoryChat(state.conversationId)
-                when (result) {
+                when (val result = chatRepository.loadHistoryChat(state.conversationId)) {
                     is ApiResult.Success -> {
-                        historyChats.value = result.response!!
+                        historyChats = result.response!!
                     }
                     is ApiResult.Error -> {
                         state = state.copy(isErrorOccurred = true)
                         val errorMessage = stringProvider.getString(result.message)
-                        historyChats.value = HistoryResponse(
+                        historyChats = HistoryResponse(
                             messages = listOf(
                                 Message(
                                     role = "assistant",
@@ -202,7 +193,7 @@ class ChatViewModel @Inject constructor(
                     }
                     is ApiResult.UnknownError -> {
                         state = state.copy(isErrorOccurred = true)
-                        historyChats.value = HistoryResponse(
+                        historyChats = HistoryResponse(
                             messages = listOf(
                                 Message(
                                     role = "assistant",

@@ -5,7 +5,6 @@ import androidx.room.Room
 import com.mdev.chatapp.data.local.LocalDatabase
 import com.mdev.chatapp.data.local.user.UserRepositoryImpl
 import com.mdev.chatapp.data.local.app_entry.LocalUserManagerImpl
-import com.mdev.chatapp.data.local.conversation.ConversationRepositoryImpl
 import com.mdev.chatapp.data.remote.api.UserServerApi
 import com.mdev.chatapp.data.remote.auth.AuthRepositoryImpl
 import com.mdev.chatapp.data.remote.api.ChatServerApi
@@ -17,7 +16,6 @@ import com.mdev.chatapp.domain.user_entry.app_entry.ReadAppEntry
 import com.mdev.chatapp.domain.user_entry.app_entry.SaveAppEntry
 import com.mdev.chatapp.domain.repository.remote.ChatRepository
 import com.mdev.chatapp.data.remote.chat.ChatRepositoryImpl
-import com.mdev.chatapp.domain.repository.local.ConversationRepository
 import com.mdev.chatapp.domain.repository.remote.HistoryRepository
 import com.mdev.chatapp.data.remote.history.HistoryRepositoryImpl
 import com.mdev.chatapp.data.remote.user.UserProfileRepositoryImpl
@@ -88,11 +86,6 @@ object AuthModule {
         return AuthRepositoryImpl(api, dataStore, userRepository)
     }
 
-    @Singleton
-    @Provides
-    fun provideConversationRepository(localDatabase: LocalDatabase) : ConversationRepository {
-        return ConversationRepositoryImpl(localDatabase.conversationDao)
-    }
 
     @Singleton
     @Provides

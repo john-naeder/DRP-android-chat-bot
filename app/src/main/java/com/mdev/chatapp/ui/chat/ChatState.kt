@@ -13,6 +13,7 @@ data class ChatState (
     val isLoading: Boolean = false,
     val isErrorOccurred: Boolean = false,
     val isListening: Boolean = false,
+    val isViewFollowUpQuestion: Boolean = false,
 
     var forceScroll: Int = 0,
 )
