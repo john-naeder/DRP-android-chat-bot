@@ -10,7 +10,6 @@ import com.mdev.chatapp.domain.repository.remote.AuthRepository
 import com.mdev.chatapp.domain.result.ApiResult
 import com.mdev.chatapp.ui.auth.AuthState
 import com.mdev.chatapp.ui.auth.AuthUiEvent
-import com.mdev.chatapp.util.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -56,6 +55,15 @@ class SignInViewModel @Inject constructor(
                 val otpErrorCode = if (otpError) R.string.field_empty_error else R.string.null_field
                 state = state.copy(otp = event.value, otpError = otpError, otpErrorCode = otpErrorCode)
             }
+            is AuthUiEvent.ForgotPassword ->{
+                state = state.copy(isInputEmailOTP = true)
+            }
+            is AuthUiEvent.BackToInputEmailClick -> {
+                state = state.copy(isVerifyOTP = false, isInputEmailOTP = true)
+            }
+            is AuthUiEvent.BackToSignInClick -> {
+                state = state.copy(isInputEmailOTP = false)
+            }
             is AuthUiEvent.SignIn -> {
                 signIn()
             }
@@ -65,8 +73,11 @@ class SignInViewModel @Inject constructor(
             is AuthUiEvent.VerifyResetPasswordOTP -> {
                 verifyOTP()
             }
-            AuthUiEvent.ResetPassword -> {
+            is AuthUiEvent.ResetPassword -> {
                 resetPassword()
+            }
+            is AuthUiEvent.CancelResetPassword -> {
+                resetState()
             }
             else -> {
                 // do nothing

@@ -1,6 +1,5 @@
 package com.mdev.chatapp.ui.common
 
-import android.graphics.fonts.FontStyle
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -26,20 +25,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.TextUnit
-
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import coil.ImageLoader
+import dev.jeziellago.compose.markdowntext.AutoSizeConfig
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.coroutines.delay
 
@@ -97,21 +87,11 @@ fun AnimatedDots() {
 fun TypewriterText(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified,
-    fontSize: TextUnit = 14.sp,
-    fontWeight: FontWeight? = null,
-    fontFamily: FontFamily? = null,
-    letterSpacing: TextUnit = TextUnit.Unspecified,
-    textDecoration: TextDecoration? = null,
-    textAlign: TextAlign? = null,
-    lineHeight: TextUnit = TextUnit.Unspecified,
-    overflow: TextOverflow = TextOverflow.Clip,
-    softWrap: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
     typewriterDelay: Long = 50L,
-    typeWriterPass: () -> Unit
+    typeWriterPass: () -> Unit,
+    imageLoader: ImageLoader? = null
 ) {
     val builder = StringBuilder()
     val chars = remember { text.toCharArray() }
@@ -129,9 +109,16 @@ fun TypewriterText(
     MarkdownText(
         markdown = text,
         modifier = modifier,
-        color = color,
-        fontSize = fontSize,
+        linkColor = MaterialTheme.colorScheme.primary,
+        maxLines = maxLines,
+        truncateOnTextOverflow = true,
+        enableSoftBreakAddsNewLine = true,
         style = style,
-        maxLines = maxLines
+        autoSizeConfig = AutoSizeConfig(
+            autoSizeMaxTextSize = 16,
+            autoSizeMinTextSize = 12,
+            autoSizeStepGranularity = 2
+        ),
+        imageLoader = imageLoader
     )
 }

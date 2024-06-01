@@ -1,4 +1,4 @@
-package com.mdev.chatapp.data.remote.chat
+package com.mdev.chatapp.data.remote.api
 
 import com.mdev.chatapp.data.remote.chat.model.ConversationInitRequest
 import com.mdev.chatapp.data.remote.chat.model.ConversationInitResponse
@@ -15,7 +15,7 @@ import retrofit2.http.POST
 import retrofit2.http.Streaming
 
 
-interface ChatApi {
+interface ChatServerApi {
     @POST("conversation/init")
     suspend fun initChat(@Body request: ConversationInitRequest): Response<ConversationInitResponse>
     @POST("conversation/newChat")
@@ -29,4 +29,7 @@ interface ChatApi {
 
     @POST("conversation/getConversations")
     suspend fun getConversationIds(@Body request: GetConversationIdsRequest): Response<GetConversationIdsResponse>
+
+    @POST("conversation/updateTitle")
+    suspend fun updateTitle(@Body request: UpdateConversationTitle): Response<Unit>
 }

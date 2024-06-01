@@ -2,6 +2,7 @@ package com.mdev.chatapp.data.remote.auth
 
 import com.mdev.chatapp.R
 import com.mdev.chatapp.data.local.user.UserModel
+import com.mdev.chatapp.data.remote.api.UserServerApi
 import com.mdev.chatapp.data.remote.auth.model.ResetPasswordRequest
 import com.mdev.chatapp.data.remote.auth.model.SendOTPRequest
 import com.mdev.chatapp.data.remote.auth.model.SignInRequest
@@ -18,13 +19,13 @@ import com.mdev.chatapp.util.DataStoreHelper
 import com.mdev.chatapp.util.Util
 
 class AuthRepositoryImpl(
-    private val authApi: AuthApi,
+    private val userServerApi: UserServerApi,
     private val dataStore: DataStoreHelper,
     private val userRepository: UserRepository
 ) : AuthRepository {
     override suspend fun signUp(username: String, password: String, email: String): ApiResult<Unit> {
         return try {
-            val response = authApi.signUp(SignUpRequest(username, password, email))
+            val response = userServerApi.signUp(SignUpRequest(username, password, email))
             when (response.code()) {
                 201 -> signIn(username, password)
                 else -> ApiResult.UnknownError("Sign up error: " + response.message())
@@ -36,7 +37,7 @@ class AuthRepositoryImpl(
 
     override suspend fun signIn(username: String, password: String): ApiResult<Unit> {
         return try {
-            val response = authApi.signIn(request = SignInRequest(username, password))
+            val response = userServerApi.signIn(request = SignInRequest(username, password))
             when(response.code()){
                 200 -> {
                     response.body()!!.tokens.let {
@@ -72,7 +73,7 @@ class AuthRepositoryImpl(
             if (Util.isJWTExpired(token)) {
                 return refreshToken(dataStore.getString(CURRENT_USER)!!)
             }
-            val response = authApi.authenticate("Bearer $token")
+            val response = userServerApi.authenticate("Bearer $token")
 
             when (response.code()) {
                 200 -> {
@@ -95,7 +96,7 @@ class AuthRepositoryImpl(
             if (Util.isJWTExpired(token)) {
                 return refreshToken(username)
             }
-            val response = authApi.authenticate("Bearer $token")
+            val response = userServerApi.authenticate("Bearer $token")
             when (response.code()) {
                 200 -> {
                     dataStore.setString(CURRENT_USER, username)
@@ -116,7 +117,7 @@ class AuthRepositoryImpl(
             val token = dataStore.getString(JWT_REFRESH + username)
                 ?: return ApiResult.LogError("Token not found")
 
-            val response = authApi.refreshToken("Bearer $token")
+            val response = userServerApi.refreshToken("Bearer $token")
             when (response.code()) {
                 200 -> {
                     dataStore.setString(JWT + username, response.body()!!.accessToken)
@@ -152,7 +153,7 @@ class AuthRepositoryImpl(
 
     override suspend fun sendOTP(email: String): ApiResult<Unit> {
         return try {
-            val response = authApi.sendOTP(SendOTPRequest(email))
+            val response = userServerApi.sendOTP(SendOTPRequest(email))
             when(response.code()){
                 200 -> ApiResult.Success()
                 400 -> ApiResult.Error(R.string.email_already_registered)
@@ -166,7 +167,7 @@ class AuthRepositoryImpl(
 
     override suspend fun verifyOTP(email: String, otp: String): ApiResult<Unit> {
         return try {
-            val response = authApi.verifyOTP(VerifyOTPRequest(email, otp))
+            val response = userServerApi.verifyOTP(VerifyOTPRequest(email, otp))
             when (response.code()) {
                 200 -> ApiResult.Success()
                 400 -> ApiResult.Error(R.string.invalid_otp)
@@ -180,7 +181,7 @@ class AuthRepositoryImpl(
 
     override suspend fun resetPasswordOTP(email: String): ApiResult<Unit> {
         return try {
-            val response = authApi.resetPasswordOTP(SendOTPRequest(email))
+            val response = userServerApi.resetPasswordOTP(SendOTPRequest(email))
             when (response.code()) {
                 200 -> ApiResult.Success()
                 400 -> ApiResult.Error(R.string.email_not_found)
@@ -197,7 +198,7 @@ class AuthRepositoryImpl(
         password: String
     ): ApiResult<Unit> {
         return try {
-            val response = authApi.resetPassword(ResetPasswordRequest(email, password))
+            val response = userServerApi.resetPassword(ResetPasswordRequest(email, password))
             when (response.code()) {
                 200 -> ApiResult.Success()
                 400 -> ApiResult.Error(R.string.invalid_otp)

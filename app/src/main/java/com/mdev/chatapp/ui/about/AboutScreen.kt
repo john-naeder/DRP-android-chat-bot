@@ -77,36 +77,41 @@ fun AboutScreen(
         navDrawerViewModel = navDrawerViewModel,
         scrollBehavior = scrollBehavior,
         content = {
-            LazyColumn {
-                item { Spacer(modifier = Modifier.height(20.dp)) }
-                item {
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.app_name),
-                            style = MaterialTheme.typography.headlineLarge
+            Box (
+                modifier = Modifier.fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                LazyColumn {
+                    item { Spacer(modifier = Modifier.height(20.dp)) }
+                    item {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.app_name),
+                                style = MaterialTheme.typography.headlineLarge
+                            )
+                        }
+                    }
+                    item { Spacer(modifier = Modifier.height(20.dp)) }
+                    item {
+                        MarkdownText(
+                            markdown = stringResource(id = R.string.about_text),
                         )
                     }
-                }
-                item { Spacer(modifier = Modifier.height(20.dp)) }
-                item {
-                    MarkdownText(
-                        markdown = stringResource(id = R.string.about_text),
-                    )
-                }
-                item { Spacer(modifier = Modifier.height(20.dp)) }
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(0.5f)
-                    ) {
-                        YoutubeScreen(
-                            videoId = Constants.INTRO_VID_ID,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                    item { Spacer(modifier = Modifier.height(20.dp)) }
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(0.5f)
+                        ) {
+                            YoutubeScreen(
+                                videoId = Constants.INTRO_VID_ID,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                 }
             }

@@ -106,7 +106,9 @@ class SignUpViewModel @Inject constructor(
             is AuthUiEvent.ResetState -> {
                 state = AuthState()
             }
-
+            is AuthUiEvent.BackToSignUpClick -> {
+                state = state.copy(isVerifyOTP = false)
+            }
             else -> {
                 // do nothing
             }

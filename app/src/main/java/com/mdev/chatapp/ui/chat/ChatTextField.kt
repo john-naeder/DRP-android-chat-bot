@@ -44,6 +44,7 @@ fun ChatTextField(
     val context = LocalContext.current
     Surface(
         shape = RoundedCornerShape(24.dp),
+        modifier = modifier
     ) {
         Row(
             modifier = Modifier

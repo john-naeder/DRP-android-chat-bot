@@ -61,27 +61,25 @@ import dev.jeziellago.compose.markdowntext.MarkdownText
 fun HistoryScreen(
     navDrawerViewModel: NavigateDrawerViewModel,
     historyViewModel: HistoryViewModel,
-    onItemClick: (String) -> Unit,
     onNavigateTo: (Route) -> Unit,
     onLogout: (Route) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onClick: (String) -> Unit
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val selectedItem = Route.HistoryScreen
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val hapticFeedback = LocalHapticFeedback.current
 
-//    val conversations by historyViewModel.conversations.collectAsState(initial = emptyList())
     val state = historyViewModel.state
+
     LaunchedEffect(navDrawerViewModel, context) {
         navDrawerViewModel.uiEvent.collect {
             when (it) {
                 is UIEvent.Logout -> {
                     onLogout(Route.AuthNavigator)
                 }
-
                 is UIEvent.NavigateTo -> {
                     onNavigateTo(it.route)
                 }
@@ -102,10 +100,12 @@ fun HistoryScreen(
             scrollBehavior = scrollBehavior,
             content = {
                 HistoryContent(
-                    conversations = state.conversations,
-                    onItemClick = onItemClick,
-                    hapticFeedback = hapticFeedback,
-                    historyViewModel = historyViewModel
+                    historyState = state,
+                    onUiEvent = {
+                        historyViewModel.onEvent(it)
+                    },
+                    onClick = onClick
+
                 )
             }
         )
@@ -124,38 +124,21 @@ fun HistoryScreen(
 
 @Composable
 fun HistoryContent(
-//    conversations: List<ConversationModel>,
-    conversations: List<Conversation>,
-    onItemClick: (String) -> Unit,
-    hapticFeedback: HapticFeedback,
-    historyViewModel: HistoryViewModel
+    historyState: HistoryState,
+    onUiEvent: (HistoryUiEvent) -> Unit,
+    onClick: (String) -> Unit
 ){
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         content = {
-            if (conversations.isNotEmpty()) {
-                items(conversations.size) { index ->
-                    val conversation = conversations[index]
+            if (historyState.conversations.isNotEmpty()) {
+                items(historyState.conversations.size) { index ->
+                    val conversation = historyState.conversations[index]
                     HistoryItem(
-//                        id = conversation.conversationId,
-//                        title = conversation.conversationTitle,
-                        time = conversation.updated_at,
-                        title = conversation.first_content,
-                        onClick = {
-//                            onItemClick(conversation.conversationId)
-                            onItemClick(conversation.conversation_id)
-                        },
-                        onEdit = {
-//                            historyViewModel.onEvent(HistoryUiEvent.OnEditSaveClick(conversation))
-                        },
-                        onDelete = {
-//                            hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-//                            historyViewModel.onEvent(HistoryUiEvent.OnDeleteHistory(conversation))
-                        },
-                        onNewTitleChanged = {
-//                            historyViewModel.onEvent(HistoryUiEvent.OnTitleChanged(it))
-                        }
+                        conversation = conversation,
+                        onUIEvent = onUiEvent,
+                        onClick = onClick
                     )
                 }
             } else item { Lottie(R.raw.empty_list) }
@@ -166,22 +149,20 @@ fun HistoryContent(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HistoryItem(
-    title: String,
-    time: String,
-    onClick: () -> Unit,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
-    onNewTitleChanged: (String) -> Unit
+    conversation: Conversation,
+    onClick: (String) ->Unit,
+    onUIEvent: (HistoryUiEvent) -> Unit,
 ) {
     var isMenuExpanded by remember { mutableStateOf(false) }
-    var isDeleting by remember { mutableStateOf(false) }
     var isEditing by remember { mutableStateOf(false) }
 
     val hapticFeedback = LocalHapticFeedback.current
 
     ElevatedCard(
         modifier = Modifier.combinedClickable(
-            onClick = onClick,
+            onClick = {
+                onClick(conversation.conversation_id)
+            },
             onLongClick = {
                 isMenuExpanded = true
                 hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -202,7 +183,7 @@ fun HistoryItem(
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         MarkdownText(
-                            markdown = title,
+                            markdown = conversation.title,
                             maxLines = 1,
                         )
                     }
@@ -215,7 +196,7 @@ fun HistoryItem(
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
-                            text = time,
+                            text = conversation.updated_at,
                             overflow = TextOverflow.Ellipsis
                         )
                     }
@@ -227,36 +208,23 @@ fun HistoryItem(
                             isMenuExpanded = false
                             isEditing = true
                         },
-                        onDelete = {
-                            isDeleting = true
-                            isMenuExpanded = false
-                        }
                     )
                 }
             )
         }
     )
-    if (isDeleting) {
-        DeleteConfirmModal(
-            onDismiss = { isDeleting = false },
-            onNegative = { isDeleting = false },
-            onPositive = {
-                isDeleting = false
-                onDelete()
-            }
-        )
-    }
-
     if (isEditing) {
         EditDialog(
-            title = title,
+            title = conversation.title,
             onDismiss = { isEditing = false },
             onCancel = { isEditing = false },
             onConfirm = {
                 isEditing = false
-                onEdit()
+                onUIEvent(HistoryUiEvent.OnEditSaveClick(conversation))
             },
-            onNewTileChange = { onNewTitleChanged(it) }
+            onNewTileChange = {
+                onUIEvent(HistoryUiEvent.OnTitleChanged(it))
+            }
         )
     }
 }
@@ -266,10 +234,8 @@ fun ItemDropDownMenu(
     expanded: Boolean,
     onDismiss: () -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
 ) {
     val edit = stringResource(R.string.edit)
-    val delete = stringResource(R.string.delete)
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismiss,
@@ -282,62 +248,6 @@ fun ItemDropDownMenu(
                         imageVector = Icons.TwoTone.Edit,
                         contentDescription = edit
                     )
-                }
-            )
-            DropdownMenuItem(
-                onClick = onDelete,
-                text = { Text(delete) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.TwoTone.Delete,
-                        contentDescription = delete
-                    )
-                }
-            )
-        }
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DeleteConfirmModal(
-    onDismiss: () -> Unit,
-    onPositive: () -> Unit,
-    onNegative: () -> Unit
-) {
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        content = {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .padding(bottom = 64.dp)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                content = {
-                    Text(stringResource(R.string.delete_confirm))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(
-                            16.dp,
-                            Alignment.CenterHorizontally
-                        )
-                    ) {
-                        Button(
-                            content = { Text(stringResource(R.string.yes)) },
-                            onClick = {
-                                onPositive()
-                                onDismiss()
-                            }
-                        )
-                        Button(
-                            content = { Text(stringResource(R.string.no)) },
-                            onClick = {
-                                onNegative()
-                                onDismiss()
-                            }
-                        )
-                    }
                 }
             )
         }
@@ -353,6 +263,8 @@ fun EditDialog(
     onConfirm: () -> Unit,
     onNewTileChange: (String) -> Unit
 ) {
+
+    var titleState by remember { mutableStateOf(title) }
     BasicAlertDialog(
         onDismissRequest = onDismiss,
         content = {
@@ -364,8 +276,11 @@ fun EditDialog(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     content = {
                         TextField(
-                            value = title,
-                            onValueChange = {  onNewTileChange(it)},
+                            value = titleState,
+                            onValueChange = {
+                                titleState = it
+                                onNewTileChange(titleState)
+                            },
                             placeholder = { Text(stringResource(R.string.history_title)) }
                         )
                         Row(

@@ -85,5 +85,19 @@
     <string name="language">Language</string>
     <string name="voice_recognition_not_available">Voice recognition is not avaible</string>
     <string name="permission_required">This action require permisson from user setting to use</string>
+    <string name="info_user_deleted">User profile was deleted</string>
+    <string name="user_profile">User profile</string>
+    <string name="name">Name</string>
+    <string name="birthday">Birthday</string>
+    <string name="height">Height</string>
+    <string name="weight">Weight</string>
+    <string name="BMI" translatable="false">"BMI "</string>
+    <string name="age">Age</string>
+    <string name="unknown">Unknown</string>
+    <string name="confirm">Confirm</string>
+    <string name="update_profile">Update profile</string>
+    <string name="info">Information</string>
+    <string name="body_mass_index">Body mass index</string>
+    <string name="select_date">Select date</string>
 
 </resources>

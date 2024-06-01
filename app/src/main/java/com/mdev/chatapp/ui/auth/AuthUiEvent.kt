@@ -18,5 +18,9 @@ sealed class AuthUiEvent {
     data object SendResetPasswordOTP: AuthUiEvent()
     data object VerifyResetPasswordOTP: AuthUiEvent()
     data object ResetState: AuthUiEvent()
-
+    data object CancelResetPassword: AuthUiEvent()
+    data object ForgotPassword: AuthUiEvent()
+    data object BackToInputEmailClick: AuthUiEvent()
+    data object BackToSignInClick: AuthUiEvent()
+    data object BackToSignUpClick: AuthUiEvent()
 }

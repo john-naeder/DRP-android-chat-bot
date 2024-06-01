@@ -31,25 +31,21 @@ import com.mdev.chatapp.ui.home.HomeScreen
 import com.mdev.chatapp.ui.common.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.onboarding.OnBoardingScreen
 import com.mdev.chatapp.ui.onboarding.OnBoardingViewModel
+import com.mdev.chatapp.ui.profile.ProfileScreen
+import com.mdev.chatapp.ui.profile.ProfileViewModel
 
 @Composable
 fun NavGraph(
     startDestination: String
 ) {
     val navController = rememberNavController()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    navBackStackEntry?.let {
-        val currentDestination = it.destination.route
-        Log.d("NavController", "Current destination: $currentDestination")
-
-        val previousDestination = it.savedStateHandle.get<String>("previous_destination")
-        Log.d("NavController", "Previous destination: $previousDestination")
-    }
     Box(
         modifier = Modifier
             .background(color = MaterialTheme.colorScheme.background)
             .navigationBarsPadding()
     ) {
+        val navDrawerViewModel: NavigateDrawerViewModel = hiltViewModel()
+
         NavHost(navController = navController, startDestination = startDestination) {
             navigation(route = Route.AppStart.route, startDestination = Route.OnBoarding.route) {
                 composable(Route.OnBoarding.route) {
@@ -138,7 +134,6 @@ fun NavGraph(
                 startDestination = Route.HomeScreen.route
             ) {
                 composable(Route.HomeScreen.route) {
-                    val viewModel: NavigateDrawerViewModel = hiltViewModel()
                     HomeScreen(
                         onLogout = {
                             navController.navigate(Route.AuthNavigator.route) {
@@ -157,15 +152,31 @@ fun NavGraph(
                         onBackClick = {
                             navController.popBackStack()
                         },
-                        navDrawerViewModel = viewModel
+                        navDrawerViewModel = navDrawerViewModel
 
                     )
                 }
                 composable(Route.ProfileScreen.route) {
-                    // TODO
+                    val viewModel: ProfileViewModel = hiltViewModel()
+                    ProfileScreen(
+                        onLogout = {
+                            navController.navigate(Route.AuthNavigator.route) {
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = true
+                                }
+                            }
+                        },
+                        onNavigateTo = {
+                            navController.navigate(it.route)
+                        },
+                        onBackClick = {
+                            navController.popBackStack()
+                        },
+                        profileViewModel = viewModel,
+                        navDrawerViewModel = navDrawerViewModel
+                     )
                 }
                 composable(Route.HistoryScreen.route) {
-                    val navDrawerViewModel: NavigateDrawerViewModel = hiltViewModel()
                     val historyViewModel: HistoryViewModel = hiltViewModel()
                     HistoryScreen(
                         navDrawerViewModel = navDrawerViewModel,
@@ -184,7 +195,7 @@ fun NavGraph(
                                 }
                             }
                         },
-                        onItemClick = {
+                        onClick = {
                             navController.navigate("${Route.ChatScreen.route}/$it"){
 //                                popUpTo(Route.HistoryScreen.route) {
 //                                    inclusive = false
@@ -198,7 +209,6 @@ fun NavGraph(
                 }
                 composable(Route.ChatScreen.route){
                     val chatViewModel: ChatViewModel = hiltViewModel()
-                    val navigateDrawerViewModel: NavigateDrawerViewModel = hiltViewModel()
 
                     ChatScreen(
                         onLogout = {
@@ -219,7 +229,7 @@ fun NavGraph(
                             navController.popBackStack()
                         },
                         chatViewModel = chatViewModel,
-                        navDrawerViewModel = navigateDrawerViewModel
+                        navDrawerViewModel = navDrawerViewModel
                     )
                 }
                 composable(
@@ -231,7 +241,6 @@ fun NavGraph(
                     )
                 ) {
                     val chatViewModel: ChatViewModel = hiltViewModel()
-                    val navigateDrawerViewModel: NavigateDrawerViewModel = hiltViewModel()
 
                     ChatScreen(
                         onLogout = {
@@ -252,11 +261,10 @@ fun NavGraph(
                             navController.popBackStack()
                         },
                         chatViewModel = chatViewModel,
-                        navDrawerViewModel = navigateDrawerViewModel
+                        navDrawerViewModel = navDrawerViewModel
                     )
                 }
                 composable(Route.AboutScreen.route) {
-                    val navDrawerViewModel: NavigateDrawerViewModel = hiltViewModel()
                     AboutScreen(
                         navDrawerViewModel = navDrawerViewModel,
                         onBackClick = {

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,8 +23,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.twotone.Stop
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ElevatedCard
@@ -31,7 +34,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,6 +57,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
+import coil.decode.SvgDecoder
+import coil.request.CachePolicy
 import com.mdev.chatapp.R
 import com.mdev.chatapp.data.remote.chat.model.HistoryResponse
 import com.mdev.chatapp.ui.common.AnimatedDots
@@ -58,8 +67,8 @@ import com.mdev.chatapp.ui.common.BaseScreen
 import com.mdev.chatapp.ui.common.TypewriterText
 import com.mdev.chatapp.ui.common.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.navgraph.Route
-import com.mdev.chatapp.util.Constants
 import com.mdev.chatapp.util.UIEvent
+import dev.jeziellago.compose.markdowntext.AutoSizeConfig
 import dev.jeziellago.compose.markdowntext.MarkdownText
 
 
@@ -94,7 +103,7 @@ fun ChatScreen(
         }
     }
 
-    val chatState by remember { mutableStateOf(ChatState()) }
+    val chatState = chatViewModel.state
 
     val speechRecognizer = remember { SpeechRecognizer.createSpeechRecognizer(context) }
     val recognizerIntent = remember {
@@ -158,10 +167,16 @@ fun ChatScreen(
         scrollBehavior = scrollBehavior,
         navDrawerViewModel = navDrawerViewModel,
         content = {
-            ChatContent(
-                chatState = chatState,
-                historyChat = chatViewModel.historyChats.value
-            )
+            Box(
+                modifier = Modifier.padding(
+                    horizontal = 16.dp
+                )
+            ) {
+                ChatContent(
+                    chatState = chatState,
+                    historyChat = chatViewModel.historyChats.value
+                )
+            }
         },
         bottomBar = {
             Crossfade(
@@ -231,10 +246,9 @@ private fun ChatContent(
             ChatBubble(
                 content = it.content,
                 owner = ChatBubbleOwner.of(it.role),
-                isTypewriter = chatState.conversationId == Constants.INIT_CONVERSATION_ID && it.role == "assistant",
-                typeWriterPass = { chatState.forceScroll = ++chatState.forceScroll }
             )
         }
+
         if (chatState.isWaitingForResponse) {
             ChatBubble(
                 owner = ChatBubbleOwner.Assistant,
@@ -265,12 +279,12 @@ fun ChatBubble(
         MaterialTheme.colorScheme.secondaryContainer
     } else MaterialTheme.colorScheme.tertiaryContainer
 
-    val shape = if (owner == ChatBubbleOwner.User) {
+    val shape = if (owner == ChatBubbleOwner.Assistant) {
         RoundedCornerShape(
-            topStart = 2.dp,
+            topStart = 16.dp,
             topEnd = 16.dp,
             bottomEnd = 16.dp,
-            bottomStart = 16.dp
+            bottomStart = 2.dp
         )
     } else {
         RoundedCornerShape(
@@ -306,8 +320,6 @@ fun ChatBubble(
 fun ChatBubble(
     content: String,
     owner: ChatBubbleOwner,
-    isTypewriter: Boolean,
-    typeWriterPass: () -> Unit = {}
 ) {
     var isExpanded by remember { mutableStateOf(true) }
 
@@ -316,10 +328,23 @@ fun ChatBubble(
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
 
+    val imageLoader = ImageLoader.Builder(context)
+        .crossfade(true)
+        .diskCachePolicy(CachePolicy.ENABLED)
+        .memoryCachePolicy(CachePolicy.ENABLED)
+        .components {
+            add(SvgDecoder.Factory())
+        }
+        .build()
+
     ChatBubble(
         owner = owner,
-        onClick = { isExpanded = !isExpanded },
+        onClick = {
+            Log.d("ChatBubble", "click detected")
+            isExpanded = !isExpanded
+        },
         onLongClick = {
+            Log.d("ChatBubble", "Long click detected")
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             clipboardManager.setText(AnnotatedString(content))
             Toast
@@ -327,28 +352,26 @@ fun ChatBubble(
                 .show()
         },
         content = {
-            if (isTypewriter) {
-                TypewriterText(
-                    modifier = Modifier.padding(8.dp),
-                    text = content.trim(),
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = if (isExpanded) Int.MAX_VALUE else 10,
-                    typeWriterPass = typeWriterPass
-                )
-            } else {
-//                Text(
-//                    modifier = Modifier.padding(8.dp),
-//                    text = content.trim(),
-//                    overflow = TextOverflow.Ellipsis,
-//                    maxLines = if (isExpanded) Int.MAX_VALUE else 10,
-//                )
-                MarkdownText(
-                    markdown = content.trim(),
-                    modifier = Modifier.padding(8.dp),
-                    maxLines = if (isExpanded) Int.MAX_VALUE else 10,
-//                    overflow = TextOverflow.Ellipsis
-                )
-            }
+            MarkdownText(
+                markdown = content.trim(),
+                modifier = Modifier.padding(8.dp),
+                maxLines = if (isExpanded) Int.MAX_VALUE else 10,
+                linkColor = MaterialTheme.colorScheme.primary,
+                truncateOnTextOverflow = true,
+//                    isTextSelectable = true,
+                imageLoader = imageLoader,
+                autoSizeConfig = AutoSizeConfig(
+                    autoSizeMinTextSize = 12,
+                    autoSizeMaxTextSize = 16,
+                    autoSizeStepGranularity = 2
+                ),
+                enableSoftBreakAddsNewLine = true,
+            )
         }
     )
 }
+
+
+
+
+

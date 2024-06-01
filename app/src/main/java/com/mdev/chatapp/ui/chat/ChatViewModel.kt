@@ -35,15 +35,13 @@ class ChatViewModel @Inject constructor(
     var state by mutableStateOf(ChatState(conversationId = conversationId))
 
 
-    var historyChats = mutableStateOf(HistoryResponse(listOf()))
+    val historyChats = mutableStateOf(HistoryResponse(listOf()))
     var followUpQuestion = mutableStateOf(listOf<Message>())
 
     init {
         loadCurrentUser()
         if (conversationId != INIT_CONVERSATION_ID)
             refreshHistory()
-        Log.d("ChatViewModel", "conversationId: $conversationId")
-
     }
 
     fun onEvent(event: ChatUIEvent) {

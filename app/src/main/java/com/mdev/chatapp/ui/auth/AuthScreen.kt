@@ -265,29 +265,8 @@ fun SignInScreen(
                 Spacer(modifier = Modifier.height(20.dp))
                 SignInContent(
                     switchToSignUpClick = { onNavigateTo(Route.Signup) },
-                    onSignInClick = { viewModel.onEvent(AuthUiEvent.SignIn) },
 
-                    onUsernameChanged = { viewModel.onEvent(AuthUiEvent.UsernameChanged(it)) },
-                    onPasswordChange = { viewModel.onEvent(AuthUiEvent.PasswordChanged(it)) },
-                    onEmailChanged = { viewModel.onEvent(AuthUiEvent.EmailChanged(it)) },
-                    onOTPChanged = { viewModel.onEvent(AuthUiEvent.OTPChanged(it)) },
-                    onRePasswordChanged = { viewModel.onEvent(AuthUiEvent.RePasswordChanged(it)) },
-
-                    onForgotPasswordClick = {
-                        viewModel.state = viewModel.state.copy(isInputEmailOTP = true)
-                    },
-                    onContinueToVerifyOTP = { viewModel.onEvent(AuthUiEvent.SendResetPasswordOTP) },
-                    onOTPSubmit = { viewModel.onEvent(AuthUiEvent.VerifyResetPasswordOTP) },
-                    onCompleteResetPassword = { viewModel.onEvent(AuthUiEvent.ResetPassword) },
-
-                    onBackToInputEmail = {
-                        viewModel.state =
-                            viewModel.state.copy(isVerifyOTP = false, isInputEmailOTP = true)
-                    },
-                    onCancelClick = { viewModel.onEvent(AuthUiEvent.ResetState) },
-                    onBackToSignInClick = {
-                        viewModel.state = viewModel.state.copy(isInputEmailOTP = false)
-                    },
+                    onUIEvent = { viewModel.onEvent(it) },
 
                     state = viewModel.state
                 )
@@ -322,7 +301,6 @@ fun SignUpScreen(
                 is ApiResult.Success -> {
                     onSignUpSuccess(Route.HomeNavigator)
                 }
-
                 is ApiResult.Error -> {
                     Toast.makeText(
                         context,
@@ -356,20 +334,9 @@ fun SignUpScreen(
                 )
                 Spacer(modifier = Modifier.height(20.dp))
                 SignUpContent(
-                    onSwitchToSignInClick = {
-                        onNavigateTo(Route.SignIn)
-                    },
-                    onContinueToSignUp = {
-                        viewModel.onEvent(AuthUiEvent.SendOTP)
-                    },
-                    state = viewModel.state,
-                    onPasswordChange = { viewModel.onEvent(AuthUiEvent.PasswordChanged(it)) },
-                    onRePasswordChanged = { viewModel.onEvent(AuthUiEvent.RePasswordChanged(it)) },
-                    onUsernameChanged = { viewModel.onEvent(AuthUiEvent.UsernameChanged(it)) },
-                    onEmailChanged = { viewModel.onEvent(AuthUiEvent.EmailChanged(it)) },
-                    onOTPChanged = { viewModel.onEvent(AuthUiEvent.OTPChanged(it)) },
-                    onOTPSubmit = { viewModel.onEvent(AuthUiEvent.SignUp) },
-                    onOTPBackClick = { viewModel.state = viewModel.state.copy(isVerifyOTP = false) }
+                    onSwitchToSignInClick = { onNavigateTo(Route.SignIn) },
+                    onUIEvent = { viewModel.onEvent(it) },
+                    state = viewModel.state
                 )
             }
             if (isLoading) {
@@ -388,32 +355,19 @@ fun SignUpScreen(
 
 @Composable
 fun SignUpContent(
+    onUIEvent: (AuthUiEvent) -> Unit,
     onSwitchToSignInClick: () -> Unit,
-    onContinueToSignUp: () -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onRePasswordChanged: (String) -> Unit,
-    onUsernameChanged: (String) -> Unit,
-    onEmailChanged: (String) -> Unit,
-    onOTPChanged: (String) -> Unit,
-    onOTPSubmit: () -> Unit,
-    onOTPBackClick: () -> Unit,
     state: AuthState,
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 30.dp)
+            .padding(bottom = 10.dp)
     ) {
         InputSignupSection(
-            onSignUpClick = { onContinueToSignUp() },
-            onUsernameChanged = { onUsernameChanged(it) },
-            onEmailChanged = { onEmailChanged(it) },
-            onPasswordChange = { onPasswordChange(it) },
-            onRePasswordChanged = { onRePasswordChanged(it) },
-            onSwitchToSignInClick = { onSwitchToSignInClick() },
-            onOTPChanged = { onOTPChanged(it) },
-            onOTPSubmit = { onOTPSubmit() },
-            onOTPBackClick = { onOTPBackClick() },
+            onUIEvent = onUIEvent,
+            onSwitchToSignInClick = onSwitchToSignInClick,
             state = state
         )
     }
@@ -421,15 +375,8 @@ fun SignUpContent(
 
 @Composable
 private fun InputSignupSection(
-    onSignUpClick: () -> Unit,
-    onUsernameChanged: (String) -> Unit,
-    onEmailChanged: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onRePasswordChanged: (String) -> Unit,
+    onUIEvent: (AuthUiEvent) -> Unit,
     onSwitchToSignInClick: () -> Unit,
-    onOTPChanged: (String) -> Unit,
-    onOTPSubmit: () -> Unit,
-    onOTPBackClick: () -> Unit,
     state: AuthState,
 ) {
 
@@ -444,29 +391,29 @@ private fun InputSignupSection(
                 label = R.string.username,
                 state = state,
                 modifier = Modifier.fillMaxWidth(),
-                onUsernameChanged = onUsernameChanged
+                onUsernameChanged = { onUIEvent(AuthUiEvent.UsernameChanged(it)) }
             )
             AuthTextField(
                 label = R.string.email,
-                onEmailChanged = onEmailChanged,
+                onEmailChanged = { onUIEvent(AuthUiEvent.EmailChanged(it)) },
                 state = state,
                 modifier = Modifier.fillMaxWidth()
             )
             AuthTextField(
                 label = R.string.password,
                 state = state,
-                onPasswordChange = onPasswordChange,
+                onPasswordChange = { onUIEvent(AuthUiEvent.PasswordChanged(it)) },
                 modifier = Modifier.fillMaxWidth()
             )
             AuthTextField(
                 label = R.string.repassword,
                 state = state,
-                onRePasswordChanged = onRePasswordChanged,
+                onRePasswordChanged = { onUIEvent(AuthUiEvent.RePasswordChanged(it)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(5.dp))
             AuthButton(
-                onClick = { onSignUpClick() },
+                onClick = { onUIEvent(AuthUiEvent.SignUp) },
                 content = R.string.continue_to,
                 enabled = state.passwordError.not()
                         && state.rePasswordError.not()
@@ -497,7 +444,7 @@ private fun InputSignupSection(
             ) {
                 OTPTextField(
                     value = state.otp, // Initial value
-                    onTextChanged = { onOTPChanged(it) },
+                    onTextChanged = { onUIEvent(AuthUiEvent.OTPChanged(it)) },
                     numDigits = 6,
                     isMasked = true,
                     digitContainerStyle = OtpTextFieldDefaults.outlinedContainer(),
@@ -506,13 +453,13 @@ private fun InputSignupSection(
                 )
             }
             AuthButton(
-                onClick = { onOTPSubmit() },
+                onClick = { onUIEvent(AuthUiEvent.SendOTP) },
                 content = R.string.continue_to,
                 enabled = state.otpError.not()
             )
             Spacer(modifier = Modifier.height(10.dp))
             OutlinedButton(
-                onClick = { onOTPBackClick() },
+                onClick = { onUIEvent(AuthUiEvent.ResetState) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = stringResource(id = R.string.back))
@@ -521,27 +468,11 @@ private fun InputSignupSection(
     }
 }
 
-
-
 @Composable
 fun SignInContent(
     switchToSignUpClick: () -> Unit,
-    onSignInClick: () -> Unit,
+    onUIEvent: (AuthUiEvent) -> Unit,
 
-    onUsernameChanged: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onRePasswordChanged: (String) -> Unit,
-    onEmailChanged: (String) -> Unit,
-    onOTPChanged: (String) -> Unit,
-
-    onContinueToVerifyOTP: () -> Unit,
-    onForgotPasswordClick: () -> Unit,
-    onCompleteResetPassword: () -> Unit,
-    onOTPSubmit: () -> Unit,
-
-    onBackToInputEmail: () -> Unit,
-    onBackToSignInClick: () -> Unit,
-    onCancelClick: () -> Unit,
     state: AuthState
 ) {
 
@@ -556,10 +487,7 @@ fun SignInContent(
                 .padding(horizontal = 30.dp)
         ) {
             InputLoginSection(
-                loginClick = onSignInClick,
-                onUsernameChanged = onUsernameChanged,
-                onPasswordChange = onPasswordChange,
-                onForgotPasswordClick = onForgotPasswordClick,
+                onUIEvent = onUIEvent,
                 state = state
             )
             Spacer(modifier = Modifier.height(20.dp))
@@ -614,7 +542,7 @@ fun SignInContent(
                             AuthTextField(
                                 label = R.string.email,
                                 state = state,
-                                onEmailChanged = onEmailChanged,
+                                onEmailChanged = { onUIEvent(AuthUiEvent.EmailChanged(it)) },
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -628,7 +556,7 @@ fun SignInContent(
                             OTPTextField(
                                 value = state.otp,
                                 onTextChanged = {
-                                    onOTPChanged(it)
+                                    onUIEvent(AuthUiEvent.OTPChanged(it))
                                 },
                                 numDigits = 6,
                                 isMasked = true,
@@ -651,14 +579,14 @@ fun SignInContent(
                             AuthTextField(
                                 label = R.string.password,
                                 state = state,
-                                onPasswordChange = onPasswordChange,
+                                onPasswordChange = { onUIEvent(AuthUiEvent.PasswordChanged(it)) },
                                 modifier = Modifier.fillMaxWidth()
                             )
                             Spacer(modifier = Modifier.height(10.dp))
                             AuthTextField(
                                 label = R.string.repassword,
                                 state = state,
-                                onRePasswordChanged = onRePasswordChanged,
+                                onRePasswordChanged = { onUIEvent(AuthUiEvent.RePasswordChanged(it)) },
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
@@ -667,12 +595,15 @@ fun SignInContent(
             }
             AuthButton(
                 onClick =
+                {
                     when {
-                        state.isInputEmailOTP -> onContinueToVerifyOTP
-                        state.isVerifyOTP -> onOTPSubmit
-                        state.isResetPassword -> onCompleteResetPassword
-                        else -> onSignInClick
-                    },
+                        state.isInputEmailOTP -> onUIEvent(AuthUiEvent.SendResetPasswordOTP)
+                        state.isVerifyOTP -> onUIEvent(AuthUiEvent.VerifyResetPasswordOTP)
+                        state.isResetPassword -> onUIEvent(AuthUiEvent.ResetPassword)
+                        else -> onUIEvent(AuthUiEvent.SignIn)
+
+                    }
+                },
                 content =
                     when {
                         state.isResetPassword -> R.string.reset_password
@@ -688,13 +619,14 @@ fun SignInContent(
             )
             Spacer(modifier = Modifier.height(10.dp))
             OutlinedButton(
-                onClick =
-                    when{
-                        state.isResetPassword -> onCancelClick
-                        state.isVerifyOTP -> onBackToInputEmail
-                        state.isInputEmailOTP -> onBackToSignInClick
-                        else -> onCancelClick
-                    },
+                onClick = {
+                    when {
+                        state.isResetPassword -> onUIEvent(AuthUiEvent.ResetPassword)
+                        state.isVerifyOTP -> onUIEvent(AuthUiEvent.CancelResetPassword)
+                        state.isInputEmailOTP -> onUIEvent(AuthUiEvent.BackToSignInClick)
+                        else -> onUIEvent(AuthUiEvent.ResetState)
+                    }
+                },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(text = stringResource(id = R.string.back))
@@ -705,22 +637,19 @@ fun SignInContent(
 
     @Composable
     private fun InputLoginSection(
-        loginClick: () -> Unit,
-        onUsernameChanged: (String) -> Unit,
-        onPasswordChange: (String) -> Unit,
-        onForgotPasswordClick: () -> Unit,
+        onUIEvent: (AuthUiEvent) -> Unit,
         state: AuthState
     ) {
         AuthTextField(
             label = R.string.username,
             state = state,
-            onUsernameChanged = onUsernameChanged,
+            onUsernameChanged = { onUIEvent(AuthUiEvent.UsernameChanged(it)) },
             modifier = Modifier.fillMaxWidth()
         )
         AuthTextField(
             label = R.string.password,
             state = state,
-            onPasswordChange = onPasswordChange,
+            onPasswordChange = { onUIEvent(AuthUiEvent.PasswordChanged(it)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 0.dp)
@@ -733,12 +662,12 @@ fun SignInContent(
             Text(
                 text = stringResource(id = R.string.forgot_password),
                 style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier.clickable(onClick = { onForgotPasswordClick() })
+                modifier = Modifier.clickable(onClick = { onUIEvent(AuthUiEvent.ForgotPassword) })
             )
         }
         Spacer(modifier = Modifier.height(10.dp))
         AuthButton(
-            onClick = { loginClick() },
+            onClick = { onUIEvent(AuthUiEvent.SignIn) },
             content = R.string.login,
             enabled = state.username.isNotEmpty()
                     && state.password.isNotEmpty()
@@ -788,9 +717,8 @@ fun SignInContent(
     ) {
         Box(
             modifier = Modifier
-                .fillMaxHeight(fraction = 0.3f)
-                .fillMaxWidth(),
-            contentAlignment = Alignment.BottomCenter
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
             Text(
                 modifier = Modifier.clickable { onClick() },
@@ -816,6 +744,7 @@ fun SignInContent(
                     }
                 }
             )
+
         }
     }
 

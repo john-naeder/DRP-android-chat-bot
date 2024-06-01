@@ -2,6 +2,7 @@ package com.mdev.chatapp.data.remote.chat
 
 import android.util.Log
 import com.mdev.chatapp.R
+import com.mdev.chatapp.data.remote.api.ChatServerApi
 import com.mdev.chatapp.data.remote.chat.model.ConversationInitRequest
 import com.mdev.chatapp.data.remote.chat.model.ConversationInitResponse
 import com.mdev.chatapp.data.remote.chat.model.GetHistoryRequest
@@ -12,7 +13,7 @@ import com.mdev.chatapp.domain.repository.remote.ChatRepository
 import com.mdev.chatapp.domain.result.ApiResult
 
 class ChatRepositoryImpl(
-    private val chatApi: ChatApi,
+    private val chatServerApi: ChatServerApi,
 ): ChatRepository {
     override suspend fun newChat(
         userId: String,
@@ -20,14 +21,13 @@ class ChatRepositoryImpl(
         message: String
     ) : ApiResult<NewChatResponse> {
         return try {
-            val response = chatApi.newChat(
+            val response = chatServerApi.newChat(
                 NewChatRequest(
                     conversation_id = conversationId,
                     id = userId,
                     query = message
                 )
             )
-            Log.d("ChatRepositoryImpl", "newChat: ${response.body()}")
             when (response.code()) {
                 200 -> {
                     val body = response.body()
@@ -49,7 +49,7 @@ class ChatRepositoryImpl(
 
     override suspend fun loadHistoryChat(conversationId: String): ApiResult<HistoryResponse> {
         return try {
-            val response = chatApi.getHistory(GetHistoryRequest(conversationId))
+            val response = chatServerApi.getHistory(GetHistoryRequest(conversationId))
             when (response.code()) {
                 200 -> {
                     val body = response.body()
@@ -70,7 +70,7 @@ class ChatRepositoryImpl(
 
     override suspend fun initConversation(userId: String) : ApiResult<ConversationInitResponse> {
         return try {
-            val response = chatApi.initChat(ConversationInitRequest(userId))
+            val response = chatServerApi.initChat(ConversationInitRequest(userId))
             when (response.code()) {
                 200 -> {
                     val body = response.body()

@@ -1,5 +1,6 @@
 package com.mdev.chatapp.ui.common.nav_drawer
 
+import android.content.ClipData.Item
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.DismissibleDrawerSheet
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
@@ -56,34 +58,38 @@ fun DrawerContent(
             {
                 Spacer(modifier = Modifier.height(16.dp))
                 Box {
-                    Column {
-                        listOfItem.forEach { item ->
-                            Spacer(modifier = Modifier.height(8.dp))
-                            NavigationDrawerItem(
-                                label = { Text(stringResource(id = item.title!!)) },
-                                selected = selectedItem == item,
-                                onClick = {
-                                    when (item) {
-                                        Route.AuthNavigator -> onLogout()
-                                        selectedItem -> {
-                                            // do nothing
+                    LazyColumn {
+                        listOfItem.forEach {item ->
+                            item {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                NavigationDrawerItem(
+                                    label = { Text(stringResource(id = item.title!!)) },
+                                    selected = selectedItem == item,
+                                    onClick = {
+                                        when (item) {
+                                            Route.AuthNavigator -> onLogout()
+                                            selectedItem -> {
+                                                // do nothing
+                                            }
+
+                                            else -> onNavigateTo(item)
                                         }
-                                        else -> onNavigateTo(item)
-                                    }
-                                    scope.launch {
-                                        drawerState.close()
-                                    }
-                                },
-                                icon = {
-                                    Icon(
-                                        item.icon!!,
-                                        contentDescription = stringResource(
-                                            id = item.title!!
+                                        scope.launch {
+                                            drawerState.close()
+                                        }
+                                    },
+                                    icon = {
+                                        Icon(
+                                            item.icon!!,
+                                            contentDescription = stringResource(
+                                                id = item.title!!
+                                            )
                                         )
-                                    )
-                                },
-                                modifier = Modifier.widthIn(max = LocalConfiguration.current.screenWidthDp.dp * 0.8f),
-                            )
+                                    },
+                                    modifier = Modifier.widthIn(max = LocalConfiguration.current.screenWidthDp.dp * 0.8f),
+                                )
+                            }
+
                         }
                     }
                 }

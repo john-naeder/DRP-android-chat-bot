@@ -12,7 +12,7 @@ android {
 
     defaultConfig {
         applicationId = "com.mdev.chatapp"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -92,7 +92,6 @@ dependencies {
 
     // Dagger - Hilt
     implementation(libs.hilt.android)
-    annotationProcessor(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     ksp(libs.dagger.compiler) // Dagger compiler
     ksp(libs.hilt.compiler)
@@ -110,13 +109,14 @@ dependencies {
     // Coil
     implementation(libs.coil)
     implementation(libs.coil.compose)
+    implementation(libs.coil.svg)
+
 
     // Data store
     implementation(libs.androidx.datastore.preferences)
 
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
-    annotationProcessor(libs.androidx.room.compiler)
     ksp(libs.androidx.room.compiler)
 
     // Jwt - Decode
@@ -124,7 +124,10 @@ dependencies {
 
     // Icon extends
     implementation(libs.androidx.material.icons.extended)
-
     implementation(libs.androidx.core.splashscreen)
 
+    // Date and Time Picker
+    implementation(libs.datetime)
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+    
 }

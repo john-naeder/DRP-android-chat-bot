@@ -3,9 +3,12 @@ accompanist = "0.31.4-beta"
 accompanistSwiperefresh = "0.26.1-alpha"
 agp = "8.3.2"
 coil = "2.6.0"
+coilSvg = "2.0.0"
 compose = "1.6.7"
 coreSplashscreen = "1.0.1"
 datastore = "1.1.1"
+datetime = "0.8.1-rc"
+desugar_jdk_libs = "2.0.4"
 hilt = "2.51.1"
 hiltNavigationCompose = "1.2.0"
 jwt = "4.4.0"
@@ -45,8 +48,11 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 coil = { module = "io.coil-kt:coil", version.ref = "coil" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil-svg = { module = "io.coil-kt:coil-svg", version.ref = "coilSvg" }
 converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
 dagger-compiler = { module = "com.google.dagger:dagger-compiler", version.ref = "hilt" }
+datetime = { module = "io.github.vanpra.compose-material-dialogs:datetime", version.ref = "datetime" }
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 java-jwt = { module = "com.auth0:java-jwt", version.ref = "jwt" }

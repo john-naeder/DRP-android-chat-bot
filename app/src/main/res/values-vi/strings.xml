@@ -77,6 +77,19 @@
     <string name="language">"Ngôn ngữ "</string>
     <string name="voice_recognition_not_available">"Nhận diện giọng nói không hỗ trợ "</string>
     <string name="permission_required">Hoạt động này yêu cầu quyền truy cập từ máy người dùng</string>
+    <string name="info_user_deleted">Hồ sơ đã bị xóa</string>
+    <string name="user_profile">Hồ sơ người dùng</string>
+    <string name="name">Họ tên</string>
+    <string name="birthday">Ngày sinh</string>
+    <string name="height">Chiều cao</string>
+    <string name="weight">Cân nặng</string>
+    <string name="age">Tuổi</string>
+    <string name="unknown">Không rõ</string>
+    <string name="confirm">Đồng ý</string>
+    <string name="update_profile">Cập nhật hồ sơ</string>
+    <string name="info">Thông tin</string>
+    <string name="body_mass_index">Chỉ số cơ thể</string>
+    <string name="select_date">Chọn ngày</string>
 
 
 </resources>

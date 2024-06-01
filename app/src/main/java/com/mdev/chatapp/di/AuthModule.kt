@@ -6,9 +6,9 @@ import com.mdev.chatapp.data.local.LocalDatabase
 import com.mdev.chatapp.data.local.user.UserRepositoryImpl
 import com.mdev.chatapp.data.local.app_entry.LocalUserManagerImpl
 import com.mdev.chatapp.data.local.conversation.ConversationRepositoryImpl
-import com.mdev.chatapp.data.remote.auth.AuthApi
+import com.mdev.chatapp.data.remote.api.UserServerApi
 import com.mdev.chatapp.data.remote.auth.AuthRepositoryImpl
-import com.mdev.chatapp.data.remote.chat.ChatApi
+import com.mdev.chatapp.data.remote.api.ChatServerApi
 import com.mdev.chatapp.domain.repository.local.UserRepository
 import com.mdev.chatapp.domain.repository.remote.AuthRepository
 import com.mdev.chatapp.domain.user_entry.LocalUserManager
@@ -18,11 +18,12 @@ import com.mdev.chatapp.domain.user_entry.app_entry.SaveAppEntry
 import com.mdev.chatapp.domain.repository.remote.ChatRepository
 import com.mdev.chatapp.data.remote.chat.ChatRepositoryImpl
 import com.mdev.chatapp.domain.repository.local.ConversationRepository
-import com.mdev.chatapp.ui.history.HistoryRepository
+import com.mdev.chatapp.domain.repository.remote.HistoryRepository
 import com.mdev.chatapp.data.remote.history.HistoryRepositoryImpl
+import com.mdev.chatapp.data.remote.user.UserProfileRepositoryImpl
+import com.mdev.chatapp.domain.repository.remote.UserProfileRepository
 import com.mdev.chatapp.util.Constants
 import com.mdev.chatapp.util.DataStoreHelper
-import com.mdev.chatapp.util.RetryInterceptor
 import com.mdev.chatapp.util.StringProvider
 import dagger.Module
 import dagger.Provides
@@ -41,14 +42,14 @@ object AuthModule {
 
     @Singleton
     @Provides
-    fun provideAuthApi(): AuthApi {
+    fun provideAuthApi(): UserServerApi {
 //        val retryInterceptor = RetryInterceptor(3)
 
         val okHttpClient = OkHttpClient.Builder()
 //            .addInterceptor(retryInterceptor)
             .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(20, TimeUnit.SECONDS)
-            .writeTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
             .build()
 
         return Retrofit.Builder()
@@ -56,12 +57,12 @@ object AuthModule {
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
-            .create(AuthApi::class.java)
+            .create(UserServerApi::class.java)
     }
 
     @Singleton
     @Provides
-    fun provideChatApi(): ChatApi {
+    fun provideChatApi(): ChatServerApi {
         val okHttpClient = OkHttpClient.Builder()
             .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
@@ -72,12 +73,18 @@ object AuthModule {
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
-            .create(ChatApi::class.java)
+            .create(ChatServerApi::class.java)
     }
 
     @Singleton
     @Provides
-    fun provideAuthRepository(api: AuthApi, dataStore: DataStoreHelper, userRepository: UserRepository): AuthRepository {
+    fun provideUserProfileRepository(api: UserServerApi): UserProfileRepository {
+        return UserProfileRepositoryImpl(api)
+    }
+
+    @Singleton
+    @Provides
+    fun provideAuthRepository(api: UserServerApi, dataStore: DataStoreHelper, userRepository: UserRepository): AuthRepository {
         return AuthRepositoryImpl(api, dataStore, userRepository)
     }
 
@@ -95,13 +102,13 @@ object AuthModule {
 
     @Singleton
     @Provides
-    fun provideChatRepository(api: ChatApi): ChatRepository {
+    fun provideChatRepository(api: ChatServerApi): ChatRepository {
         return ChatRepositoryImpl(api)
     }
 
     @Singleton
     @Provides
-    fun provideHistoryRepository(api: ChatApi): HistoryRepository {
+    fun provideHistoryRepository(api: ChatServerApi): HistoryRepository {
         return HistoryRepositoryImpl(api)
     }
 
