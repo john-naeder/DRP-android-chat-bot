@@ -43,14 +43,11 @@ fun AboutScreen(
     onNavigateTo: (Route) -> Unit,
     onLogout: (Route) -> Unit
 ) {
-
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val selectedItem = Route.AboutScreen
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-
 
     LaunchedEffect(navDrawerViewModel, context) {
         navDrawerViewModel.uiEvent.collect {

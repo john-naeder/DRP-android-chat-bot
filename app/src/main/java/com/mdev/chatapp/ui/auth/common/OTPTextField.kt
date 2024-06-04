@@ -186,7 +186,6 @@ private fun RowScope.OutlinedDigitContainer(
                         .align(Alignment.Center)
                         .size(8.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.onBackground)
                 )
         } else {
             Text(

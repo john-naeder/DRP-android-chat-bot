@@ -76,7 +76,7 @@ fun AnimatedDots() {
                         .size(8.dp)
                         .offset(y = (-dy * travelDistance).dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.onTertiaryContainer)
+                        .background(MaterialTheme.colorScheme.primary)
                 )
             }
         }

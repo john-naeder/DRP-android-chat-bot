@@ -13,15 +13,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import com.mdev.chatapp.ui.onboarding.Dimens.Dimens.IndicatorSize
-import com.mdev.chatapp.ui.theme.BlueGray
-
 @Composable
 fun PagerIndicator(
     modifier: Modifier = Modifier,
     pagesSize: Int,
     selectedPage: Int,
     selectedColor: Color = MaterialTheme.colorScheme.primary,
-    unselectedColor: Color = BlueGray,
+    unselectedColor: Color = MaterialTheme.colorScheme.secondary,
 ) {
     Row(modifier = modifier, horizontalArrangement = Arrangement.SpaceBetween) {
         repeat(times = pagesSize) { page ->

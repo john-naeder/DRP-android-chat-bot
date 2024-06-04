@@ -91,7 +91,6 @@ fun HistoryScreen(
     }
     Box(
         modifier = Modifier.fillMaxSize()
-            .padding(horizontal = 16.dp),
     ) {
         BaseScreen(
             scope = scope,
@@ -181,7 +180,7 @@ fun HistoryItem(
                     ) {
                         Text(
                             text = stringResource(R.string.title),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            color = MaterialTheme.colorScheme.primary
                         )
                         MarkdownText(
                             markdown = conversation.title,
@@ -194,7 +193,7 @@ fun HistoryItem(
                     ) {
                         Text(
                             text = stringResource(id = R.string.updated_at),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            color = MaterialTheme.colorScheme.primary
                         )
                         Text(
                             text = conversation.updated_at,

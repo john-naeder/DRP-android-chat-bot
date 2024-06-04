@@ -23,8 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.mdev.chatapp.ui.theme.BlueGray
-import com.mdev.chatapp.ui.theme.LightBlueWhite
+
 
 @Composable
 fun SocialMediaLogin(
@@ -53,10 +52,10 @@ fun Modifier.socialMedia() : Modifier = composed {
     if (isSystemInDarkTheme()){
         background(Color.Transparent).border(
             width = 1.dp,
-            color = BlueGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             shape = RoundedCornerShape(4.dp)
     )
     } else {
-        background(LightBlueWhite)
+        background(MaterialTheme.colorScheme.surfaceTint)
     }
 }

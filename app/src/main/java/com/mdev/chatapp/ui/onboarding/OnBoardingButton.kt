@@ -17,10 +17,7 @@ fun OnBoardingTextButton(
     onClick: () -> Unit
 ) {
     Button(
-        onClick = onClick, colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = Color.White
-        ),
+        onClick = onClick, colors = ButtonDefaults.buttonColors(contentColor = Color.White),
         shape = RoundedCornerShape(size = 6.dp)
     ) {
         Text (

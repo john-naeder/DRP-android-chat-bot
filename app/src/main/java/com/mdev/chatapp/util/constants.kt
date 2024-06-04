@@ -17,11 +17,17 @@ object Constants {
     const val JWT = "jwt_"
     const val JWT_REFRESH = "jwt_refresh_"
 
+    const val LANGUAGE = "language"
+    const val DEFAULT_LANGUAGE = "en"
+    const val THEME = "theme"
+    const val DEFAULT_THEME = "true"
+
     // Database
     const val LOCAL_DATABASE_NAME = "user_database"
 
     // Chat
     const val INIT_CONVERSATION_ID = "new_conversation_id"
     const val NEW_CHAT = "new chat"
+
 
 }

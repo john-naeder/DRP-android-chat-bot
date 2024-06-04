@@ -100,7 +100,11 @@
     <string name="body_mass_index">Body mass index</string>
     <string name="select_date">Select date</string>
     <string name="follow_up_1">Can you recommend some nutrient-rich foods to me?</string>
-    <string name="follow_up_2">"    What should I eat to boost the immune system for a sick person?"</string>
-    <string name="follow_up_3">"    Is there a way to lose weight while still ensuring adequate nutrition?"</string>
+    <string name="follow_up_2">"What should I eat to boost the immune system for a sick person?"</string>
+    <string name="follow_up_3">"Is there a way to lose weight while still ensuring adequate nutrition?"</string>
+    <string name="theme_dark">Dark theme</string>
+    <string name="theme_light">Light theme</string>
+    <string name="theme_system">System theme</string>
+    <string name="themee_settings">Theme setting</string>
 
 </resources>

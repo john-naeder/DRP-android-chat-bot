@@ -66,7 +66,6 @@ import com.mdev.chatapp.ui.auth.viewmode.AuthViewModel
 import com.mdev.chatapp.ui.auth.viewmode.SignInViewModel
 import com.mdev.chatapp.ui.auth.viewmode.SignUpViewModel
 import com.mdev.chatapp.ui.navgraph.Route
-import com.mdev.chatapp.ui.theme.BlueGray
 import com.mdev.chatapp.ui.theme.Roboto
 import com.mdev.chatapp.ui.theme.Shapes
 
@@ -76,6 +75,7 @@ private fun TopSection(
     @StringRes header: Int,
     onBackClick: () -> Unit,
     isBackButtonVisible: Boolean = false,
+    isDarkTheme: Boolean = true,
 ) {
     Box(
         contentAlignment = Alignment.TopCenter,
@@ -84,7 +84,7 @@ private fun TopSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(fraction = 0.35f),
-            painter = painterResource(id = R.drawable.bookmark_shape),
+                painter = painterResource(id = R.drawable.bookmark_shape ),
             contentDescription = null,
             contentScale = ContentScale.FillBounds
         )
@@ -886,7 +886,7 @@ fun SignInContent(
                 .height(40.dp),
             shape = Shapes.medium,
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isSystemInDarkTheme()) BlueGray else Color.Black,
+                containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceTint else Color.Black,
                 contentColor = Color.White
             ),
             enabled = enabled
@@ -936,7 +936,7 @@ fun SignInContent(
                     .height(40.dp),
                 shape = Shapes.medium,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isSystemInDarkTheme()) BlueGray else Color.Black,
+                    containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceTint else Color.Black,
                     contentColor = Color.White
                 ),
             ) {
@@ -953,7 +953,7 @@ fun SignInContent(
                     .height(40.dp),
                 shape = Shapes.medium,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isSystemInDarkTheme()) BlueGray else Color.Black,
+                    containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceTint else Color.Black,
                     contentColor = Color.White
                 ),
             ) {

@@ -39,6 +39,7 @@ fun DrawerContent(
         Route.ChatScreen,
         Route.HistoryScreen,
         Route.ProfileScreen,
+        Route.SettingsScreen,
         Route.AboutScreen,
         Route.AuthNavigator,
     )

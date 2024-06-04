@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import android.widget.Space
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,9 +22,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -53,6 +56,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -302,34 +306,36 @@ private fun ChatContent(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.secondaryContainer)
             ) {
                 Column(
-                    verticalArrangement = Arrangement.Bottom
+                    verticalArrangement = Arrangement.Bottom,
                 ) {
-                    if(followUpQuestion.isEmpty()){
+                    val buttonModifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(32.dp))
+                        .background(MaterialTheme.colorScheme.secondaryContainer)
+
+                    if (followUpQuestion.isEmpty()) {
                         defaultFollowUpQuestion.forEach {
                             OutlinedButton(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = buttonModifier,
                                 content = {
                                     Text(
                                         text = it,
                                         maxLines = 2,
                                         overflow = TextOverflow.Ellipsis,
-
                                     )
                                 },
                                 onClick = {
                                     onClickFollowUp(Message(content = it, role = "user", content_type = "text", type = ""))
                                 }
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
-                    }
-                    else {
+                    } else {
                         followUpQuestion.forEach {
-                            OutlinedButton(
-                                modifier = Modifier.fillMaxWidth(),
+                            TextButton(
+                                modifier = buttonModifier,
                                 content = {
                                     Text(
                                         text = it.content,
@@ -341,10 +347,12 @@ private fun ChatContent(
                                     onClickFollowUp(it)
                                 }
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
                 }
             }
+
         }
     }
 }

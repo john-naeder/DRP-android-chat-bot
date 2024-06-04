@@ -33,10 +33,15 @@ import com.mdev.chatapp.ui.onboarding.OnBoardingScreen
 import com.mdev.chatapp.ui.onboarding.OnBoardingViewModel
 import com.mdev.chatapp.ui.profile.ProfileScreen
 import com.mdev.chatapp.ui.profile.ProfileViewModel
+import com.mdev.chatapp.ui.settings.SettingViewModel
+import com.mdev.chatapp.ui.settings.SettingsScreen
+import org.intellij.lang.annotations.Language
 
 @Composable
 fun NavGraph(
-    startDestination: String
+    startDestination: String,
+    onSwitchTheme: () -> Unit,
+    onSwitchLanguage: (String) -> Unit,
 ) {
     val navController = rememberNavController()
     Box(
@@ -174,7 +179,7 @@ fun NavGraph(
                         },
                         profileViewModel = viewModel,
                         navDrawerViewModel = navDrawerViewModel
-                     )
+                    )
                 }
                 composable(Route.HistoryScreen.route) {
                     val historyViewModel: HistoryViewModel = hiltViewModel()
@@ -196,7 +201,7 @@ fun NavGraph(
                             }
                         },
                         onClick = {
-                            navController.navigate("${Route.ChatScreen.route}/$it"){
+                            navController.navigate("${Route.ChatScreen.route}/$it") {
 //                                popUpTo(Route.HistoryScreen.route) {
 //                                    inclusive = false
 //                                }
@@ -207,7 +212,7 @@ fun NavGraph(
                         }
                     )
                 }
-                composable(Route.ChatScreen.route){
+                composable(Route.ChatScreen.route) {
                     val chatViewModel: ChatViewModel = hiltViewModel()
 
                     ChatScreen(
@@ -280,6 +285,28 @@ fun NavGraph(
                                 }
                             }
                         }
+                    )
+                }
+                composable(Route.SettingsScreen.route) {
+                    val settingViewModel: SettingViewModel = hiltViewModel()
+                    SettingsScreen(
+                        navDrawerViewModel = navDrawerViewModel,
+                        onBackClick = {
+                            navController.popBackStack()
+                        },
+                        onNavigateTo = {
+                            navController.navigate(it.route)
+                        },
+                        onLogout = {
+                            navController.navigate(Route.AuthNavigator.route) {
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = true
+                                }
+                            }
+                        },
+                        onSwitchTheme = onSwitchTheme,
+                        onSwitchLanguage = { onSwitchLanguage(it) },
+                        settingViewmodel = settingViewModel
                     )
                 }
             }

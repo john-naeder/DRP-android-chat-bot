@@ -1,6 +1,7 @@
 package com.mdev.chatapp.ui.auth.common
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -98,7 +99,7 @@ fun AuthTextField(
 
         R.string.username -> {
             TextField(
-                modifier = modifier,
+                modifier = modifier.background(MaterialTheme.colorScheme.background),
                 label = {
                     Text(
                         text = stringResource(label),
