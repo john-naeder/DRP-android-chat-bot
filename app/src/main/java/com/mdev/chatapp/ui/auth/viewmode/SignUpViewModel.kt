@@ -145,7 +145,6 @@ class SignUpViewModel @Inject constructor(
     private fun sendOTP() {
         viewModelScope.launch {
             state = state.copy(isLoading = true)
-            authRepository.sendOTP(state.email)
             when (val result = authRepository.sendOTP(state.email)) {
                 is ApiResult.Error -> {
                     uiEventChannel.send(result)
