@@ -17,7 +17,7 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
+        resourceConfigurations += listOf("en", "vi")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -128,7 +128,10 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
 
     // Date and Time Picker
-    implementation(libs.datetime)
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
-    
+    implementation(libs.sheets.compose.dialogs.core)
+    implementation(libs.option)
+    implementation(libs.calendar)
+
+
+    implementation(libs.flagkit.android)
 }

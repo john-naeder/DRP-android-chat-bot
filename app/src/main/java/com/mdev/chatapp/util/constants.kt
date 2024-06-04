@@ -2,6 +2,7 @@ package com.mdev.chatapp.util
 
 object Constants {
 
+    const val DEFAULT_LANGUAGE_TAGS: String = "en,vi"
     const val INTRO_VID_ID: String = "ChukpOHfAI8"
 
     // Api Base Links
@@ -20,7 +21,7 @@ object Constants {
     const val LANGUAGE = "language"
     const val DEFAULT_LANGUAGE = "en"
     const val THEME = "theme"
-    const val DEFAULT_THEME = "true"
+    const val DEFAULT_THEME = true
 
     // Database
     const val LOCAL_DATABASE_NAME = "user_database"

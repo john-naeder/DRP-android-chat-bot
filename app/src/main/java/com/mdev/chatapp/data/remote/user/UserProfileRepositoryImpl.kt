@@ -1,7 +1,5 @@
 package com.mdev.chatapp.data.remote.user
 
-import android.util.Log
-import com.mdev.chatapp.R
 import com.mdev.chatapp.data.remote.api.UserServerApi
 import com.mdev.chatapp.data.remote.user.model.UpdateUserProfileRequest
 import com.mdev.chatapp.data.remote.user.model.UserProfileRequest

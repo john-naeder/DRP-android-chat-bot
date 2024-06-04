@@ -22,24 +22,4 @@ fun Lottie(resource: Int) {
         progress = { progress }
     )
 }
-@Composable
-fun AnimatedPreloader(modifier: Modifier = Modifier) {
-    val preloaderLottieComposition by rememberLottieComposition(
-        LottieCompositionSpec.RawRes(
-            R.raw.loading
-        )
-    )
-
-    val preloaderProgress by animateLottieCompositionAsState(
-        preloaderLottieComposition,
-        iterations = LottieConstants.IterateForever,
-        isPlaying = true
-    )
-
-    LottieAnimation(
-        composition = preloaderLottieComposition,
-        progress = preloaderProgress,
-        modifier = modifier
-    )
-}
 

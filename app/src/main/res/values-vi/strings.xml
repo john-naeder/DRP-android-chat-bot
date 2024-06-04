@@ -93,6 +93,12 @@
     <string name="follow_up_1">Bạn có thể giới thiệu cho tôi những thực phẩm giàu chất dinh dưỡng không?</string>
     <string name="follow_up_2">Tôi nên ăn gì để tăng sức đề kháng cho người bệnh?</string>
     <string name="follow_up_3">Có cách nào để giảm cân mà vẫn đảm bảo cung cấp đủ dinh dưỡng không?</string>
+    <string name="theme_dark">Giao diện tối</string>
+    <string name="theme_light">Giao diện sáng</string>
+    <string name="theme_system">Giao diện ứng dụng</string>
+    <string name="language_settings">Cài đặt ngôn ngữ</string>
+    <string name="select_language">Chọn ngôn ngữ</string>
+    <string name="theme_settings">Cài đặt giao diện</string>
 
 
 </resources>

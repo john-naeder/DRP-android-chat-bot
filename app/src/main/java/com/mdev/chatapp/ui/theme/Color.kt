@@ -31,13 +31,9 @@ val md_theme_light_outline = Color(0xFF000000)
 val md_theme_light_inverseOnSurface = Color(0xFFFFFFFF)
 val md_theme_light_inverseSurface = Color(0xFF000000)
 val md_theme_light_inversePrimary = Color(0xFF00BFA5)
-val md_theme_light_shadow = Color(0xFF000000)
 val md_theme_light_surfaceTint = Color(0x1FFFFFFF)
 val md_theme_light_outlineVariant = Color(0xFF000000)
 val md_theme_light_scrim = Color(0x99000000)
-val md_theme_light_focusedTextFieldText = Color(0xFF000000)
-val md_theme_light_unfocusedTextFieldText = Color(0xFF475569)
-val md_theme_light_textFieldContainer = Color(0xFFE0E0E0)
 
 val md_theme_dark_primary = Color(0xFF00BFA5)
 val md_theme_dark_onPrimary = Color(0xFF000000)
@@ -65,23 +61,6 @@ val md_theme_dark_outline = Color(0xFFFFFFFF)
 val md_theme_dark_inverseOnSurface = Color(0xFF000000)
 val md_theme_dark_inverseSurface = Color(0xFFFFFFFF)
 val md_theme_dark_inversePrimary = Color(0xFF00BFA5)
-val md_theme_dark_shadow = Color(0xFF000000)
 val md_theme_dark_surfaceTint = Color(0x1FFFFFFF)
 val md_theme_dark_outlineVariant = Color(0xFFFFFFFF)
 val md_theme_dark_scrim = Color(0x99000000)
-val md_theme_dark_focusedTextFieldText = Color(0xFFFFFFFF)
-val md_theme_dark_unfocusedTextFieldText = Color(0xFF475569)
-val md_theme_dark_textFieldContainer = Color(0xFF2E2E2E)
-
-val seed = Color(0xFF175A00)
-val ColorScheme.focusedTextFieldText
-    @Composable
-    get() = if (isSystemInDarkTheme()) Color.White else Color.Black
-
-val ColorScheme.unfocusedTextFieldText
-    @Composable
-    get() = if (isSystemInDarkTheme()) Color(0xFF94A3B8) else Color(0xFF475569)
-
-val ColorScheme.textFieldContainer
-    @Composable
-    get() = if (isSystemInDarkTheme()) md_theme_dark_surfaceVariant else md_theme_light_tertiaryContainer

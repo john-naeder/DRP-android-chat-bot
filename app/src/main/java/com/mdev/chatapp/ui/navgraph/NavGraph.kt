@@ -41,7 +41,7 @@ import org.intellij.lang.annotations.Language
 fun NavGraph(
     startDestination: String,
     onSwitchTheme: () -> Unit,
-    onSwitchLanguage: (String) -> Unit,
+    isDarkTheme: Boolean
 ) {
     val navController = rememberNavController()
     Box(
@@ -75,7 +75,8 @@ fun NavGraph(
                         onNavigateTo = {
                             navController.navigate(it.route)
                         },
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        isDarkTheme = isDarkTheme
                     )
                 }
                 composable(Route.SignIn.route) {
@@ -102,7 +103,8 @@ fun NavGraph(
                                     inclusive = false
                                 }
                             }
-                        }
+                        },
+                        isDarkTheme = isDarkTheme
                     )
                 }
                 composable(Route.Signup.route) {
@@ -129,7 +131,8 @@ fun NavGraph(
                                     inclusive = true
                                 }
                             }
-                        }
+                        },
+                        isDarkTheme = isDarkTheme
                     )
                 }
             }
@@ -305,7 +308,6 @@ fun NavGraph(
                             }
                         },
                         onSwitchTheme = onSwitchTheme,
-                        onSwitchLanguage = { onSwitchLanguage(it) },
                         settingViewmodel = settingViewModel
                     )
                 }

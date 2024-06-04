@@ -80,4 +80,8 @@ class DataStoreHelper @Inject constructor (
     fun readFromDataStore(s: String): Flow<String> {
         return datastore.data.map { it[stringPreferencesKey(s)] ?: "" }
     }
+
+    fun readAppEntry(): Flow<Boolean> {
+        return datastore.data.map { it[booleanPreferencesKey(Constants.APP_ENTRY)] ?: false }
+    }
 }

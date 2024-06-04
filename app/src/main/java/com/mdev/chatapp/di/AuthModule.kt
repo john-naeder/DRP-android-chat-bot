@@ -117,7 +117,7 @@ object AuthModule {
     @Singleton
     fun provideLocalUserManager(
         application: Application
-    ): LocalUserManager  = LocalUserManagerImpl(application)
+    ): LocalUserManager  = LocalUserManagerImpl(DataStoreHelper(application))
 
     @Provides
     @Singleton

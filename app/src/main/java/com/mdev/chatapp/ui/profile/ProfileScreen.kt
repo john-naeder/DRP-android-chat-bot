@@ -1,5 +1,6 @@
 package com.mdev.chatapp.ui.profile
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,17 +53,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
+import com.maxkeppeler.sheets.calendar.CalendarDialog
+import com.maxkeppeler.sheets.calendar.models.CalendarConfig
+import com.maxkeppeler.sheets.calendar.models.CalendarSelection
+import com.maxkeppeler.sheets.calendar.models.CalendarStyle
 import com.mdev.chatapp.R
 import com.mdev.chatapp.ui.common.BaseScreen
 import com.mdev.chatapp.ui.common.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.navgraph.Route
 import com.mdev.chatapp.util.StringAndDateConvertor
 import com.mdev.chatapp.util.UIEvent
-import com.vanpra.composematerialdialogs.MaterialDialog
-import com.vanpra.composematerialdialogs.datetime.date.datepicker
-import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import dev.jeziellago.compose.markdowntext.MarkdownText
-import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -129,14 +132,14 @@ fun ProfileScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileContent(
     state: ProfileState,
     onValueChange: (ProfileUIEvent) -> Unit,
 ) {
 
-    val dateDialogState = rememberMaterialDialogState()
-
+    val calendarState = rememberUseCaseState()
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -188,7 +191,7 @@ fun ProfileContent(
                     trailingIcon = {
                         IconButton(
                             onClick = {
-                                dateDialogState.show()
+                                calendarState.show()
                             },
                             enabled = state.isUpdating
                         ) {
@@ -306,23 +309,19 @@ fun ProfileContent(
             }
         }
     }
-    MaterialDialog(
-        dialogState = dateDialogState,
-        buttons = {
-            positiveButton(text = stringResource(id = R.string.accept))
-            negativeButton(text = stringResource(id = R.string.cancel))
-        }
-    ) {
-        datepicker(
-            initialDate = state.dateOfBirth,
-            title = stringResource(id = R.string.select_date),
-            allowedDateValidator = {
-                it.isAfter(LocalDate.now().minusYears(100)) && it.isBefore(LocalDate.now())
-            }
-        ) { selectedDate ->
-            onValueChange(ProfileUIEvent.OnDateOfBirthChanged(selectedDate))
-        }
-    }
+    CalendarDialog(
+        state = calendarState,
+        config = CalendarConfig(
+            yearSelection = true,
+            monthSelection = true,
+            style = CalendarStyle.MONTH,
+        ),
+        selection = CalendarSelection.Date(
+            selectedDate = state.dateOfBirth
+        ) {
+            onValueChange(ProfileUIEvent.OnDateOfBirthChanged(it))
+        },
+    )
 }
 
 
@@ -350,88 +349,79 @@ fun CircularImage(
 }
 
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BMIDropdownMenu(
     state: ProfileState,
     onUIEvent: (ProfileUIEvent) -> Unit
 ) {
-    var expanded1 by remember { mutableStateOf(false) }
-    var expanded2 by remember { mutableStateOf(false) }
-
-    val height = (0..250).map { it.toString() }
-    val weight = (0..150).map { it.toString() }
-
     Row (
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
-        ExposedDropdownMenuBox(
-            modifier = Modifier.weight(1f),
-            expanded = expanded1,
-            onExpandedChange = { expanded1 = !expanded1 }
-        ) {
-            OutlinedTextField(
-                enabled = state.isUpdating,
-                value = state.height.toString() + "cm",
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded1) },
-                modifier = Modifier
-                    .menuAnchor(),
-                label = { Text(stringResource(id = R.string.height)) }
-            )
-            ExposedDropdownMenu(
-                expanded = expanded1,
-                onDismissRequest = { expanded1 = false }
-            ) {
-                height.forEach { selectionOption ->
-                    DropdownMenuItem(
-                        enabled = state.isUpdating,
-                        text = { Text(selectionOption) },
-                        onClick = {
-                            onUIEvent(ProfileUIEvent.OnHeightChanged(selectionOption.toFloat()))
-                            expanded1 = false
-                        }
-                    )
-                }
-            }
-        }
+        DropdownMenuField(
+            label = stringResource(id = R.string.height),
+            value = state.height.toString() + "cm",
+            isUpdating = state.isUpdating,
+            options = heightOptions,
+            onSelectionChange = { onUIEvent(ProfileUIEvent.OnHeightChanged(it.toFloat())) },
+            modifier = Modifier.weight(1f)
+        )
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        ExposedDropdownMenuBox(
-            modifier = Modifier.weight(1f),
-            expanded = expanded2,
-            onExpandedChange = { expanded2 = !expanded2 },
+        DropdownMenuField(
+            label = stringResource(id = R.string.weight),
+            value = state.weight.toString() + "kg",
+            isUpdating = state.isUpdating,
+            options = weightOptions,
+            onSelectionChange = { onUIEvent(ProfileUIEvent.OnWeightChanged(it.toFloat())) },
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DropdownMenuField(
+    label: String,
+    value: String,
+    isUpdating: Boolean,
+    options: List<String>,
+    onSelectionChange: (String) -> Unit,
+    modifier: Modifier
+) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    ExposedDropdownMenuBox(
+        modifier = modifier,
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = {},
+            readOnly = true,
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier.menuAnchor(),
+            label = { Text(label) },
+            enabled = isUpdating
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
         ) {
-            OutlinedTextField(
-                value = state.weight.toString() + "kg",
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded2) },
-                modifier = Modifier
-                    .menuAnchor()
-                    .weight(1f),
-                label = { Text(stringResource(id = R.string.weight)) },
-                enabled = state.isUpdating
-            )
-            ExposedDropdownMenu(
-                expanded = expanded2,
-                onDismissRequest = { expanded2 = false },
-            ) {
-                weight.forEach { selectionOption ->
-                    DropdownMenuItem(
-                        enabled = state.isUpdating,
-                        text = { Text(selectionOption) },
-                        onClick = {
-                            onUIEvent(ProfileUIEvent.OnWeightChanged(selectionOption.toFloat()))
-                            expanded2 = false
-                        }
-                    )
-                }
+            options.forEach { selectionOption ->
+                DropdownMenuItem(
+                    enabled = isUpdating,
+                    text = { Text(selectionOption) },
+                    onClick = {
+                        onSelectionChange(selectionOption)
+                        expanded = false
+                    }
+                )
             }
         }
     }
 }
+
+private val heightOptions = (0..250).map { it.toString() }
+private val weightOptions = (0..150).map { it.toString() }
+

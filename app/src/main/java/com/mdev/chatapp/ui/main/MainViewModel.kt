@@ -17,6 +17,9 @@ import com.mdev.chatapp.util.DataStoreHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,20 +31,21 @@ class MainViewModel @Inject constructor(
     appEntryUserCase: AppEntryUserCase,
     private val dataStoreHelper: DataStoreHelper
 ) : ViewModel() {
-    var state by mutableStateOf(MainState())
+    private val _state = MutableStateFlow(MainState())
+    val state = _state.asStateFlow()
 
     init {
-        viewModelScope.launch() {
-//            getCurrentTheme()
+        viewModelScope.launch(Dispatchers.Main) {
+            getCurrentTheme()
             appEntryUserCase.readAppEntry().onEach {
-                state = if (it) {
-                    state.copy(startDestination = Route.AuthNavigator.route)
+                _state.value = if (it) {
+                    _state.value.copy(startDestination = Route.AuthNavigator.route)
                 } else {
-                    state.copy(startDestination = Route.AppStart.route)
+                    _state.value.copy(startDestination = Route.AppStart.route)
                 }
                 delay(700)
-                state = state.copy(isSplashScreen = false)
-            }
+                _state.value = _state.value.copy(isSplashScreen = false)
+            }.launchIn(viewModelScope)
         }
     }
 
@@ -50,25 +54,22 @@ class MainViewModel @Inject constructor(
             is MainUIEvent.OnSwitchTheme -> {
                 onChangeTheme()
             }
-
             is MainUIEvent.OnSwitchLanguage -> {
-                state = state.copy(startDestination = Route.AuthNavigator.route)
+                _state.value = _state.value.copy(startDestination = Route.AuthNavigator.route)
             }
         }
     }
 
     private fun onChangeTheme() {
-        state = state.copy(isDarkTheme = !state.isDarkTheme)
-    }
-
-    private fun onChangeLanguage(route: String) {
-        state = state.copy(language = route)
+        viewModelScope.launch(Dispatchers.Main) {
+            dataStoreHelper.setBool(Constants.THEME, !_state.value.isDarkTheme)
+            _state.value = _state.value.copy(isDarkTheme = !_state.value.isDarkTheme)
+        }
     }
 
     private suspend fun getCurrentTheme() {
-        state = state.copy(
-            isDarkTheme = dataStoreHelper.getString(Constants.THEME, Constants.DEFAULT_THEME).toBoolean()
+        _state.value = _state.value.copy(
+            isDarkTheme = dataStoreHelper.getBool(Constants.THEME)?: false
         )
     }
 }
-

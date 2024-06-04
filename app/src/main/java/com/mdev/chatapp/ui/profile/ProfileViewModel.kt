@@ -27,6 +27,7 @@ class ProfileViewModel @Inject constructor(
 ): ViewModel() {
     var state by mutableStateOf(ProfileState())
 
+    lateinit var tempState: ProfileState
 
     init {
         viewModelScope.launch {
@@ -52,6 +53,7 @@ class ProfileViewModel @Inject constructor(
                 state = state.copy(dateOfBirth = event.dateOfBirth)
             }
             is ProfileUIEvent.OnEditClicked -> {
+                tempState = state
                 state = state.copy(isUpdating = !state.isUpdating)
             }
             is ProfileUIEvent.OnSaveClicked -> {
@@ -66,7 +68,6 @@ class ProfileViewModel @Inject constructor(
     private fun saveInfo(){
         viewModelScope.launch{
             state = state.copy(isLoading = true)
-            Log.d("ProfileViewModel", "saveInfo: ${state.isLoading}")
             when(val result = userProfileRepository.updateUserInfo(
                 state.dateOfBirth.toString(),
                 state.height,
@@ -99,7 +100,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     private fun resetState(){
-        state = ProfileState(userName = state.userName)
+        state = tempState
     }
     private fun getUserInfo(){
         viewModelScope.launch {

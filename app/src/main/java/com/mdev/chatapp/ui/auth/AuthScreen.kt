@@ -11,7 +11,6 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -75,7 +74,7 @@ private fun TopSection(
     @StringRes header: Int,
     onBackClick: () -> Unit,
     isBackButtonVisible: Boolean = false,
-    isDarkTheme: Boolean = true,
+    isDarkTheme: Boolean
 ) {
     Box(
         contentAlignment = Alignment.TopCenter,
@@ -84,7 +83,7 @@ private fun TopSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight(fraction = 0.35f),
-                painter = painterResource(id = R.drawable.bookmark_shape ),
+                painter = painterResource(id = if (isDarkTheme) R.drawable.bookmark_shape_night else R.drawable.bookmark_shape),
             contentDescription = null,
             contentScale = ContentScale.FillBounds
         )
@@ -111,7 +110,7 @@ private fun TopSection(
         ) {
             Icon(
                 modifier = Modifier.size(42.dp),
-                painter = painterResource(id = R.drawable.logo),
+                painter = painterResource(id = R.drawable.logo ),
                 contentDescription = stringResource(id = R.string.app_logo),
             )
             Spacer(modifier = Modifier.width(8.dp))
@@ -141,7 +140,8 @@ private fun TopSection(
 fun AuthScreen(
     viewModel: AuthViewModel,
     onAuthenticateSuccess: (Route) -> Unit,
-    onNavigateTo: (Route) -> Unit
+    onNavigateTo: (Route) -> Unit,
+    isDarkTheme: Boolean
 ) {
     val users = viewModel.users.collectAsState(initial = emptyList())
 
@@ -181,7 +181,8 @@ fun AuthScreen(
                 TopSection(
                     header = R.string.auth_screen_header,
                     isBackButtonVisible = false,
-                    onBackClick = {}
+                    onBackClick = {},
+                    isDarkTheme = isDarkTheme
                 )
                 Spacer(modifier = Modifier.height(36.dp))
                 UserSignedInContent(
@@ -218,7 +219,8 @@ fun SignInScreen(
     viewModel: SignInViewModel,
     onSignSuccess: (Route) -> Unit,
     onNavigateTo: (Route) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    isDarkTheme: Boolean
 ) {
     val context = LocalContext.current
 
@@ -260,14 +262,13 @@ fun SignInScreen(
                 TopSection(
                     header = R.string.login,
                     onBackClick = onBackClick,
-                    isBackButtonVisible = true
+                    isBackButtonVisible = true,
+                    isDarkTheme = isDarkTheme
                 )
                 Spacer(modifier = Modifier.height(20.dp))
                 SignInContent(
                     switchToSignUpClick = { onNavigateTo(Route.Signup) },
-
                     onUIEvent = { viewModel.onEvent(it) },
-
                     state = viewModel.state
                 )
             }
@@ -291,7 +292,8 @@ fun SignUpScreen(
     viewModel: SignUpViewModel,
     onSignUpSuccess: (Route) -> Unit,
     onNavigateTo: (Route) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    isDarkTheme: Boolean
 ) {
     val context = LocalContext.current
     val isLoading = viewModel.state.isLoading
@@ -330,7 +332,8 @@ fun SignUpScreen(
                 TopSection(
                     header = R.string.signup,
                     onBackClick = onBackClick,
-                    isBackButtonVisible = true
+                    isBackButtonVisible = true,
+                    isDarkTheme = isDarkTheme
                 )
                 Spacer(modifier = Modifier.height(20.dp))
                 SignUpContent(
@@ -472,7 +475,6 @@ private fun InputSignupSection(
 fun SignInContent(
     switchToSignUpClick: () -> Unit,
     onUIEvent: (AuthUiEvent) -> Unit,
-
     state: AuthState
 ) {
 
@@ -681,7 +683,7 @@ fun SignInContent(
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = stringResource(id = R.string.or_continue_with),
-                style = MaterialTheme.typography.labelMedium.copy(color = Color(0xFF64748B))
+                style = MaterialTheme.typography.labelMedium
             )
             Spacer(modifier = Modifier.height(20.dp))
             Row(
@@ -694,7 +696,7 @@ fun SignInContent(
                     modifier = Modifier.weight(1f),
                     onClick = {
                         // TODO
-                    }
+                    },
                 )
                 Spacer(modifier = Modifier.width(20.dp))
                 SocialMediaLogin(
@@ -703,7 +705,7 @@ fun SignInContent(
                     modifier = Modifier.weight(1f),
                     onClick = {
                         // TODO
-                    }
+                    },
                 )
             }
         }
@@ -725,7 +727,6 @@ fun SignInContent(
                 text = buildAnnotatedString {
                     withStyle(
                         style = SpanStyle(
-                            color = Color(0xFF94A3B8),
                             fontSize = 14.sp,
                             fontFamily = Roboto,
                             fontWeight = FontWeight.Normal
@@ -886,7 +887,7 @@ fun SignInContent(
                 .height(40.dp),
             shape = Shapes.medium,
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceTint else Color.Black,
+                containerColor = MaterialTheme.colorScheme.surfaceTint ,
                 contentColor = Color.White
             ),
             enabled = enabled
@@ -936,8 +937,7 @@ fun SignInContent(
                     .height(40.dp),
                 shape = Shapes.medium,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceTint else Color.Black,
-                    contentColor = Color.White
+                    containerColor = MaterialTheme.colorScheme.surfaceTint,
                 ),
             ) {
                 Text(
@@ -953,8 +953,7 @@ fun SignInContent(
                     .height(40.dp),
                 shape = Shapes.medium,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.surfaceTint else Color.Black,
-                    contentColor = Color.White
+                    containerColor =  MaterialTheme.colorScheme.surfaceTint,
                 ),
             ) {
                 Text(

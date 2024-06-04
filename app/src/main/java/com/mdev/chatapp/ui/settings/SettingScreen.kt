@@ -1,11 +1,5 @@
 package com.mdev.chatapp.ui.settings
 
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
@@ -19,37 +13,29 @@ import com.mdev.chatapp.ui.common.nav_drawer.NavigateDrawerViewModel
 import com.mdev.chatapp.ui.navgraph.Route
 import com.mdev.chatapp.util.UIEvent
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.twotone.ArrowDropDownCircle
-import androidx.compose.material.icons.twotone.Language
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.ui.Modifier
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.sp
+import com.maxkeppeker.sheets.core.models.base.IconSource
+import com.maxkeppeker.sheets.core.models.base.rememberUseCaseState
+import com.maxkeppeler.sheets.option.OptionDialog
+import com.maxkeppeler.sheets.option.models.DisplayMode
+import com.maxkeppeler.sheets.option.models.Option
+import com.maxkeppeler.sheets.option.models.OptionConfig
+import com.maxkeppeler.sheets.option.models.OptionSelection
 import com.mdev.chatapp.R
 import com.mdev.chatapp.ui.common.BaseScreen
-import com.mdev.chatapp.ui.theme.DefaultShape
+import com.murgupluoglu.flagkit.FlagKit
 import androidx.compose.material3.Text as Text1
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,13 +46,12 @@ fun SettingsScreen(
     onLogout: (Route) -> Unit,
     onNavigateTo: (Route) -> Unit,
     onSwitchTheme: () -> Unit,
-    onSwitchLanguage: (String) -> Unit,
     settingViewmodel: SettingViewModel
 
 ){
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val selectedItem = Route.AboutScreen
+    val selectedItem = Route.SettingsScreen
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -105,7 +90,7 @@ fun SettingsScreen(
                         onSwitchTheme()
                     },
                     onSwitchLanguage = {
-
+                        settingViewmodel.onEvent(SettingUIEvent.OnLanguageChanged(it))
                     }
                 )
             }
@@ -114,12 +99,34 @@ fun SettingsScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingContent(
     state: SettingState,
     onSwitchTheme: () -> Unit,
     onSwitchLanguage: (String) -> Unit
 ){
+    val languageSettingState =  rememberUseCaseState()
+    val context = LocalContext.current
+    val englishText = stringResource(id = R.string.en)
+    val vietnameseText = stringResource(id = R.string.vi)
+
+    val options = listOf(
+        Option(
+            IconSource(FlagKit.getResId(context, "US")),
+            titleText = englishText,
+            disabled = state.language == "en",
+            subtitleText = "Tiếng Anh",
+        ),
+        Option(
+            IconSource(FlagKit.getResId(context, "VN")),
+            titleText = vietnameseText,
+            selected = state.language == "vi",
+            subtitleText= "Vietnamese",
+        ),
+    )
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -127,29 +134,47 @@ fun SettingContent(
     ) {
         Row {
             Text1(
-                text = stringResource(id =  R.string.themee_settings),
-                style = MaterialTheme.typography.headlineSmall,
+                text = stringResource(id =  R.string.theme_settings),
+                style = MaterialTheme.typography.titleLarge,
 //                modifier = Modifier.padding(16.dp)
             )
             Spacer(modifier = Modifier.weight(1f))
             ThemeSwitcher(
-                darkTheme = true,
-                size = 40.dp,
+                darkTheme = state.isDarkTheme,
+                size = 35.dp,
                 onClick = onSwitchTheme
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
         Row {
             Text1(
-                text = stringResource(id = R.string.themee_settings),
-                style = MaterialTheme.typography.headlineSmall
+                text = stringResource(id = R.string.language_settings),
+                style = MaterialTheme.typography.titleLarge
             )
+//            Spacer(modifier = Modifier.weight(1f))
             Spacer(modifier = Modifier.weight(1f))
-
+            Button(
+                modifier = Modifier
+                    .width(70.dp)
+                    .height(35.dp),
+                onClick = { languageSettingState.show() }
+            ) {
+                Icon(imageVector = Icons.Default.Language, contentDescription = "Language")
+            }
         }
     }
-}
 
+    OptionDialog(
+        state = languageSettingState,
+        selection = OptionSelection.Single(options) { index, _ ->
+            when(index){
+                0 -> onSwitchLanguage("en")
+                1 -> onSwitchLanguage("vi")
+            }
+        },
+        config = OptionConfig(mode = DisplayMode.LIST)
+    )
+}
 
 
 

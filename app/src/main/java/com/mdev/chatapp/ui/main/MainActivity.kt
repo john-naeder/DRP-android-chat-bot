@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.core.view.WindowCompat
@@ -30,31 +32,33 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = Con
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<MainViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         super.onCreate(savedInstanceState)
 
-//        val state = viewModel.state
-        applyMaterialScheme(viewModel.state.isDarkTheme)
-
         installSplashScreen().apply {
             setKeepOnScreenCondition {
-                viewModel.state.isSplashScreen
+                viewModel.state.value.isSplashScreen
             }
         }
 
         setContent {
-            ChatAppTheme(darkTheme = viewModel.state.isDarkTheme){
+            val state by viewModel.state.collectAsState()
+
+            applyMaterialScheme(state.isDarkTheme)
+
+            ChatAppTheme(darkTheme = state.isDarkTheme) {
                 val systemController = rememberSystemUiController()
 
                 SideEffect {
                     systemController.setStatusBarColor(
                         color = Color.Transparent,
-                        darkIcons = !viewModel.state.isDarkTheme
+                        darkIcons = !state.isDarkTheme
                     )
                     systemController.setNavigationBarColor(
                         color = Color.Transparent,
-                        darkIcons = !viewModel.state.isDarkTheme
+                        darkIcons = !state.isDarkTheme
                     )
                 }
                 Surface(
@@ -64,19 +68,18 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.background(MaterialTheme.colorScheme.background)
                     ) {
                         NavGraph(
-                            startDestination = viewModel.state.startDestination,
+                            startDestination = state.startDestination,
                             onSwitchTheme = {
                                 viewModel.onUIEvent(MainUIEvent.OnSwitchTheme)
                             },
-                            onSwitchLanguage = {
-                                viewModel.onUIEvent(MainUIEvent.OnSwitchLanguage(it))
-                            },
+                            isDarkTheme = state.isDarkTheme,
                         )
                     }
                 }
             }
         }
     }
+
     private fun applyMaterialScheme(isDarkTheme: Boolean) {
         if (isDarkTheme) {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
@@ -85,5 +88,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 

@@ -11,7 +11,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,11 +23,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.mdev.chatapp.R
 import com.mdev.chatapp.ui.auth.AuthState
-import com.mdev.chatapp.ui.auth.AuthUiEvent
-import com.mdev.chatapp.ui.auth.viewmode.AuthViewModelInterface
-import com.mdev.chatapp.ui.theme.focusedTextFieldText
-import com.mdev.chatapp.ui.theme.textFieldContainer
-import com.mdev.chatapp.ui.theme.unfocusedTextFieldText
+
 
 
 @Composable
@@ -112,12 +107,12 @@ fun AuthTextField(
                 },
                 singleLine = true,
                 placeholder = { Text("Abc123") },
-                colors = TextFieldDefaults.colors(
-                    focusedPlaceholderColor = MaterialTheme.colorScheme.focusedTextFieldText,
-                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.unfocusedTextFieldText,
-                    focusedContainerColor = MaterialTheme.colorScheme.textFieldContainer,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.textFieldContainer
-                ),
+//                colors = TextFieldDefaults.colors(
+//                    focusedPlaceholderColor = if(MaterialTheme.colorScheme.) md_theme_dark_surfaceVariant else md_theme_light_tertiaryContainer,
+//                    unfocusedPlaceholderColor = unfocusedTextFieldText,
+//                    focusedContainerColor = MaterialTheme.colorScheme.textFieldContainer,
+//                    unfocusedContainerColor = MaterialTheme.colorScheme.textFieldContainer
+//                ),
                 supportingText = {
                     if (state.usernameError)
                         Text(
@@ -144,12 +139,12 @@ fun AuthTextField(
                 },
                 singleLine = true,
                 placeholder = { Text("duydeptrai@example.com") },
-                colors = TextFieldDefaults.colors(
-                    focusedPlaceholderColor = MaterialTheme.colorScheme.focusedTextFieldText,
-                    unfocusedPlaceholderColor = MaterialTheme.colorScheme.unfocusedTextFieldText,
-                    focusedContainerColor = MaterialTheme.colorScheme.textFieldContainer,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.textFieldContainer
-                ),
+//                colors = TextFieldDefaults.colors(
+//                    focusedPlaceholderColor = focusedTextFieldText,
+//                    unfocusedPlaceholderColor = unfocusedTextFieldText,
+//                    focusedContainerColor = MaterialTheme.colorScheme.textFieldContainer,
+//                    unfocusedContainerColor = MaterialTheme.colorScheme.textFieldContainer
+//                ),
                 supportingText = {
                     if (state.emailError)
                         Text(
@@ -196,12 +191,12 @@ fun PasswordTextField(
                 Icon(imageVector = image, contentDescription = description)
             }
         },
-        colors = TextFieldDefaults.colors(
-            focusedPlaceholderColor = MaterialTheme.colorScheme.focusedTextFieldText,
-            unfocusedPlaceholderColor = MaterialTheme.colorScheme.unfocusedTextFieldText,
-            focusedContainerColor = MaterialTheme.colorScheme.textFieldContainer,
-            unfocusedContainerColor = MaterialTheme.colorScheme.textFieldContainer
-        ),
+//        colors = TextFieldDefaults.colors(
+//            focusedPlaceholderColor = focusedTextFieldText,
+//            unfocusedPlaceholderColor = unfocusedTextFieldText,
+//            focusedContainerColor = MaterialTheme.colorScheme.textFieldContainer,
+//            unfocusedContainerColor = MaterialTheme.colorScheme.textFieldContainer
+//        ),
         supportingText = {
             supportingText.invoke()
         },

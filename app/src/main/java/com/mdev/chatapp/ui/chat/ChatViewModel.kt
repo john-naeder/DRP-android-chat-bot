@@ -15,6 +15,7 @@ import com.mdev.chatapp.util.Constants.INIT_CONVERSATION_ID
 import com.mdev.chatapp.util.DataStoreHelper
 import com.mdev.chatapp.util.StringProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,6 +34,8 @@ class ChatViewModel @Inject constructor(
 
     var historyChats by mutableStateOf(HistoryResponse(listOf()))
     var followUpQuestion by mutableStateOf(listOf<Message>())
+
+    lateinit var chatJob: Job
 
     init {
         loadCurrentUser()
@@ -55,7 +58,7 @@ class ChatViewModel @Inject constructor(
             is ChatUIEvent.OnInputMessageChangedByListening -> {
                 state = state.copy(inputMessage = state.inputMessage + " " + event.value)            }
             is ChatUIEvent.CancelSendMessage -> {
-                // TODO
+                cancelSendMessage()
             }
             is ChatUIEvent.OnViewFollowUpQuestion -> {
                 state = state.copy(isViewFollowUpQuestion = !state.isViewFollowUpQuestion)
@@ -85,7 +88,7 @@ class ChatViewModel @Inject constructor(
                 content = message
             )
         )
-        viewModelScope.launch {
+        chatJob = viewModelScope.launch {
             changeAllowToInput(false)
             if (state.conversationId == INIT_CONVERSATION_ID) {
                 val result = chatRepository.initConversation(state.currentUserId)
@@ -211,6 +214,10 @@ class ChatViewModel @Inject constructor(
             }
             state = state.copy(isLoading = false)
         }
+    }
+
+    private fun cancelSendMessage() {
+        chatJob.cancel()
     }
 
 }

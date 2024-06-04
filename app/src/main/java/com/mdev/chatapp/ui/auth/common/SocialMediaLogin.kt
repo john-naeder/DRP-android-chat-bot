@@ -30,7 +30,7 @@ fun SocialMediaLogin(
     modifier: Modifier = Modifier,
     @DrawableRes icon: Int,
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ){
     Row(
         modifier = modifier
@@ -49,13 +49,10 @@ fun SocialMediaLogin(
 
 @SuppressLint("ModifierFactoryUnreferencedReceiver")
 fun Modifier.socialMedia() : Modifier = composed {
-    if (isSystemInDarkTheme()){
-        background(Color.Transparent).border(
-            width = 1.dp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            shape = RoundedCornerShape(4.dp)
+    background(Color.Transparent).border(
+        width = 1.dp,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        shape = RoundedCornerShape(4.dp)
     )
-    } else {
-        background(MaterialTheme.colorScheme.surfaceTint)
-    }
+
 }
