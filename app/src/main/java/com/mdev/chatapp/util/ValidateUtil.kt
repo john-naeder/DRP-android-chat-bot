@@ -1,11 +1,10 @@
 package com.mdev.chatapp.util
 
-import android.content.Context
 import com.auth0.jwt.JWT
 import com.auth0.jwt.interfaces.DecodedJWT
 import java.util.Date
 
-class Util {
+class ValidateUtil {
     companion object {
         fun isEmailValid(email: String): Boolean {
             return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()

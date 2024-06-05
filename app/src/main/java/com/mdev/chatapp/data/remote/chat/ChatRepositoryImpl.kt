@@ -43,6 +43,7 @@ class ChatRepositoryImpl(
             }
         } catch (e: Throwable) {
             ApiResult.UnknownError("Other error: " + e.message + " Type: " + e.javaClass.simpleName)
+
         }
     }
 

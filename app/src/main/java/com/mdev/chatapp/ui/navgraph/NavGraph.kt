@@ -152,9 +152,9 @@ fun NavGraph(
                         },
                         onNavigateTo = {
                             navController.navigate(it.route) {
-//                                popUpTo(Route.HomeNavigator.route) {
-//                                    inclusive = false
-//                                }
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = false
+                                }
                             }
                         },
                         onBackClick = {
@@ -175,10 +175,18 @@ fun NavGraph(
                             }
                         },
                         onNavigateTo = {
-                            navController.navigate(it.route)
+                            navController.navigate(it.route){
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = false
+                                }
+                            }
                         },
                         onBackClick = {
-                            navController.popBackStack()
+                            navController.navigate(Route.HomeNavigator.route) {
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = false
+                                }
+                            }
                         },
                         profileViewModel = viewModel,
                         navDrawerViewModel = navDrawerViewModel
@@ -191,9 +199,9 @@ fun NavGraph(
                         historyViewModel = historyViewModel,
                         onNavigateTo = {
                             navController.navigate(it.route) {
-//                                popUpTo(Route.HomeNavigator.route) {
-//                                    inclusive = false
-//                                }
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = false
+                                }
                             }
                         },
                         onLogout = {
@@ -205,13 +213,17 @@ fun NavGraph(
                         },
                         onClick = {
                             navController.navigate("${Route.ChatScreen.route}/$it") {
-//                                popUpTo(Route.HistoryScreen.route) {
-//                                    inclusive = false
-//                                }
+                                popUpTo(Route.HistoryScreen.route) {
+                                    inclusive = false
+                                }
                             }
                         },
                         onBackClick = {
-                            navController.popBackStack()
+                            navController.navigate(Route.HomeNavigator.route) {
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = false
+                                }
+                            }
                         }
                     )
                 }
@@ -228,13 +240,17 @@ fun NavGraph(
                         },
                         onNavigateTo = { route ->
                             navController.navigate(route.route) {
-//                                popUpTo(Route.HomeNavigator.route) {
-//                                    inclusive = false
-//                                }
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = false
+                                }
                             }
                         },
                         onBackClick = {
-                            navController.popBackStack()
+                            navController.navigate(Route.HomeNavigator.route) {
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = false
+                                }
+                            }
                         },
                         chatViewModel = chatViewModel,
                         navDrawerViewModel = navDrawerViewModel
@@ -260,13 +276,17 @@ fun NavGraph(
                         },
                         onNavigateTo = { route ->
                             navController.navigate(route.route) {
-//                                popUpTo(Route.HomeNavigator.route) {
-//                                    inclusive = false
-//                                }
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = false
+                                }
                             }
                         },
                         onBackClick = {
-                            navController.popBackStack()
+                            navController.navigate(Route.HomeNavigator.route) {
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = false
+                                }
+                            }
                         },
                         chatViewModel = chatViewModel,
                         navDrawerViewModel = navDrawerViewModel
@@ -275,9 +295,6 @@ fun NavGraph(
                 composable(Route.AboutScreen.route) {
                     AboutScreen(
                         navDrawerViewModel = navDrawerViewModel,
-                        onBackClick = {
-                            navController.popBackStack()
-                        },
                         onNavigateTo = {
                             navController.navigate(it.route)
                         },
@@ -285,6 +302,13 @@ fun NavGraph(
                             navController.navigate(Route.AuthNavigator.route) {
                                 popUpTo(Route.HomeNavigator.route) {
                                     inclusive = true
+                                }
+                            }
+                        },
+                        onBackClick = {
+                            navController.navigate(Route.HomeNavigator.route) {
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = false
                                 }
                             }
                         }
@@ -294,11 +318,12 @@ fun NavGraph(
                     val settingViewModel: SettingViewModel = hiltViewModel()
                     SettingsScreen(
                         navDrawerViewModel = navDrawerViewModel,
-                        onBackClick = {
-                            navController.popBackStack()
-                        },
                         onNavigateTo = {
-                            navController.navigate(it.route)
+                            navController.navigate(it.route) {
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = false
+                                }
+                            }
                         },
                         onLogout = {
                             navController.navigate(Route.AuthNavigator.route) {
@@ -308,7 +333,14 @@ fun NavGraph(
                             }
                         },
                         onSwitchTheme = onSwitchTheme,
-                        settingViewmodel = settingViewModel
+                        settingViewmodel = settingViewModel,
+                        onBackClick = {
+                            navController.navigate(Route.HomeNavigator.route) {
+                                popUpTo(Route.HomeNavigator.route) {
+                                    inclusive = false
+                                }
+                            }
+                        }
                     )
                 }
             }

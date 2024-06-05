@@ -1,6 +1,5 @@
 package com.mdev.chatapp.ui.auth.viewmode
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,7 +10,7 @@ import com.mdev.chatapp.domain.repository.remote.AuthRepository
 import com.mdev.chatapp.domain.result.ApiResult
 import com.mdev.chatapp.ui.auth.AuthState
 import com.mdev.chatapp.ui.auth.AuthUiEvent
-import com.mdev.chatapp.util.Util
+import com.mdev.chatapp.util.ValidateUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -30,12 +29,12 @@ class SignUpViewModel @Inject constructor(
     override fun onEvent(event: AuthUiEvent) {
         when (event) {
             is AuthUiEvent.UsernameChanged -> {
-                val usernameError = event.value.isEmpty() || !Util.isValidUsername(event.value)
+                val usernameError = event.value.isEmpty() || !ValidateUtil.isValidUsername(event.value)
                 val usernameErrorCode =
                     if (usernameError) {
                         when {
                             event.value.isEmpty() -> R.string.field_empty_error
-                            !Util.isValidUsername(event.value) -> R.string.username_invalid_error
+                            !ValidateUtil.isValidUsername(event.value) -> R.string.username_invalid_error
                             else -> R.string.null_field
                         }
                     } else {
@@ -49,7 +48,7 @@ class SignUpViewModel @Inject constructor(
             }
 
             is AuthUiEvent.PasswordChanged -> {
-                val passwordError = !Util.isPasswordValid(event.value)
+                val passwordError = !ValidateUtil.isPasswordValid(event.value)
                 val passwordErrorCode = when {
                     event.value.isEmpty() -> R.string.field_empty_error
                     event.value.length < 6 -> R.string.password_length_error
@@ -64,7 +63,7 @@ class SignUpViewModel @Inject constructor(
             }
 
             is AuthUiEvent.RePasswordChanged -> {
-                val rePasswordError = !Util.isPasswordValid(event.value) || (state.password != event.value)
+                val rePasswordError = !ValidateUtil.isPasswordValid(event.value) || (state.password != event.value)
 
                 val rePasswordErrorCode = when {
                     state.password != event.value -> R.string.password_not_match_error
@@ -78,9 +77,9 @@ class SignUpViewModel @Inject constructor(
             }
 
             is AuthUiEvent.EmailChanged -> {
-                val emailError = event.value.isEmpty() || !Util.isEmailValid(event.value)
+                val emailError = event.value.isEmpty() || !ValidateUtil.isEmailValid(event.value)
                 val emailErrorCode = if (event.value.isEmpty()) R.string.field_empty_error
-                    else if (!Util.isEmailValid(event.value)) R.string.email_invalid_error
+                    else if (!ValidateUtil.isEmailValid(event.value)) R.string.email_invalid_error
                     else R.string.null_field
                 state = state.copy(
                     email = event.value, emailError = emailError, emailErrorCode = emailErrorCode

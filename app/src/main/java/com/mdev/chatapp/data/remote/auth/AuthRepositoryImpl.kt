@@ -16,7 +16,7 @@ import com.mdev.chatapp.util.Constants.CURRENT_USER_ID
 import com.mdev.chatapp.util.Constants.JWT
 import com.mdev.chatapp.util.Constants.JWT_REFRESH
 import com.mdev.chatapp.util.DataStoreHelper
-import com.mdev.chatapp.util.Util
+import com.mdev.chatapp.util.ValidateUtil
 
 class AuthRepositoryImpl(
     private val userServerApi: UserServerApi,
@@ -70,7 +70,7 @@ class AuthRepositoryImpl(
             val token = dataStore.getString(JWT + CURRENT_USER)
                 ?: return ApiResult.LogError("Token not found")
 
-            if (Util.isJWTExpired(token)) {
+            if (ValidateUtil.isJWTExpired(token)) {
                 return refreshToken(dataStore.getString(CURRENT_USER)!!)
             }
             val response = userServerApi.authenticate("Bearer $token")
@@ -93,7 +93,7 @@ class AuthRepositoryImpl(
             val token = dataStore.getString(JWT + username)
                 ?: return ApiResult.LogError("Token not found")
 
-            if (Util.isJWTExpired(token)) {
+            if (ValidateUtil.isJWTExpired(token)) {
                 return refreshToken(username)
             }
             val response = userServerApi.authenticate("Bearer $token")

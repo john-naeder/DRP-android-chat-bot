@@ -1,22 +1,42 @@
 package com.mdev.chatapp.ui.common.nav_drawer
 
+import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdev.chatapp.domain.repository.remote.AuthRepository
 import com.mdev.chatapp.ui.navgraph.Route
+import com.mdev.chatapp.util.CheckInternConnection.Companion.isInternetConnected
 import com.mdev.chatapp.util.UIEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class NavigateDrawerViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    @ApplicationContext private val context: Context
 ): ViewModel(){
     private val uiEventChannel = Channel<UIEvent>()
     val uiEvent = uiEventChannel.receiveAsFlow()
+
+    private val _connectionStateLiveData = MutableLiveData<Boolean>()
+    val connectionStateLiveData: LiveData<Boolean> = _connectionStateLiveData
+
+    init {
+        viewModelScope.launch {
+            while (true) {
+                val isConnected = isInternetConnected(context)
+                _connectionStateLiveData.postValue(isConnected)
+                delay(5000)
+            }
+        }
+    }
 
     fun onEvent(event: NavDrawerUIEvent) {
         when(event) {

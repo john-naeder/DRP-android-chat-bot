@@ -108,5 +108,7 @@
     <string name="theme_settings">Theme setting</string>
     <string name="language_settings">Language settings</string>
     <string name="select_language">Select language</string>
+    <string name="retry">Retry</string>
+    <string name="exit">Exit</string>
 
 </resources>
