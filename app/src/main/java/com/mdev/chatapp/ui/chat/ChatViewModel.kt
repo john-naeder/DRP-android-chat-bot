@@ -35,7 +35,7 @@ class ChatViewModel @Inject constructor(
     var historyChats by mutableStateOf(HistoryResponse(listOf()))
     var followUpQuestion by mutableStateOf(listOf<Message>())
 
-    lateinit var chatJob: Job
+    private lateinit var chatJob: Job
 
     init {
         loadCurrentUser()
@@ -66,9 +66,7 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    private fun changeAllowToInput(
-        isAllowed: Boolean
-    ) {
+    private fun changeAllowToInput(isAllowed: Boolean) {
         state = state.copy(isInputVisibility = isAllowed, isWaitingForResponse = !isAllowed)
     }
 
@@ -77,8 +75,8 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun sendMessage(message: String = state.inputMessage) {
-
         resetInput()
+        state = state.copy(isViewFollowUpQuestion = false)
         historyChats = historyChats.copy(
             messages = historyChats.messages
                     + Message(
@@ -171,7 +169,9 @@ class ChatViewModel @Inject constructor(
 
     private fun loadHistory() {
         viewModelScope.launch {
+            state = state.copy(isLoading = true)
             if (state.isErrorOccurred) {
+                state = state.copy(isErrorOccurred = false)
                 return@launch
             }
             state = state.copy(isLoading = true)
@@ -179,6 +179,7 @@ class ChatViewModel @Inject constructor(
                 when (val result = chatRepository.loadHistoryChat(state.conversationId)) {
                     is ApiResult.Success -> {
                         historyChats = result.response!!
+                        state = state.copy(isLoading = false)
                     }
                     is ApiResult.Error -> {
                         state = state.copy(isErrorOccurred = true)
@@ -193,6 +194,7 @@ class ChatViewModel @Inject constructor(
                                 )
                             )
                         )
+                        state = state.copy(isLoading = false)
                     }
                     is ApiResult.UnknownError -> {
                         state = state.copy(isErrorOccurred = true)
@@ -206,13 +208,13 @@ class ChatViewModel @Inject constructor(
                                 )
                             )
                         )
+                        state = state.copy(isLoading = false)
                     }
                     else -> {
                         // Do nothing
                     }
                 }
             }
-            state = state.copy(isLoading = false)
         }
     }
 
