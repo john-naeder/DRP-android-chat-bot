@@ -1,16 +1,12 @@
 package com.mdev.chatapp.ui.main
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mdev.chatapp.domain.user_entry.app_entry.AppEntryUserCase
-import com.mdev.chatapp.ui.ThemeSetting
 import com.mdev.chatapp.ui.navgraph.Route
 import com.mdev.chatapp.util.Constants
 import com.mdev.chatapp.util.DataStoreHelper
