@@ -51,5 +51,5 @@
 |     ![](showcase/Profile_dark.png)   |       ![](showcase/History_dark.png)      |        ![](showcase/ChatDark.png)       |
     
 
-**[More detail preview here](https://github.com/JohnHooin/DRP-android-chat-bot/tree/main/showcase)
+**[More detail preview here](https://github.com/JohnHooin/DRP-android-chat-bot/tree/main/showcase)**
 
