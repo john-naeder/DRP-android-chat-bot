@@ -1,7 +1,7 @@
 # DRP CHAT BOT 
 
 ## Introduction
-**An approach to providing a personalized list of suitable dishes for each individual through a friendly.**
+**An approach to providing a personalized list of suitable dishes for each individual through a friendly way.**
 
 ## Architect and utility
 ### Architect
