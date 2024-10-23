@@ -1,7 +1,9 @@
 # DRP CHAT BOT 
 
 ## Introduction
-**An approach to providing a personalized list of suitable dishes for each individual through a friendly way.**
+
+**An approach to providing a personalized list of suitable dishes for each individual through a friendly way**
+*(Super poor and basic one)*.
 
 ## Architect and utility
 ### Architect
@@ -35,6 +37,11 @@
 - Multilingual support Vietnamese - English
 - Dark / Light theme support
 - Voice recorgnize chat
+
+### API 
+
+This project is just the client side. 
+You can find the server side and api [here](https://github.com/KyoTranKMA/DRP-Chat-Bot-RestAPI)
 
 ## Preview 
 |            Profile Screen            |                Home Screen                |                Chat Screen                |
