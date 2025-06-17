@@ -20,7 +20,7 @@
 - Coil - Lottie
 - Youtube player
 
-**Back end** 
+** API Consume ** 
 - Retrofit
 - Moshi 
 - Dager - Hilt
